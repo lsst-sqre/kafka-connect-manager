@@ -1,10 +1,30 @@
-# -*- coding: utf-8 -*-
+# This file is part of cp-kafka-connect-manager.
+#
+# Developed for the LSST Data Management System.
+# This product includes software developed by the LSST Project
+# (https://www.lsst.org).
+# See the COPYRIGHT file at the top-level directory of this distribution
+# for details of code ownership.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """Main commands for connect-manager.
    See also https://docs.confluent.io/current/connect/references/restapi.html
 """
 
-__all__ = ('main',)
+__all__ = ('main', 'create', 'delete', 'restart', 'pause', 'resume', 'list',
+           'status', 'info', 'help')
 
 import click
 from click import ClickException
@@ -60,7 +80,7 @@ def create(ctx):
 @main.command('delete')
 @click.argument('connector')
 @click.pass_context
-def delete_connector(ctx, connector):
+def delete(ctx, connector):
     """Delete a connector.
 
     Halt all tasks and delete the connector configuration.
@@ -88,7 +108,7 @@ def delete_connector(ctx, connector):
 @main.command('restart')
 @click.argument('connector')
 @click.pass_context
-def restart_connector(ctx, connector):
+def restart(ctx, connector):
     """Restart a connector and its tasks.
     """
     host = get_connector_url(ctx.parent)
@@ -114,7 +134,7 @@ def restart_connector(ctx, connector):
 @main.command('pause')
 @click.argument('connector')
 @click.pass_context
-def pause_connector(ctx, connector):
+def pause(ctx, connector):
     """Pause the connector and its tasks.
 
     Stops message processing until the connector is resumed.
@@ -137,7 +157,7 @@ def pause_connector(ctx, connector):
 @main.command('resume')
 @click.argument('connector')
 @click.pass_context
-def resume_connector(ctx, connector):
+def resume(ctx, connector):
     """Resume a paused connector.
     """
     host = get_connector_url(ctx.parent)
@@ -157,7 +177,7 @@ def resume_connector(ctx, connector):
 
 @main.command('list')
 @click.pass_context
-def list_connectors(ctx):
+def list(ctx):
     """Get a list of active connectors.
     """
     host = get_connector_url(ctx.parent)
@@ -177,7 +197,7 @@ def list_connectors(ctx):
 @main.command('status')
 @click.argument('connector')
 @click.pass_context
-def get_connector_status(ctx, connector):
+def status(ctx, connector):
     """Get current status of the connector.
 
     Whether it is running, failed or paused, which worker it is assigned to,
@@ -202,7 +222,7 @@ def get_connector_status(ctx, connector):
 @main.command('info')
 @click.argument('connector')
 @click.pass_context
-def get_connector_info(ctx, connector):
+def info(ctx, connector):
     """Get information about the connector.
     """
     host = get_connector_url(ctx.parent)
