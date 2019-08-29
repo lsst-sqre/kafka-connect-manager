@@ -22,9 +22,15 @@
 """Helpers for command-line tools.
 """
 
-__all__ = ('get_broker_url', 'get_connector_url')
+__all__ = ('get_broker_url', 'get_kafka_connect_url', 'get_existing_topics',
+           'update_connector', 'get_connector_status')
+
+import requests
+import json
 
 from click import ClickException
+import confluent_kafka
+from confluent_kafka.admin import AdminClient
 
 
 def get_broker_url(ctx):
@@ -43,7 +49,7 @@ def get_broker_url(ctx):
     return broker_url
 
 
-def get_connector_url(ctx):
+def get_kafka_connect_url(ctx):
     """Get the Confluent Kafka Connect connection string from the context, or
     print an error message otherwise.
     """
@@ -57,3 +63,53 @@ def get_connector_url(ctx):
         )
         raise ClickException(message)
     return kafka_connect_url
+
+
+def get_existing_topics(broker_url):
+
+    broker_client = AdminClient({
+        "bootstrap.servers": broker_url
+    })
+    existing_topics = []
+    try:
+        metadata = broker_client.list_topics(timeout=10)
+        existing_topics = set(metadata.topics.keys())
+    except confluent_kafka.KafkaException as err:
+        message = err.args[0].str()
+        raise ClickException(message)
+
+    return existing_topics
+
+
+def update_connector(kafka_connect_url, connector, config):
+    """Update a connector configuration.
+    """
+    uri = f'{kafka_connect_url}/connectors/{connector}/config'
+    headers = {'Content-Type': 'application/json'}
+
+    try:
+        r = requests.put(uri, data=json.dumps(config), headers=headers)
+        r.raise_for_status()
+        print(json.dumps(r.json(), indent=4, sort_keys=True))
+    except requests.exceptions.ConnectionError:
+        message = (f'Failed to establish connection with {kafka_connect_url}.')
+        raise ClickException(message)
+
+
+def get_connector_status(kafka_connect_url, connector):
+    """
+    """
+    uri = f'{kafka_connect_url}/connectors/{connector}/status'
+    try:
+        r = requests.get(uri)
+        r.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        if err.response.status_code == 404:
+            message = (f'Connector {connector} not found.')
+            raise ClickException(message)
+    except requests.exceptions.ConnectionError:
+        message = (f'Failed to establish connection with {kafka_connect_url}.')
+        raise ClickException(message)
+
+    status = json.dumps(r.json(), indent=4, sort_keys=True)
+    return status

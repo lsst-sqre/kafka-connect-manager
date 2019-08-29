@@ -13,7 +13,8 @@ with open('HISTORY.rst') as history_file:
 
 requirements = ['click==7.0',
                 'bumpversion==0.5.3',
-                'requests==2.22.0']
+                'requests==2.22.0',
+                'confluent-kafka==1.1.0']
 
 setup_requirements = ['pytest-runner', ]
 

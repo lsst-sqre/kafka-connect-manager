@@ -19,21 +19,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Manage the InfluxDB Sink connector.
+"""Manage the Landoop InfluxDB Sink connector.
+https://docs.lenses.io/connectors/sink/influx.html
 """
 
-__all__ = ('create_influxdb_sink',)
+__all__ = ('create_influxdb_sink', 'make_connector_queries',
+           'make_influxdb_sink_config',)
 
 import click
+import json
+import time
+
+from .utils import (get_broker_url, get_kafka_connect_url,
+                    update_connector, get_existing_topics,
+                    get_connector_status)
 
 
 @click.command('influxdb-sink')
-@click.argument('topics', nargs=-1, required=True)
+@click.argument('topics', nargs=-1, required=False)
 @click.option(
-    '--influxdb', 'influxdb', envvar='INFLUXDB', required=False,
+    '--influxdb_url', 'influxdb_url', envvar='INFLUXDB', required=False,
     nargs=1, default='https://localhost:8086',
     show_default=True,
-    help='InfluxDB URL. Alternatively set via $INFLUXDB env var.'
+    help='InfluxDB connection URL. Alternatively set via $INFLUXDB env var.'
 )
 @click.option(
     '--database', '-d', default=None, required=True,
@@ -45,8 +53,8 @@ import click
 )
 @click.option(
     '--username', '-u', envvar='INFLUXDB_USER', default='-',
-    help='InfluxDB username. Alternatively set via $INFLUXDB_USER env var. Use'
-         ' \'-\' for unauthenticated users.'
+    help=('InfluxDB username. Alternatively set via $INFLUXDB_USER env var.'
+          'Use \'-\' for unauthenticated users.')
 )
 @click.option(
     '--password', '-p', envvar='INFLUXDB_PASSWORD', default=None,
@@ -54,20 +62,118 @@ import click
 )
 @click.option(
     '--dry-run', is_flag=True,
-    help='Show the InfluxDB Sink Connector configuration but does not create '
-         'the connector.'
-)
-@click.option(
-    '--daemon', is_flag=True,
-    help='Run in daemon mode monitoring the connector status.'
+    help=('Show the InfluxDB Sink Connector configuration but does not create '
+          'the connector.')
 )
 @click.option(
     '--auto-update', is_flag=True,
-    help='Check for new Kafka topics and updates the connector configuration.'
+    help=('Check for new Kafka topics and updates the connector configuration.'
+          '--auto-update does not take effect if --dry-run is used.')
 )
 @click.pass_context
-def create_influxdb_sink(ctx, topics, influxdb, database, tasks,
-                         username, password, dry_run, daemon):
+def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
+                         username, password, dry_run, auto_update):
     """Landoop InfluxDB Sink connector.
+
+    Create connector configuration for a list of TOPICS. If TOPICS is not
+    provided, they are discovered from Kafka.
     """
+    broker_url = get_broker_url(ctx.parent.parent)
+    if topics == ():
+        click.echo("Discoverying Kafka topics...")
+        topics = get_existing_topics(broker_url)
+
+    config = make_influxdb_sink_config(topics, influxdb_url, database,
+                                       tasks, username, password)
+
+    if dry_run:
+        click.echo(json.dumps(config, indent=4, sort_keys=True))
+        return 0
+
+    kafka_connect_url = get_kafka_connect_url(ctx.parent.parent)
+
+    click.echo("Creating the connector...")
+    update_connector(kafka_connect_url, 'influxdb-sink', config)
+
+    if auto_update:
+        while True:
+            status = get_connector_status(kafka_connect_url, 'influxdb-sink')
+            click.echo(status)
+            time.sleep(60)
+            try:
+                current_topics = get_existing_topics(broker_url)
+                # topics in current_topics but not in topics
+                new_topics = list(set(current_topics) - set(topics))
+                if new_topics:
+                    click.echo('Found new topics, updating the connector...')
+                    config = make_influxdb_sink_config(current_topics,
+                                                       influxdb_url,
+                                                       database,
+                                                       tasks,
+                                                       username,
+                                                       password)
+                    update_connector(kafka_connect_url, 'influxdb-sink',
+                                     config)
+            except KeyboardInterrupt:
+                raise click.ClickException('Interruped.')
     return 0
+
+
+def make_connector_queries(topics, time_field=None):
+    """Make the kafka connector queries. It assumes that the topic structure
+    is flat  (`SELECT * FROM`).
+    Parameters
+    ----------
+    topics : `list`
+        List of kafka topics.
+    time_field : `str`
+        Uses an existing field or the system time as the InfluxDB timestamp.
+    """
+    query_template = 'INSERT INTO {} SELECT * FROM {} WITHTIMESTAMP sys_time()'
+
+    if time_field:
+        query_template = ('INSERT INTO {} SELECT * FROM {} WITHTIMESTAMP '
+                          '{timestamp_field}')
+
+    queries = [query_template.format(topic, topic) for topic in topics]
+
+    return ";".join(queries)
+
+
+def make_influxdb_sink_config(topics, influxdb_url, database, tasks,
+                              username, password):
+    """Make InfluxDB Sink connector configuration.
+    Parameters
+    ----------
+    topics : `list`
+        List of Kafka topics to add to the connector.
+    influxdb_url : `str`
+        InfluxDB connection URL.
+    database : `str`
+        InfluxDB database name.
+    tasks : `int`
+        Number of Kafka connect tasks.
+    username : `str`
+        InfluxDB username.
+    password : `str`
+        InfluxDB password.
+    """
+    config = {}
+    config['connector.class'] = 'com.datamountaineer.streamreactor.'\
+                                'connect.influx.InfluxSinkConnector'
+    config['task.max'] = tasks
+    # Ensure uniqueness and sort
+    topics = list(set(topics))
+    topics.sort()
+    config['topics'] = ','.join(topics)
+    config['connect.influx.url'] = influxdb_url
+    config['connect.influx.db'] = database
+
+    queries = make_connector_queries(topics)
+    config['connect.influx.kcql'] = queries
+    config['connect.influx.username'] = username
+
+    if password:
+        config['connect.influx.password'] = password
+
+    return config

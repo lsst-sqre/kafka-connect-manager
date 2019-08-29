@@ -34,7 +34,7 @@ import requests
 import json
 
 from .influxdb_sink import create_influxdb_sink
-from .utils import get_connector_url
+from .utils import get_kafka_connect_url, get_connector_status
 
 
 # Add -h as a help shortcut option
@@ -85,8 +85,8 @@ def delete(ctx, connector):
 
     Halt all tasks and delete the connector configuration.
     """
-    host = get_connector_url(ctx.parent)
-    uri = f'{host}/connectors/{connector}'
+    kafka_connect_url = get_kafka_connect_url(ctx.parent)
+    uri = f'{kafka_connect_url}/connectors/{connector}'
 
     try:
         r = requests.delete(uri)
@@ -101,7 +101,7 @@ def delete(ctx, connector):
                        'in process.')
             raise ClickException(message)
     except requests.exceptions.ConnectionError:
-        message = (f'Failed to establish connection with {host}.')
+        message = (f'Failed to establish connection with {kafka_connect_url}.')
         raise ClickException(message)
 
 
@@ -111,8 +111,8 @@ def delete(ctx, connector):
 def restart(ctx, connector):
     """Restart a connector and its tasks.
     """
-    host = get_connector_url(ctx.parent)
-    uri = f'{host}/connectors/{connector}/restart'
+    kafka_connect_url = get_kafka_connect_url(ctx.parent)
+    uri = f'{kafka_connect_url}/connectors/{connector}/restart'
 
     try:
         r = requests.post(uri)
@@ -127,7 +127,7 @@ def restart(ctx, connector):
                        'in process.')
             raise ClickException(message)
     except requests.exceptions.ConnectionError:
-        message = (f'Failed to establish connection with {host}.')
+        message = (f'Failed to establish connection with {kafka_connect_url}.')
         raise ClickException(message)
 
 
@@ -139,8 +139,8 @@ def pause(ctx, connector):
 
     Stops message processing until the connector is resumed.
     """
-    host = get_connector_url(ctx.parent)
-    uri = f'{host}/connectors/{connector}/pause'
+    kafka_connect_url = get_kafka_connect_url(ctx.parent)
+    uri = f'{kafka_connect_url}/connectors/{connector}/pause'
 
     try:
         r = requests.put(uri)
@@ -150,7 +150,7 @@ def pause(ctx, connector):
             message = (f'Connector {connector} not found.')
             raise ClickException(message)
     except requests.exceptions.ConnectionError:
-        message = (f'Failed to establish connection with {host}.')
+        message = (f'Failed to establish connection with {kafka_connect_url}.')
         raise ClickException(message)
 
 
@@ -160,8 +160,8 @@ def pause(ctx, connector):
 def resume(ctx, connector):
     """Resume a paused connector.
     """
-    host = get_connector_url(ctx.parent)
-    uri = f'{host}/connectors/{connector}/resume'
+    kafka_connect_url = get_kafka_connect_url(ctx.parent)
+    uri = f'{kafka_connect_url}/connectors/{connector}/resume'
 
     try:
         r = requests.put(uri)
@@ -171,7 +171,7 @@ def resume(ctx, connector):
             message = (f'Connector {connector} not found.')
             raise ClickException(message)
     except requests.exceptions.ConnectionError:
-        message = (f'Failed to establish connection with {host}.')
+        message = (f'Failed to establish connection with {kafka_connect_url}.')
         raise ClickException(message)
 
 
@@ -180,14 +180,14 @@ def resume(ctx, connector):
 def list(ctx):
     """Get a list of active connectors.
     """
-    host = get_connector_url(ctx.parent)
-    uri = f'{host}/connectors'
+    kafka_connect_url = get_kafka_connect_url(ctx.parent)
+    uri = f'{kafka_connect_url}/connectors'
 
     try:
         r = requests.get(uri)
         r.raise_for_status()
     except requests.exceptions.ConnectionError:
-        message = (f'Failed to establish connection with {host}.')
+        message = (f'Failed to establish connection with {kafka_connect_url}.')
         raise ClickException(message)
 
     for connector in r.json():
@@ -203,20 +203,9 @@ def status(ctx, connector):
     Whether it is running, failed or paused, which worker it is assigned to,
     error information if it has failed, and the state of all its tasks.
     """
-    host = get_connector_url(ctx.parent)
-    uri = f'{host}/connectors/{connector}/status'
-
-    try:
-        r = requests.get(uri)
-        r.raise_for_status()
-        click.echo(json.dumps(r.json(), indent=4, sort_keys=True))
-    except requests.exceptions.HTTPError as err:
-        if err.response.status_code == 404:
-            message = (f'Connector {connector} not found.')
-            raise ClickException(message)
-    except requests.exceptions.ConnectionError:
-        message = (f'Failed to establish connection with {host}.')
-        raise ClickException(message)
+    kafka_connect_url = get_kafka_connect_url(ctx.parent)
+    status = get_connector_status(kafka_connect_url, connector)
+    click.echo(status)
 
 
 @main.command('info')
@@ -225,8 +214,8 @@ def status(ctx, connector):
 def info(ctx, connector):
     """Get information about the connector.
     """
-    host = get_connector_url(ctx.parent)
-    uri = f'{host}/connectors/{connector}'
+    kafka_connect_url = get_kafka_connect_url(ctx.parent)
+    uri = f'{kafka_connect_url}/connectors/{connector}'
     r = requests.get(uri)
 
     try:
@@ -237,7 +226,7 @@ def info(ctx, connector):
             message = (f'Connector {connector} not found.')
             raise ClickException(message)
     except requests.exceptions.ConnectionError:
-        message = (f'Failed to establish connection with {host}.')
+        message = (f'Failed to establish connection with {kafka_connect_url}.')
         raise ClickException(message)
 
 
