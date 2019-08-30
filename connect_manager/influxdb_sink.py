@@ -70,9 +70,15 @@ from .utils import (get_broker_url, get_kafka_connect_url,
     help=('Check for new Kafka topics and updates the connector configuration.'
           '--auto-update does not take effect if --dry-run is used.')
 )
+@click.option(
+    '--check-interval', 'check_interval', default=15,
+    help=('Time interval in seconds to check for new topics and update the '
+          'connector.')
+)
 @click.pass_context
 def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
-                         username, password, dry_run, auto_update):
+                         username, password, dry_run, auto_update,
+                         check_interval):
     """Landoop InfluxDB Sink connector.
 
     Create connector configuration for a list of TOPICS. If TOPICS is not
@@ -99,7 +105,7 @@ def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
         while True:
             status = get_connector_status(kafka_connect_url, 'influxdb-sink')
             click.echo(status)
-            time.sleep(60)
+            time.sleep(check_interval)
             try:
                 current_topics = get_existing_topics(broker_url)
                 # topics in current_topics but not in topics
