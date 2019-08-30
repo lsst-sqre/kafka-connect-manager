@@ -29,13 +29,16 @@ __all__ = ('create_influxdb_sink', 'make_connector_queries',
 import click
 import json
 import time
+import re
 
 from .utils import (get_broker_url, get_kafka_connect_url,
                     update_connector, get_existing_topics,
                     get_connector_status)
 
+CONNECTOR = 'influxdb-sink'
 
-@click.command('influxdb-sink')
+
+@click.command(CONNECTOR)
 @click.argument('topics', nargs=-1, required=False)
 @click.option(
     '--influxdb_url', 'influxdb_url', envvar='INFLUXDB', required=False,
@@ -61,6 +64,10 @@ from .utils import (get_broker_url, get_kafka_connect_url,
     help='InfluxDB password. Alternatively set via $INFLUXDB_PASSWORD env var.'
 )
 @click.option(
+    '--filter', '-f', 'filter_regex',
+    help='Regex for selecting topics.'
+)
+@click.option(
     '--dry-run', is_flag=True,
     help=('Show the InfluxDB Sink Connector configuration but does not create '
           'the connector.')
@@ -77,8 +84,8 @@ from .utils import (get_broker_url, get_kafka_connect_url,
 )
 @click.pass_context
 def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
-                         username, password, dry_run, auto_update,
-                         check_interval):
+                         username, password, filter_regex, dry_run,
+                         auto_update, check_interval):
     """Landoop InfluxDB Sink connector.
 
     Create connector configuration for a list of TOPICS. If TOPICS is not
@@ -88,6 +95,10 @@ def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
     if topics == ():
         click.echo("Discoverying Kafka topics...")
         topics = get_existing_topics(broker_url)
+
+    if filter_regex:
+        pattern = re.compile(filter_regex)
+        topics = [t for t in topics if pattern.match(t)]
 
     config = make_influxdb_sink_config(topics, influxdb_url, database,
                                        tasks, username, password)
@@ -99,15 +110,20 @@ def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
     kafka_connect_url = get_kafka_connect_url(ctx.parent.parent)
 
     click.echo("Creating the connector...")
-    update_connector(kafka_connect_url, 'influxdb-sink', config)
-
+    update_connector(kafka_connect_url, CONNECTOR, config)
+    status = get_connector_status(kafka_connect_url, CONNECTOR)
+    click.echo(status)
     if auto_update:
         while True:
-            status = get_connector_status(kafka_connect_url, 'influxdb-sink')
-            click.echo(status)
             time.sleep(check_interval)
             try:
                 current_topics = get_existing_topics(broker_url)
+                # apply the same filter here
+                if filter_regex:
+                    pattern = re.compile(filter_regex)
+                    current_topics = [t for t in current_topics
+                                      if pattern.match(t)]
+
                 # topics in current_topics but not in topics
                 new_topics = list(set(current_topics) - set(topics))
                 if new_topics:
@@ -118,8 +134,12 @@ def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
                                                        tasks,
                                                        username,
                                                        password)
-                    update_connector(kafka_connect_url, 'influxdb-sink',
+                    update_connector(kafka_connect_url, CONNECTOR,
                                      config)
+                    status = get_connector_status(kafka_connect_url,
+                                                  CONNECTOR)
+                    click.echo(status)
+                    topics = current_topics
             except KeyboardInterrupt:
                 raise click.ClickException('Interruped.')
     return 0
