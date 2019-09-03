@@ -36,6 +36,11 @@ from confluent_kafka.admin import AdminClient
 def get_broker_url(ctx):
     """Get the broker connection string from the context, or print an error
     message otherwise.
+
+    Parameters
+    ==========
+    ctx: `obj`
+        Click context object.
     """
     try:
         broker_url = ctx.obj['broker_url']
@@ -52,6 +57,11 @@ def get_broker_url(ctx):
 def get_kafka_connect_url(ctx):
     """Get the Confluent Kafka Connect connection string from the context, or
     print an error message otherwise.
+
+    Parameters
+    ==========
+    ctx : `obj`
+        Click context object.
     """
     try:
         kafka_connect_url = ctx.obj['kafka_connect_url']
@@ -66,6 +76,13 @@ def get_kafka_connect_url(ctx):
 
 
 def get_existing_topics(broker_url):
+    """Get existing topics from Kafka.
+
+    Parameters
+    ==========
+    broker_url : `str`
+        Kafka broker URL.
+    """
 
     broker_client = AdminClient({
         "bootstrap.servers": broker_url
@@ -83,6 +100,15 @@ def get_existing_topics(broker_url):
 
 def update_connector(kafka_connect_url, connector, config):
     """Update a connector configuration.
+
+    Parameters
+    ==========
+    kafka_connect_url : `str`
+        Kafka connect URL.
+    connector : `str`
+        Connector name.
+    config : `json document`
+        Connector configuration.
     """
     uri = f'{kafka_connect_url}/connectors/{connector}/config'
     headers = {'Content-Type': 'application/json'}

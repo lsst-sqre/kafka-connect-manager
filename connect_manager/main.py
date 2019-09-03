@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Main commands for connect-manager.
+"""Main commands for connect_manager.
    See also https://docs.confluent.io/current/connect/references/restapi.html
 """
 
@@ -58,8 +58,9 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.version_option(message='%(version)s')
 @click.pass_context
 def main(ctx, broker_url, kafka_connect_url):
-    """connect_manager is a command line client for the Confluent Kafka Connect
-    REST API, it makes it easy to manage connectors.
+    """connect_manager is a CLI for the `Confluent Kafka Connect REST API
+    <https://docs.confluent.io/current/connect/references/restapi.html>`_,
+    it makes it easy to manage connectors.
     """
     # Subcommands should use the click.pass_obj decorator to get this
     # ctx object as the first argument.
@@ -73,7 +74,8 @@ def main(ctx, broker_url, kafka_connect_url):
 @main.group()
 @click.pass_context
 def create(ctx):
-    """Create a new connector. Each subcommand manages a different connector.
+    """Create a new connector. Each creare subcommand manages a different
+    connector.
     """
 
 
@@ -136,8 +138,6 @@ def restart(ctx, connector):
 @click.pass_context
 def pause(ctx, connector):
     """Pause the connector and its tasks.
-
-    Stops message processing until the connector is resumed.
     """
     kafka_connect_url = get_kafka_connect_url(ctx.parent)
     uri = f'{kafka_connect_url}/connectors/{connector}/pause'

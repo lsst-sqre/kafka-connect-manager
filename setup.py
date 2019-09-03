@@ -11,10 +11,13 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['click==7.0',
+requirements = ['click>=6.7,<7.0',
                 'bumpversion==0.5.3',
                 'requests==2.22.0',
-                'confluent-kafka==1.1.0']
+                'confluent-kafka==1.1.0',
+                'documenteer[pipelines]>=0.5.0,<0.6.0',
+                'sphinx==1.7.0',
+                'sphinx-click==2.2.0']
 
 setup_requirements = ['pytest-runner', ]
 

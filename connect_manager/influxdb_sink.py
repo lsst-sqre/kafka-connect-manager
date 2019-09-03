@@ -86,10 +86,11 @@ CONNECTOR = 'influxdb-sink'
 def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
                          username, password, filter_regex, dry_run,
                          auto_update, check_interval):
-    """Landoop InfluxDB Sink connector.
+    """The `Landoop InfluxDB Sink connector
+    <https://docs.lenses.io/connectors/sink/influx.html>`_.
 
-    Create connector configuration for a list of TOPICS. If TOPICS is not
-    provided, they are discovered from Kafka.
+    Create connector configuration from a list of TOPICS. If not
+    provided, TOPICS are discovered from Kafka.
     """
     broker_url = get_broker_url(ctx.parent.parent)
     if topics == ():
@@ -148,6 +149,7 @@ def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
 def make_connector_queries(topics, time_field=None):
     """Make the kafka connector queries. It assumes that the topic structure
     is flat  (`SELECT * FROM`).
+
     Parameters
     ----------
     topics : `list`
@@ -169,6 +171,7 @@ def make_connector_queries(topics, time_field=None):
 def make_influxdb_sink_config(topics, influxdb_url, database, tasks,
                               username, password):
     """Make InfluxDB Sink connector configuration.
+
     Parameters
     ----------
     topics : `list`
