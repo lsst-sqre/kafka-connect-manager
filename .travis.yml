@@ -1,0 +1,21 @@
+sudo: false
+dist: xenial
+language: python
+matrix:
+  include:
+    # Use the Python 3.7 build for PyPI deployments and doc uploads
+    - python: "3.7"
+      env: LTD_SKIP_UPLOAD=false
+install:
+  - "pip install ."
+  - "pip install ltd-conveyor==0.5.0a1"
+script:
+  - "python setup.py test"
+  - "cd docs && make html && cd ../"
+after_success:
+  - 'ltd upload --product kafka-connect-manager --travis --dir docs/_build/html'
+env:
+  global:
+    - LTD_SKIP_UPLOAD=true  # disable doc uploads by default
+    # LSST the Docs credentials
+    - secure: "ckQRzpqPi72cdGXqXRaJ+rEXWsXoEBrQ3c0e/N3LhhTUi1FrtqZLRhg4QBDj555luzSaALhCbOwpKtunuSxrJIPwTilV7n//mLnxPay5Lgf0wXmPNH10uzRGkg5V/JFi0hLp5+oXB6pJGpENpeS6ZGd6pFafMemEXwAxwr66mPg5h1wBD2QBByakrvn+rc4jo6t7SxdaawPcYPU/n1qSRSXmcwNGXYQUM89xfMXPTO0pDzNBIgEpXSuO+4AaxET2Zqt+UvVpNzKTpEIK/5ztknw+0syXfRIT0FKH1U2reSmIjKPMINj6qH6ECWvHO5jRtIaFy52dcg4LW/W6HgXFMK4Ik3UOEjjZNxJbZcVPFBnYc4pAehqcz9pXVyrc4ppCrMmuPQ0L6uJT93e2Yg9EYrLnxGslnw5vWqOfSsfmxwugbkB21JAmifTOz3rpeXcIhpM8N/BTU/Xu+oaIIcshbaZZ94VYqHcBdNBRNKBi0PL/RGUiHmNQEVM+EWXBbHCwTWML/D0JuSjwRKrYMBJSIiFJ9a/bm52wPGLvH6GQXMEOyWXMTbRpuoZ3Mpzl9ASFDa+bf2wf+97kbrG2606WKF8iwCm5mPo/O2aTPeH+j7HlqGAXmTN/Hm1Q2ke9AEJdmXoCW/egpFmsIx8Oe/jVQs1LUEW0Xx1uV7dRzP90v1c="
