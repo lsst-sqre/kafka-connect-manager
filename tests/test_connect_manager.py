@@ -1,4 +1,4 @@
-# This file is part of cp-kafka-connect-manager.
+# This file is part of kafka-connect-manager.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -20,7 +20,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""Tests for `cp-kafka-connect-manager` package.
+"""Tests for `kafka-connect-manager` package.
 """
 
 import pytest

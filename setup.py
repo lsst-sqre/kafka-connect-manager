@@ -24,7 +24,7 @@ test_requirements = ['flake8==3.6.0',
 
 setup(
 
-    name='cp-kafka-connect-manager',
+    name='kafka-connect-manager',
     description="Python client for managing Confluent Kafka connectors",
     author="Angelo Fausti",
     author_email='afausti@lsst.org',
@@ -48,7 +48,7 @@ setup(
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/lsst-sqre/cp-kafka-connect-manager',
+    url='https://github.com/lsst-sqre/kafka-connect-manager',
     version='0.1.0',
     entry_points={
         'console_scripts': ['connect_manager = connect_manager.main:main']

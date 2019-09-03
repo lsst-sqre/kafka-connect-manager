@@ -1,4 +1,4 @@
-# This file is part of cp-kafka-connect-manager.
+# This file is part of kafka-connect-manager.
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Top-level package for cp-kafka-connect-manager.
+"""Top-level package for kafka-connect-manager.
 """
 
 __author__ = """Angelo Fausti"""

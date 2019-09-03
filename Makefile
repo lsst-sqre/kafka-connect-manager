@@ -22,10 +22,10 @@ install:
 
 docker: install
 	python setup.py sdist
-	docker build --build-arg VERSION=$(VERSION) -t lsstsqre/cp-kafka-connect-manager:build .
+	docker build --build-arg VERSION=$(VERSION) -t lsstsqre/kafka-connect-manager:build .
 
 travis-docker-deploy:
-	./bin/travis-docker-deploy.bash lsstsqre/cp-kafka-connect-manager build
+	./bin/travis-docker-deploy.bash lsstsqre/kafka-connect-manager build
 
 version:
 	connect_manager --version

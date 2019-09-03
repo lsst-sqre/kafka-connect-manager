@@ -11,7 +11,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/lsst-sqre/cp-kafka-connect-manager/issues.
+Report bugs at https://github.com/lsst-sqre/kafka-connect-manager/issues.
 
 If you are reporting a bug, please include:
 
@@ -34,12 +34,12 @@ and "help wanted" is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-Whether as part of  https://cp-kafka-connect-manager.lsst.io docs or docstrings.
+Whether as part of  https://kafka-connect-manager.lsst.io docs or docstrings.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/lsst-sqre/cp-kafka-connect-manager/issues.
+The best way to send feedback is to file an issue at https://github.com/lsst-sqre/kafka-connect-manager/issues.
 
 If you are proposing a feature:
 
@@ -51,20 +51,20 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `cp-kafka-connect-manager` for local development.
+Ready to contribute? Here's how to set up `kafka-connect-manager` for local development.
 
-1. Fork the `cp-kafka-connect-manager` repo on GitHub.
+1. Fork the `kafka-connect-manager` repo on GitHub.
 2. Clone your fork locally::
 
 .. code-block:: bash
 
-  $ git clone https://github.com/lsst-sqre/cp-kafka-connect-manager.git
+  $ git clone https://github.com/lsst-sqre/kafka-connect-manager.git
 
 3. Install your local copy into a virtualenv.
 
 .. code-block:: bash
 
-  $ cd cp-kafka-connect-manager
+  $ cd kafka-connect-manager
   $ virtualenv venv --python python3
   $ source venv/bin/activate
   $ python setup.py develop
@@ -104,7 +104,7 @@ Before you submit a pull request, check that it meets these guidelines:
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
 3. The pull request should work for Python 3 and for PyPy. Check
-   https://travis-ci.org/lsst-sqre/cp-kafka-connect-manager/pull_requests
+   https://travis-ci.org/lsst-sqre/kafka-connect-manager/pull_requests
    and make sure that the tests pass.
 
 
