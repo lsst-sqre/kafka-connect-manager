@@ -4,35 +4,34 @@ services: docker
 language: python
 matrix:
   include:
-    - python: "3.7"
-      env: LTD_SKIP_UPLOAD=false DEPLOY_DOCKER_IMAGE=true PYPI_DEPLOY=true
+  - python: '3.7'
+    env: LTD_SKIP_UPLOAD=false DEPLOY_DOCKER_IMAGE=true PYPI_DEPLOY=true
 install:
-  - "pip install ."
-  - "pip install ltd-conveyor==0.5.0a1"
+- pip install .
+- pip install ltd-conveyor==0.5.0a1
 script:
-  - "python setup.py test"
-  - "cd docs && make html && cd ../"
-  - make image
+- python setup.py test
+- cd docs && make html && cd ../
+- make docker
 after_success:
-  - 'ltd upload --product kafka-connect-manager --travis --dir docs/_build/html'
-  - make tavis-docker-deploy
+- ltd upload --product kafka-connect-manager --travis --dir docs/_build/html
+- make travis-docker-deploy
 env:
   global:
-    - DEPLOY_DOCKER_IMAGE=false  # disable docker push in regular test matrix
-    - LTD_SKIP_UPLOAD=true  # disable doc uploads by default
-    # LSST the Docs credentials
-    - secure: "ckQRzpqPi72cdGXqXRaJ+rEXWsXoEBrQ3c0e/N3LhhTUi1FrtqZLRhg4QBDj555luzSaALhCbOwpKtunuSxrJIPwTilV7n//mLnxPay5Lgf0wXmPNH10uzRGkg5V/JFi0hLp5+oXB6pJGpENpeS6ZGd6pFafMemEXwAxwr66mPg5h1wBD2QBByakrvn+rc4jo6t7SxdaawPcYPU/n1qSRSXmcwNGXYQUM89xfMXPTO0pDzNBIgEpXSuO+4AaxET2Zqt+UvVpNzKTpEIK/5ztknw+0syXfRIT0FKH1U2reSmIjKPMINj6qH6ECWvHO5jRtIaFy52dcg4LW/W6HgXFMK4Ik3UOEjjZNxJbZcVPFBnYc4pAehqcz9pXVyrc4ppCrMmuPQ0L6uJT93e2Yg9EYrLnxGslnw5vWqOfSsfmxwugbkB21JAmifTOz3rpeXcIhpM8N/BTU/Xu+oaIIcshbaZZ94VYqHcBdNBRNKBi0PL/RGUiHmNQEVM+EWXBbHCwTWML/D0JuSjwRKrYMBJSIiFJ9a/bm52wPGLvH6GQXMEOyWXMTbRpuoZ3Mpzl9ASFDa+bf2wf+97kbrG2606WKF8iwCm5mPo/O2aTPeH+j7HlqGAXmTN/Hm1Q2ke9AEJdmXoCW/egpFmsIx8Oe/jVQs1LUEW0Xx1uV7dRzP90v1c="
-    # DockerHub credentials
-    - secure: "QZbCJnFpccWT6jsE9G2bI/JBkBJzMbISaKesUSCNcUfN7MofxKAoMGAsfGzax2/oDaqth81hSd4uQEDFLZNyJGh77em/ZZ/mLZthi+C++0pkOVmMrCNA13sLO4bJCzoQTnydA5VdAOJ3SOcD+nhvb+X5c6k/fOOo2FXl4EQ3nXRDG8MP8HxnIuaZZhBLuJ98BLCKf5NmHR2wC/b3XfBYzPi9RajtOc+lCEvAvCiNMJCsvA+z9me/LNyme4himebssz8aU4YbfBh64kd9wXyUu8B+Ag7RlrGbb9ZY6NP9GnVBmHkIjsoJ9oMru3O+w1WD07nRw/AR4dwXSIN2cGIU1kEokVLaJ+nxBbnM1y7SgQV4zwKQUD70T3WsFmA/nnrTKX+C/Eypil/mFY8apaJcdkwRdPVUV8MjrgU6S7xq7Mxt3GOi2J4KuuSgZlCYQNWfSDuOHEyh/wWbq7Kf31oxee2XDb/u8JRxu03k7mRnDauTgfLd4ilkcm5lQtGxEsEe7mqAoNxvLuAOW3v0+aDayKYQRgxfz5Ko+4wpHSINv3ymeLl/Ot64frXsyvwh6M3fH6U21Sh//FtubgUgimIurMXLOkFwwKxL2fu2MmQMH4mzABkOzgOGseDC21U0pe+ucoBfCCZoP8Usuty9B73K3bSYUp91QsKErgviJyF45d4="
-    - secure: "Lz+krBJBku43pjekUv+aUncy/yYthWMw0euUe+vIQ9/5WN39UcDUvN4tfE8NDpVvuZC8ylVxvgBG2Uknvjtr+tFKTRd193Z3cdkrEcGs0P9chQMaLzX+LKpHkREqHcBIbAOZWgoax5/ZnFaIglrDHXTROprJHR8yicom4K8aeOLX9Qxsl2z4yp2J9vAxQvpcxSqos7IIbx8tQtLaab6mZN7422N5Dwb5uAzXjefvdTZLk+AaL4nskRfAj4CgKQtPIypY1PUYAbI1SNK8B3iNzAqeXKBIcfaz3Q8apz9iCwwESOV4fCAZXyBs9a8N5aWkL4dpp9EqWzxY06ZdfEoNNRjDqNSzlYHSHFOodDyvSekg1yYJp8RUhuLmRaPGKXc4F8kQBAeppaYhCR647ORe5hbbBsNDZB5uiTH5b6FyGdeZUPGkOIybxLiHSzp80tLE+OR2fj+zW2pT8+cxNl4s2xipN3c+OEVl34uT2pA+jPQntA4eze050cZEN30LCuEabrAk+nKzEl2vAVL79K5OmN3pOV0Bu8pP1d4QcOeW5ZHd6fbKhqJU5uFUwEzqjdNxY/NQHyDsZ5Nu3flQWGq7BZ5zdWW2JzNPKfWRvGz2CT5OUYLf3WhQP9jz7KARY2VzAC9kdD4XxoasoO2xxL80KlBnHWRpws4E1D8beLQVJpg="
+  - DEPLOY_DOCKER_IMAGE=false
+  - LTD_SKIP_UPLOAD=true
+  - secure: ckQRzpqPi72cdGXqXRaJ+rEXWsXoEBrQ3c0e/N3LhhTUi1FrtqZLRhg4QBDj555luzSaALhCbOwpKtunuSxrJIPwTilV7n//mLnxPay5Lgf0wXmPNH10uzRGkg5V/JFi0hLp5+oXB6pJGpENpeS6ZGd6pFafMemEXwAxwr66mPg5h1wBD2QBByakrvn+rc4jo6t7SxdaawPcYPU/n1qSRSXmcwNGXYQUM89xfMXPTO0pDzNBIgEpXSuO+4AaxET2Zqt+UvVpNzKTpEIK/5ztknw+0syXfRIT0FKH1U2reSmIjKPMINj6qH6ECWvHO5jRtIaFy52dcg4LW/W6HgXFMK4Ik3UOEjjZNxJbZcVPFBnYc4pAehqcz9pXVyrc4ppCrMmuPQ0L6uJT93e2Yg9EYrLnxGslnw5vWqOfSsfmxwugbkB21JAmifTOz3rpeXcIhpM8N/BTU/Xu+oaIIcshbaZZ94VYqHcBdNBRNKBi0PL/RGUiHmNQEVM+EWXBbHCwTWML/D0JuSjwRKrYMBJSIiFJ9a/bm52wPGLvH6GQXMEOyWXMTbRpuoZ3Mpzl9ASFDa+bf2wf+97kbrG2606WKF8iwCm5mPo/O2aTPeH+j7HlqGAXmTN/Hm1Q2ke9AEJdmXoCW/egpFmsIx8Oe/jVQs1LUEW0Xx1uV7dRzP90v1c=
+  - secure: avOmSbzj7ekfLtW6rh7hhOvQIeaA/0MN+BzuS/TKx5SWWTaadyeGxveDsQ7Y/xD2XVBgMfHj/dV1RMjOhueS4VzbbR2bTzGWQWcioEfDhF+JmANNIz0Lo3tovTGWBqDGbI8R26MM5BNUHraaKGh78l/wFBT9Pc+B+tIIaPRHE5f/uCCjoh34Zb2EUmtYQp0n8FEbQBz4MsgDwVtvX+QVetBvKukw7N811kAEObN6Witt9cukWePLUqP/12cXefd0gpQDTZC/ZzTBe1i8jh6GQMBlYZOGq8e9wFYJ6gNhJuDSCmTVnILyUQEdiWRlf2VTF3CftX4vuoXz6F6jDkAnZKw6bAOAhMCZK8EIIa4kak6z0DgeB3j4u5H+ZiVgH7gR6Tr7FQnzfmbntrY8r7/EBHxrZypcvO/eT8o7yJDl4QnQjU1m6CKvJVAHZrtIUgtOdRG6RKX7Z/7dPghoq0EqzJetDgh2r3Xf+Gpxsx2eBgpOIopkw/2khlfz4lIqWcQoXVKwx3igxAvwOnuf74styUjFOvGmo2lWvo6fnvNxhsSkQXmIPp0tUvV9D6Iy3b7luPjpn6rksQMgBPfIhyo5jensSVJWaVyDU6ChAWNyFnWHigJ7T5/2l2ZI8osMXiyIUwkfXhxdzGOjuDwkvxkh48wHTEtas+5aFKkb3NFA9fU=
+  - secure: pj/wy2WISPACuOZqq1e1fJYBPliFbFTVgQxrLnwxiHQNbx2vp+DCg2iojajeY+mLuZHe94ijcQNKuU+wAA2JEfbmHawtonbS/hEE+RG1i6UvGZ7WPx5X+yeUHuLdeoSHMaoIVX1xbtX+gpK5vaJ82wRJ5/aNJ2E/jPZ4xGaGOpnNB3b2kVfwpM6bvWPNoJw4fwAEA+3HNGmC4J8/zThvLFB3dl9kZ7MKR41j3ZpsV9+F7lVpq7NibJ7TPdDtdTDGdYWHzeav5eh9URynJ79r55/3HMoXwO3ewxFyJ+RvomHSMZfkRLKLIbKK+6nfdtqUQG5/puV156FLwoqUWodjEakTojJ6EE5L/CZi3aj+pOE9lSrmJ6vr/B9cvwxSquoeblA+wg6EDS2YS5WUNwPitRJNwBJoKat3742lyk7EtTt+l7nqyrG0+1zI6LUoUYkICU6Wzxk1IP/lQfeKPBfFmXO86/GR1fryo+KX4QKhRNRpg3kBhdlM0m+5LHuwUxUZ7tlv4nJmU5KJ5PAGYgbDeZgEFX580v+YHAvYMrMGMVxTfAMQY3oLpq68NBHmybhvu/H1k/fHhOlBasN9TX3gn0iRI4mfBhObHUqwOJylxRMW9P6VEOM7fwndyR4MkiWCouFRCtgQKBa0g2uqnLOiMQXnmLKFFVS27vtbmpx+Kuc=
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
   skip_upload_docs: true
-  user: sqre-admin
+  skip_existing: true
+  skip_cleanup: true
+  user: afausti
   password:
-    # PyPI deployment credentials for sqre-admin
-    secure: "TMM/pLdmvPX2hDzm2q62sYWDLvKTgK6UBqXcdoGAt40+RmGlD2Pfi6cizfLVYdXls8NXB3YDLU0y/TqVYExZO7pdU2lsM3Qcq5+HoHG03tzVG3F7+wClhpK9Qm+b+z4bywqUVoZI0HFYX5A1Joi6r2jJuX7GXyw+I3ouhUKhkgkdday+u9tUDaYo5wF3MsiW8TBOeUsjJOc/Kdnsvp/ecqU6DQOcL0XPzYRfzyOnneKMPR4Vz8nC6Bs22LC7JUA6ELEzs3LpDGABgUzLB2MmdTtIGg4nK03t3AAw98bZwk/PDBXXqd0ylFCiMHLiS4V/3dqgm2e7w7eyVH+FfFE3mIBGakoX1KnCuKMpVImQV1/ezwG+xa1wc1NNHOTiqfmvosJeFcSn9RoeB/k1bSmhJcy7am7ttOLBj96eWOuaFJWhLWoMRfkC8am2xlaMhzIsfk6oop0XiOqX8RvLNDjn38aQQ3qwN031xy42vRmtr3c6r/fsu8+t8AhIWQaVctf2cMCfS1ZxUn1IenLnbzCbRmi/TpxEx4Ae8w3O7IlUry7hTVpbDlu6+dfuqiQ1MNi9CsMH4Ss54KrxwbRpIAonGUfpwZshEyhpEPTRrfu+CHyZSBi8i0JWkYvsCJMBuSA5REEw8uMSM72vy0ot8PvVFG+e5sbP7Kd1nIZc2es8WoA="
+    secure: oOssqdhxMUlegZdPoNjswpQO0LcR0gajtxtrrsB0AFDkQXPigyFpi79gBvHGE7Oi2oOuCphOy5cRwwPmSB/2dl5uA3KSXjLFEtBP7f2vUkcJe/E1du7QqbKTKe42JWpTuLjA3yLBOcRq6AroLM/QuGgoektrz9Fyc8dxls10GtJRRMbXRRS5gKFntecqGazLMRTnfLqA4qmDI4earfTbUPr+jprGrAd3j0XT+Rowae+bnU674Xfe66SXfMf0dIatksg4QnWWqWIuT+ax/FT9VeqoMbbde6cuuHHQrEJZM/B/0DV79MyeQyESsfaOD77VBH9E0cJzGJUCYCsern3Kr0x7YWC8+irDp5olUwYdfi/clovkcX5TWKkGTlyArRvvynJvmmT9zXfbjY8+DlIFX53ZcJoliSE/4Z02ScSlXHF1IBJ85Yosa3AkYfygy6zmRWJ78vcAn/hnQJrJXR1vOoNNY/x21/TExu/MOdVVLxBc5ZiTJOq5G9kZuWqgdyo8LYep7bdffGXAEZ4FD5DFx4ardV37GH25BIReCmEFgsxvYKGUwz2llEYI+PtYID7D0O0xhLC33RdUYtbeMf1K9RKfm45WvyMiF0KWXBKZrglST/Wl7VB/2assBJ97z+asR+el0mJCUg6LDJqQZKNpIPmdjb6d6tegbjk8Nu49oX4=
   on:
     tags: true
     repo: lsst-sqre/kafka-connect-manager

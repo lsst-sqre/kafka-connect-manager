@@ -8,7 +8,7 @@ RUN useradd -d /home/app -m app && \
     mkdir /dist && \
     pip install --upgrade pip
 
-# Supply on CL as --build-arg VERSION=<version> (or run `make image`).
+# Supply on CL as --build-arg VERSION=<version> (or run `make docker`).
 ARG        VERSION="0.1.0"
 LABEL      version=$VERSION
 COPY       dist/kafka-connect-manager-$VERSION.tar.gz /dist

@@ -82,10 +82,14 @@ CONNECTOR = 'influxdb-sink'
     help=('Time interval in seconds to check for new topics and update the '
           'connector.')
 )
+@click.option(
+    '--blacklist', 'blacklist', multiple=True,
+    help=('Blacklist problematic topics.')
+)
 @click.pass_context
 def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
                          username, password, filter_regex, dry_run,
-                         auto_update, check_interval):
+                         auto_update, check_interval, blacklist):
     """The `Landoop InfluxDB Sink connector
     <https://docs.lenses.io/connectors/sink/influx.html>`_.
 
@@ -93,13 +97,18 @@ def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
     provided, TOPICS are discovered from Kafka.
     """
     broker_url = get_broker_url(ctx.parent.parent)
-    if topics == ():
+    topics = list(topics)
+    if topics == []:
         click.echo("Discoverying Kafka topics...")
         topics = get_existing_topics(broker_url)
 
     if filter_regex:
         pattern = re.compile(filter_regex)
         topics = [t for t in topics if pattern.match(t)]
+
+    if blacklist:
+        for blacklisted_topic in blacklist:
+            topics.remove(blacklisted_topic)
 
     config = make_influxdb_sink_config(topics, influxdb_url, database,
                                        tasks, username, password)
@@ -124,6 +133,10 @@ def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
                     pattern = re.compile(filter_regex)
                     current_topics = [t for t in current_topics
                                       if pattern.match(t)]
+
+                if blacklist:
+                    for blacklisted_topic in blacklist:
+                        current_topics.remove(blacklisted_topic)
 
                 # topics in current_topics but not in topics
                 new_topics = list(set(current_topics) - set(topics))
