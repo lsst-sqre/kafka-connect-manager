@@ -15,7 +15,7 @@ script:
   - make docker
 after_success:
   - 'ltd upload --product kafka-connect-manager --travis --dir docs/_build/html'
-  - make tavis-docker-deploy
+  - make travis-docker-deploy
 env:
   global:
     - DEPLOY_DOCKER_IMAGE=false  # disable docker push in regular test matrix
