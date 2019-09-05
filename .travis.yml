@@ -12,7 +12,7 @@ install:
 script:
   - "python setup.py test"
   - "cd docs && make html && cd ../"
-  - make image
+  - make docker
 after_success:
   - 'ltd upload --product kafka-connect-manager --travis --dir docs/_build/html'
   - make tavis-docker-deploy
