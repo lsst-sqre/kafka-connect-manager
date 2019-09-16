@@ -4,35 +4,32 @@ services: docker
 language: python
 matrix:
   include:
-    - python: "3.7"
-      env: LTD_SKIP_UPLOAD=false DEPLOY_DOCKER_IMAGE=true PYPI_DEPLOY=true
+  - python: '3.7'
+    env: LTD_SKIP_UPLOAD=false DEPLOY_DOCKER_IMAGE=true PYPI_DEPLOY=true
 install:
-  - "pip install ."
-  - "pip install ltd-conveyor==0.5.0a1"
+- pip install .
+- pip install ltd-conveyor==0.5.0a1
 script:
-  - "python setup.py test"
-  - "cd docs && make html && cd ../"
-  - make docker
+- python setup.py test
+- cd docs && make html && cd ../
+- make docker
 after_success:
-  - 'ltd upload --product kafka-connect-manager --travis --dir docs/_build/html'
-  - make travis-docker-deploy
+- ltd upload --product kafka-connect-manager --travis --dir docs/_build/html
+- make travis-docker-deploy
 env:
   global:
-    - DEPLOY_DOCKER_IMAGE=false  # disable docker push in regular test matrix
-    - LTD_SKIP_UPLOAD=true  # disable doc uploads by default
-    # LSST the Docs credentials
-    - secure: "ckQRzpqPi72cdGXqXRaJ+rEXWsXoEBrQ3c0e/N3LhhTUi1FrtqZLRhg4QBDj555luzSaALhCbOwpKtunuSxrJIPwTilV7n//mLnxPay5Lgf0wXmPNH10uzRGkg5V/JFi0hLp5+oXB6pJGpENpeS6ZGd6pFafMemEXwAxwr66mPg5h1wBD2QBByakrvn+rc4jo6t7SxdaawPcYPU/n1qSRSXmcwNGXYQUM89xfMXPTO0pDzNBIgEpXSuO+4AaxET2Zqt+UvVpNzKTpEIK/5ztknw+0syXfRIT0FKH1U2reSmIjKPMINj6qH6ECWvHO5jRtIaFy52dcg4LW/W6HgXFMK4Ik3UOEjjZNxJbZcVPFBnYc4pAehqcz9pXVyrc4ppCrMmuPQ0L6uJT93e2Yg9EYrLnxGslnw5vWqOfSsfmxwugbkB21JAmifTOz3rpeXcIhpM8N/BTU/Xu+oaIIcshbaZZ94VYqHcBdNBRNKBi0PL/RGUiHmNQEVM+EWXBbHCwTWML/D0JuSjwRKrYMBJSIiFJ9a/bm52wPGLvH6GQXMEOyWXMTbRpuoZ3Mpzl9ASFDa+bf2wf+97kbrG2606WKF8iwCm5mPo/O2aTPeH+j7HlqGAXmTN/Hm1Q2ke9AEJdmXoCW/egpFmsIx8Oe/jVQs1LUEW0Xx1uV7dRzP90v1c="
-    # DockerHub credentials
-    - secure: "QZbCJnFpccWT6jsE9G2bI/JBkBJzMbISaKesUSCNcUfN7MofxKAoMGAsfGzax2/oDaqth81hSd4uQEDFLZNyJGh77em/ZZ/mLZthi+C++0pkOVmMrCNA13sLO4bJCzoQTnydA5VdAOJ3SOcD+nhvb+X5c6k/fOOo2FXl4EQ3nXRDG8MP8HxnIuaZZhBLuJ98BLCKf5NmHR2wC/b3XfBYzPi9RajtOc+lCEvAvCiNMJCsvA+z9me/LNyme4himebssz8aU4YbfBh64kd9wXyUu8B+Ag7RlrGbb9ZY6NP9GnVBmHkIjsoJ9oMru3O+w1WD07nRw/AR4dwXSIN2cGIU1kEokVLaJ+nxBbnM1y7SgQV4zwKQUD70T3WsFmA/nnrTKX+C/Eypil/mFY8apaJcdkwRdPVUV8MjrgU6S7xq7Mxt3GOi2J4KuuSgZlCYQNWfSDuOHEyh/wWbq7Kf31oxee2XDb/u8JRxu03k7mRnDauTgfLd4ilkcm5lQtGxEsEe7mqAoNxvLuAOW3v0+aDayKYQRgxfz5Ko+4wpHSINv3ymeLl/Ot64frXsyvwh6M3fH6U21Sh//FtubgUgimIurMXLOkFwwKxL2fu2MmQMH4mzABkOzgOGseDC21U0pe+ucoBfCCZoP8Usuty9B73K3bSYUp91QsKErgviJyF45d4="
-    - secure: "Lz+krBJBku43pjekUv+aUncy/yYthWMw0euUe+vIQ9/5WN39UcDUvN4tfE8NDpVvuZC8ylVxvgBG2Uknvjtr+tFKTRd193Z3cdkrEcGs0P9chQMaLzX+LKpHkREqHcBIbAOZWgoax5/ZnFaIglrDHXTROprJHR8yicom4K8aeOLX9Qxsl2z4yp2J9vAxQvpcxSqos7IIbx8tQtLaab6mZN7422N5Dwb5uAzXjefvdTZLk+AaL4nskRfAj4CgKQtPIypY1PUYAbI1SNK8B3iNzAqeXKBIcfaz3Q8apz9iCwwESOV4fCAZXyBs9a8N5aWkL4dpp9EqWzxY06ZdfEoNNRjDqNSzlYHSHFOodDyvSekg1yYJp8RUhuLmRaPGKXc4F8kQBAeppaYhCR647ORe5hbbBsNDZB5uiTH5b6FyGdeZUPGkOIybxLiHSzp80tLE+OR2fj+zW2pT8+cxNl4s2xipN3c+OEVl34uT2pA+jPQntA4eze050cZEN30LCuEabrAk+nKzEl2vAVL79K5OmN3pOV0Bu8pP1d4QcOeW5ZHd6fbKhqJU5uFUwEzqjdNxY/NQHyDsZ5Nu3flQWGq7BZ5zdWW2JzNPKfWRvGz2CT5OUYLf3WhQP9jz7KARY2VzAC9kdD4XxoasoO2xxL80KlBnHWRpws4E1D8beLQVJpg="
+  - DEPLOY_DOCKER_IMAGE=false
+  - LTD_SKIP_UPLOAD=true
+  # LSST the Docs credentials
+  - secure: ckQRzpqPi72cdGXqXRaJ+rEXWsXoEBrQ3c0e/N3LhhTUi1FrtqZLRhg4QBDj555luzSaALhCbOwpKtunuSxrJIPwTilV7n//mLnxPay5Lgf0wXmPNH10uzRGkg5V/JFi0hLp5+oXB6pJGpENpeS6ZGd6pFafMemEXwAxwr66mPg5h1wBD2QBByakrvn+rc4jo6t7SxdaawPcYPU/n1qSRSXmcwNGXYQUM89xfMXPTO0pDzNBIgEpXSuO+4AaxET2Zqt+UvVpNzKTpEIK/5ztknw+0syXfRIT0FKH1U2reSmIjKPMINj6qH6ECWvHO5jRtIaFy52dcg4LW/W6HgXFMK4Ik3UOEjjZNxJbZcVPFBnYc4pAehqcz9pXVyrc4ppCrMmuPQ0L6uJT93e2Yg9EYrLnxGslnw5vWqOfSsfmxwugbkB21JAmifTOz3rpeXcIhpM8N/BTU/Xu+oaIIcshbaZZ94VYqHcBdNBRNKBi0PL/RGUiHmNQEVM+EWXBbHCwTWML/D0JuSjwRKrYMBJSIiFJ9a/bm52wPGLvH6GQXMEOyWXMTbRpuoZ3Mpzl9ASFDa+bf2wf+97kbrG2606WKF8iwCm5mPo/O2aTPeH+j7HlqGAXmTN/Hm1Q2ke9AEJdmXoCW/egpFmsIx8Oe/jVQs1LUEW0Xx1uV7dRzP90v1c=
+  # DockerHub credentials
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
   skip_upload_docs: true
-  user: sqre-admin
+  user: afausti
   password:
-    # PyPI deployment credentials for sqre-admin
-    secure: "TMM/pLdmvPX2hDzm2q62sYWDLvKTgK6UBqXcdoGAt40+RmGlD2Pfi6cizfLVYdXls8NXB3YDLU0y/TqVYExZO7pdU2lsM3Qcq5+HoHG03tzVG3F7+wClhpK9Qm+b+z4bywqUVoZI0HFYX5A1Joi6r2jJuX7GXyw+I3ouhUKhkgkdday+u9tUDaYo5wF3MsiW8TBOeUsjJOc/Kdnsvp/ecqU6DQOcL0XPzYRfzyOnneKMPR4Vz8nC6Bs22LC7JUA6ELEzs3LpDGABgUzLB2MmdTtIGg4nK03t3AAw98bZwk/PDBXXqd0ylFCiMHLiS4V/3dqgm2e7w7eyVH+FfFE3mIBGakoX1KnCuKMpVImQV1/ezwG+xa1wc1NNHOTiqfmvosJeFcSn9RoeB/k1bSmhJcy7am7ttOLBj96eWOuaFJWhLWoMRfkC8am2xlaMhzIsfk6oop0XiOqX8RvLNDjn38aQQ3qwN031xy42vRmtr3c6r/fsu8+t8AhIWQaVctf2cMCfS1ZxUn1IenLnbzCbRmi/TpxEx4Ae8w3O7IlUry7hTVpbDlu6+dfuqiQ1MNi9CsMH4Ss54KrxwbRpIAonGUfpwZshEyhpEPTRrfu+CHyZSBi8i0JWkYvsCJMBuSA5REEw8uMSM72vy0ot8PvVFG+e5sbP7Kd1nIZc2es8WoA="
+    secure: SGSjix4Yodcr9sdHvskbBRWPslu0OSv+6yFOvpO2BvnvD+NrreIyTa6M5U8vgvOee0+aJf7POjfTzHeRtvIj/jIl80oRzuAE7ID71qZvP8LA67JsaDQAZtU9yszMXF9MKrFZ1yqbr/urttTmjiILMqrXl0nUK3anG6KwI1C2C0N0bB0P+/QhMQs9MBFLrLwowuP/GmNzBsozCpoApspF4PqBdNvuhWYNlrsrHeLY9aW8pU1WYuiHaPjzjbnnp+/rK/QJU5plSaqH2e9rNtSgm4a+2DwSTKDKY7jvr0HF+S8SbJHwkt8kZBDvqmIWDUdMdM7/ScSt1VCxh7K0on5NhxLEafjON2MJ706WA7fcIdwnl1BKVa0GkGyXmms414sTsagvrltHZSfiOVjx0mWJnmhH8lCj5Q5KGp+iHvPZvEH+j7VKSMIIzfHM7jm0xO6yRnJ5/o/nPCSkkA7QXvzqjRAlD4HL3P3u7ONvG2wSvqIMFQxZXiBeXWieED5NnzBwOSdB7qrtRxiO8LNECkSiYWWY0wD5OestbIZ9Vm+rtGirSK9qBI8kQ4JMusIjkp8AIZxY1EeJM7tjbthbxpxdMN/W8+bj/ysRABmFD/PIQ2lX3TrCX/JMY7Pgncaas7TZMdNUfjJvAKVWzJokdTTbUS0golleoLHxUYx+ww6CoG0=
   on:
     tags: true
     repo: lsst-sqre/kafka-connect-manager
