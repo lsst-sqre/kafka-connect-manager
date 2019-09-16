@@ -18,9 +18,15 @@ Python client for managing Confluent Kafka connectors
 Features
 --------
 
-* Support the following connectors: InfluxDB Sink
 * List, create, and delete connectors
 * Get info, status, pause, resume and restart an existing connector
-* Auto-update - dynamically check existing topics in Kafka and update the
-  configuration for an existing connector
 * k8s deployment via ``kafka-connect-manager`` Helm chart
+
+Specific features for supported connectors
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Landoop InfluxDB Sink:
+  - Scripted configuration
+  - Dynamically check existing topics in Kafka and update the connector configuration (*--auto-update*)
+  - When configuring the connector skip topic names added to a
+    blacklist (*--blacklist*)
