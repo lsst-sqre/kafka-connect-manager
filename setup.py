@@ -52,7 +52,7 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/lsst-sqre/kafka-connect-manager',
-    version='0.2.0',
+    version='0.2.1',
     entry_points={
         'console_scripts': ['connect_manager = connect_manager.main:main']
     }
