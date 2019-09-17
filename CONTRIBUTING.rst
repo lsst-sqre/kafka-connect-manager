@@ -84,8 +84,6 @@ Now you can make your changes locally.
 
   $ python setup.py test
 
-To get flake8, just pip install them into your virtualenv.
-
 6. Commit your changes and push your branch to GitHub::
 
     $ git add .
@@ -103,7 +101,7 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3 and for PyPy. Check
+3. The pull request should work for Python 3. Check
    https://travis-ci.org/lsst-sqre/kafka-connect-manager/pull_requests
    and make sure that the tests pass.
 
