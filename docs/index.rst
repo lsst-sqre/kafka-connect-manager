@@ -4,19 +4,25 @@ Connect manager
 
 Python client for managing the `Confluent Kafka connect REST Interface <https://docs.confluent.io/current/connect/references/restapi.html>`_.
 
+
 Features
 ========
 
-* Support the following Kafka connectors:
+* List, create, and delete connectors
+* Get info, status, pause, resume and restart an existing connector
+* k8s deployment via `kafka-connect-manager <https://lsst-sqre.github.io/charts/>`_ Helm chart
 
-  * `Landoop InfluxDB Sink <https://docs.lenses.io/connectors/sink/influx.html>`_
+Supported connectors
+--------------------
 
-* List, create, update, and delete connectors.
-* Get connector info and status.
-* Pause, resume and restart an existing connector.
-* Auto-update: dynamically check for new topics in Kafka and update the
-  connector configuration.
-* Kubernetes deployment via ``connect-manager`` Helm chart.
+* Landoop InfluxDB Sink
+
+  * Scripted configuration
+
+  * Dynamically check existing topics in Kafka and update the connector configuration
+
+  * When configuring the connector skip topic names added to a blacklist
+
 
 Installation
 ============
