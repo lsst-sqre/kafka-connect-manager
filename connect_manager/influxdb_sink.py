@@ -86,10 +86,16 @@ CONNECTOR = 'influxdb-sink'
     '--blacklist', 'blacklist', multiple=True,
     help=('Blacklist problematic topics.')
 )
+@click.option(
+    '--timestamp', 'timestamp', default='sys_time()',
+    help=('Timestamp to use when recording the message in InfluxDB.'),
+    show_default=True
+)
 @click.pass_context
 def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
                          username, password, filter_regex, dry_run,
-                         auto_update, check_interval, blacklist):
+                         auto_update, check_interval, blacklist,
+                         timestamp):
     """The `Landoop InfluxDB Sink connector
     <https://docs.lenses.io/connectors/sink/influx.html>`_.
 
@@ -111,7 +117,8 @@ def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
             topics.remove(blacklisted_topic)
 
     config = make_influxdb_sink_config(topics, influxdb_url, database,
-                                       tasks, username, password)
+                                       tasks, username, password,
+                                       timestamp)
 
     if dry_run:
         click.echo(json.dumps(config, indent=4, sort_keys=True))
@@ -159,7 +166,7 @@ def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
     return 0
 
 
-def make_connector_queries(topics, time_field=None):
+def make_connector_queries(topics, timestamp):
     """Make the kafka connector queries. It assumes that the topic structure
     is flat  (`SELECT * FROM`).
 
@@ -170,19 +177,15 @@ def make_connector_queries(topics, time_field=None):
     time_field : `str`
         Uses an existing field or the system time as the InfluxDB timestamp.
     """
-    query_template = 'INSERT INTO {} SELECT * FROM {} WITHTIMESTAMP sys_time()'
 
-    if time_field:
-        query_template = ('INSERT INTO {} SELECT * FROM {} WITHTIMESTAMP '
-                          '{timestamp_field}')
-
-    queries = [query_template.format(topic, topic) for topic in topics]
+    queries = [f'INSERT INTO {t} SELECT * FROM {t} WITHTIMESTAMP {timestamp}'
+               for t in topics]
 
     return ";".join(queries)
 
 
 def make_influxdb_sink_config(topics, influxdb_url, database, tasks,
-                              username, password):
+                              username, password, timestamp):
     """Make InfluxDB Sink connector configuration.
 
     Parameters
@@ -211,7 +214,7 @@ def make_influxdb_sink_config(topics, influxdb_url, database, tasks,
     config['connect.influx.url'] = influxdb_url
     config['connect.influx.db'] = database
 
-    queries = make_connector_queries(topics)
+    queries = make_connector_queries(topics, timestamp)
     config['connect.influx.kcql'] = queries
     config['connect.influx.username'] = username
 
