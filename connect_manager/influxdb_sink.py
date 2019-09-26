@@ -91,11 +91,34 @@ CONNECTOR = 'influxdb-sink'
     help=('Timestamp to use when recording the message in InfluxDB.'),
     show_default=True
 )
+@click.option(
+    '--error-policy', 'error_policy',
+    type=click.Choice(['NOOP', 'THROW', 'RETRY']), default='THROW',
+    help=('Specifies the action to be taken if an error occurs while '
+          'inserting the data. There are three available options, NOOP, '
+          'the error is swallowed, THROW, the error is allowed to propagate '
+          'and RETRY. For RETRY the Kafka message is redelivered up to a '
+          'maximum number of times specified by the --max-retries option. '
+          'The retry interval is specified by the --retry-interval option.'),
+    show_default=True
+)
+@click.option(
+    '--max-retries', 'max_retries', default='10',
+    help=('The maximum number of times a message is retried. Only valid when '
+          'the --error-policy is set to RETRY.'),
+    show_default=True
+)
+@click.option(
+    '--retry-interval', 'retry_interval', default='60000',
+    help=('The interval, in milliseconds between retries. Only valid when '
+          'the --error-policy is set to RETRY.'),
+    show_default=True
+)
 @click.pass_context
 def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
                          username, password, filter_regex, dry_run,
                          auto_update, check_interval, blacklist,
-                         timestamp):
+                         timestamp, error_policy, max_retries, retry_interval):
     """The `Landoop InfluxDB Sink connector
     <https://docs.lenses.io/connectors/sink/influx.html>`_.
 
@@ -118,7 +141,8 @@ def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
 
     config = make_influxdb_sink_config(topics, influxdb_url, database,
                                        tasks, username, password,
-                                       timestamp)
+                                       timestamp, error_policy, max_retries,
+                                       retry_interval)
 
     if dry_run:
         click.echo(json.dumps(config, indent=4, sort_keys=True))
@@ -154,7 +178,11 @@ def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
                                                        database,
                                                        tasks,
                                                        username,
-                                                       password)
+                                                       password,
+                                                       timestamp,
+                                                       error_policy,
+                                                       max_retries,
+                                                       retry_interval)
                     update_connector(kafka_connect_url, CONNECTOR,
                                      config)
                     status = get_connector_status(kafka_connect_url,
@@ -185,7 +213,8 @@ def make_connector_queries(topics, timestamp):
 
 
 def make_influxdb_sink_config(topics, influxdb_url, database, tasks,
-                              username, password, timestamp):
+                              username, password, timestamp, error_policy,
+                              max_retries, retry_interval):
     """Make InfluxDB Sink connector configuration.
 
     Parameters
@@ -220,5 +249,9 @@ def make_influxdb_sink_config(topics, influxdb_url, database, tasks,
 
     if password:
         config['connect.influx.password'] = password
+
+    config['connect.influx.error.policy'] = error_policy
+    config['connect.influx.max.retries'] = max_retries
+    config['connect.influx.retry.interval'] = retry_interval
 
     return config
