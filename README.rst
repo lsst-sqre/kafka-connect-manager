@@ -32,3 +32,5 @@ Supported connectors
   * Dynamically check existing topics in Kafka and update the connector configuration
 
   * When configuring the connector skip topic names added to a blacklist
+
+  * Error handling
