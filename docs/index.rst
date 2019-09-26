@@ -27,11 +27,11 @@ Supported connectors
 Installation
 ============
 
-Install `connect-manager`:
+Install `kafka-connect-manager`:
 
 .. code-block:: sh
 
-  pip install connect-manager
+  pip install kafka-connect-manager
 
 User guide
 ==========
