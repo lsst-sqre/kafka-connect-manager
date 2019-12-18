@@ -19,8 +19,9 @@ requirements = ['click>=6.7,<7.0',
 setup_requirements = ['pytest-runner', ]
 
 test_requirements = ['flake8==3.6.0',
-                     'pytest==4.0.2',
-                     'pytest-flake8==1.0.2']
+                     'pytest==5.3.2',
+                     'pytest-flake8==1.0.2',
+                     'attrs>17.4']
 
 setup(
 
