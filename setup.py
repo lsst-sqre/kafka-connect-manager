@@ -19,8 +19,9 @@ requirements = ['click>=6.7,<7.0',
 setup_requirements = ['pytest-runner', ]
 
 test_requirements = ['flake8==3.6.0',
-                     'pytest==4.0.2',
-                     'pytest-flake8==1.0.2']
+                     'pytest==5.3.2',
+                     'pytest-flake8==1.0.2',
+                     'attrs>17.4']
 
 setup(
 
@@ -49,7 +50,7 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/lsst-sqre/kafka-connect-manager',
-    version='0.4.0',
+    version='0.5.0',
     entry_points={
         'console_scripts': ['connect_manager = connect_manager.main:main']
     }

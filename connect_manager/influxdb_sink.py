@@ -139,21 +139,25 @@ def create_influxdb_sink(ctx, topics, influxdb_url, database, tasks,
         for blacklisted_topic in blacklist:
             topics.remove(blacklisted_topic)
 
-    config = make_influxdb_sink_config(topics, influxdb_url, database,
-                                       tasks, username, password,
-                                       timestamp, error_policy, max_retries,
-                                       retry_interval)
+    click.echo("Found {} topics.".format(len(topics)))
 
-    if dry_run:
-        click.echo(json.dumps(config, indent=4, sort_keys=True))
-        return 0
+    if topics:
+        config = make_influxdb_sink_config(topics, influxdb_url, database,
+                                           tasks, username, password,
+                                           timestamp, error_policy,
+                                           max_retries, retry_interval)
 
-    kafka_connect_url = get_kafka_connect_url(ctx.parent.parent)
+        if dry_run:
+            click.echo(json.dumps(config, indent=4, sort_keys=True))
+            return 0
 
-    click.echo("Creating the connector...")
-    update_connector(kafka_connect_url, CONNECTOR, config)
-    status = get_connector_status(kafka_connect_url, CONNECTOR)
-    click.echo(status)
+        kafka_connect_url = get_kafka_connect_url(ctx.parent.parent)
+
+        click.echo("Creating the connector...")
+        update_connector(kafka_connect_url, CONNECTOR, config)
+        status = get_connector_status(kafka_connect_url, CONNECTOR)
+        click.echo(status)
+
     if auto_update:
         while True:
             time.sleep(check_interval)
