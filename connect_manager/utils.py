@@ -98,19 +98,19 @@ def get_existing_topics(broker_url):
     return existing_topics
 
 
-def update_connector(kafka_connect_url, connector, config):
+def update_connector(kafka_connect_url, name, config):
     """Update a connector configuration.
 
     Parameters
     ==========
     kafka_connect_url : `str`
         Kafka connect URL.
-    connector : `str`
+    name : `str`
         Connector name.
     config : `json document`
         Connector configuration.
     """
-    uri = f'{kafka_connect_url}/connectors/{connector}/config'
+    uri = f'{kafka_connect_url}/connectors/{name}/config'
     headers = {'Content-Type': 'application/json'}
 
     try:
@@ -122,16 +122,16 @@ def update_connector(kafka_connect_url, connector, config):
         raise ClickException(message)
 
 
-def get_connector_status(kafka_connect_url, connector):
+def get_connector_status(kafka_connect_url, name):
     """
     """
-    uri = f'{kafka_connect_url}/connectors/{connector}/status'
+    uri = f'{kafka_connect_url}/connectors/{name}/status'
     try:
         r = requests.get(uri)
         r.raise_for_status()
     except requests.exceptions.HTTPError as err:
         if err.response.status_code == 404:
-            message = (f'Connector {connector} not found.')
+            message = (f'Connector {name} not found.')
             raise ClickException(message)
     except requests.exceptions.ConnectionError:
         message = (f'Failed to establish connection with {kafka_connect_url}.')
