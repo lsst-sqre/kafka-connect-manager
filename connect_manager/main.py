@@ -74,32 +74,32 @@ def main(ctx, broker_url, kafka_connect_url):
 @main.group()
 @click.pass_context
 def create(ctx):
-    """Create a new connector. Each creare subcommand manages a different
+    """Create a new connector. Each create subcommand manages a different
     connector.
     """
 
 
 @main.command('delete')
-@click.argument('connector')
+@click.argument('name')
 @click.pass_context
-def delete(ctx, connector):
+def delete(ctx, name):
     """Delete a connector.
 
     Halt all tasks and delete the connector configuration.
     """
     kafka_connect_url = get_kafka_connect_url(ctx.parent)
-    uri = f'{kafka_connect_url}/connectors/{connector}'
+    uri = f'{kafka_connect_url}/connectors/{name}'
 
     try:
         r = requests.delete(uri)
         r.raise_for_status()
     except requests.exceptions.HTTPError as err:
         if err.response.status_code == 404:
-            message = (f'Connector {connector} not found.')
+            message = (f'Connector {name} not found.')
             raise ClickException(message)
         # returns 409 (Conflict) if rebalance is in process.
         elif err.response.status_code == 409:
-            message = (f'Could not delete {connector}. Rebalance is '
+            message = (f'Could not delete {name}. Rebalance is '
                        'in process.')
             raise ClickException(message)
     except requests.exceptions.ConnectionError:
@@ -108,24 +108,24 @@ def delete(ctx, connector):
 
 
 @main.command('restart')
-@click.argument('connector')
+@click.argument('name')
 @click.pass_context
-def restart(ctx, connector):
+def restart(ctx, name):
     """Restart a connector and its tasks.
     """
     kafka_connect_url = get_kafka_connect_url(ctx.parent)
-    uri = f'{kafka_connect_url}/connectors/{connector}/restart'
+    uri = f'{kafka_connect_url}/connectors/{name}/restart'
 
     try:
         r = requests.post(uri)
         r.raise_for_status()
     except requests.exceptions.HTTPError as err:
         if err.response.status_code == 404:
-            message = (f'Connector {connector} not found.')
+            message = (f'Connector {name} not found.')
             raise ClickException(message)
         # returns 409 (Conflict) if rebalance is in process.
         elif err.response.status_code == 409:
-            message = (f'Could not delete {connector}. Rebalance is '
+            message = (f'Could not delete {name} connector. Rebalance is '
                        'in process.')
             raise ClickException(message)
     except requests.exceptions.ConnectionError:
@@ -134,20 +134,20 @@ def restart(ctx, connector):
 
 
 @main.command('pause')
-@click.argument('connector')
+@click.argument('name')
 @click.pass_context
-def pause(ctx, connector):
+def pause(ctx, name):
     """Pause the connector and its tasks.
     """
     kafka_connect_url = get_kafka_connect_url(ctx.parent)
-    uri = f'{kafka_connect_url}/connectors/{connector}/pause'
+    uri = f'{kafka_connect_url}/connectors/{name}/pause'
 
     try:
         r = requests.put(uri)
         r.raise_for_status()
     except requests.exceptions.HTTPError as err:
         if err.response.status_code == 404:
-            message = (f'Connector {connector} not found.')
+            message = (f'Connector {name} not found.')
             raise ClickException(message)
     except requests.exceptions.ConnectionError:
         message = (f'Failed to establish connection with {kafka_connect_url}.')
@@ -155,20 +155,20 @@ def pause(ctx, connector):
 
 
 @main.command('resume')
-@click.argument('connector')
+@click.argument('name')
 @click.pass_context
-def resume(ctx, connector):
+def resume(ctx, name):
     """Resume a paused connector.
     """
     kafka_connect_url = get_kafka_connect_url(ctx.parent)
-    uri = f'{kafka_connect_url}/connectors/{connector}/resume'
+    uri = f'{kafka_connect_url}/connectors/{name}/resume'
 
     try:
         r = requests.put(uri)
         r.raise_for_status()
     except requests.exceptions.HTTPError as err:
         if err.response.status_code == 404:
-            message = (f'Connector {connector} not found.')
+            message = (f'Connector {name} not found.')
             raise ClickException(message)
     except requests.exceptions.ConnectionError:
         message = (f'Failed to establish connection with {kafka_connect_url}.')
@@ -190,32 +190,33 @@ def list(ctx):
         message = (f'Failed to establish connection with {kafka_connect_url}.')
         raise ClickException(message)
 
-    for connector in r.json():
-        click.echo(connector)
+    connectors = r.json()
+    for name in connectors:
+        click.echo(name)
 
 
 @main.command('status')
-@click.argument('connector')
+@click.argument('name')
 @click.pass_context
-def status(ctx, connector):
+def status(ctx, name):
     """Get current status of the connector.
 
     Whether it is running, failed or paused, which worker it is assigned to,
     error information if it has failed, and the state of all its tasks.
     """
     kafka_connect_url = get_kafka_connect_url(ctx.parent)
-    status = get_connector_status(kafka_connect_url, connector)
+    status = get_connector_status(kafka_connect_url, name)
     click.echo(status)
 
 
 @main.command('info')
-@click.argument('connector')
+@click.argument('name')
 @click.pass_context
-def info(ctx, connector):
+def info(ctx, name):
     """Get information about the connector.
     """
     kafka_connect_url = get_kafka_connect_url(ctx.parent)
-    uri = f'{kafka_connect_url}/connectors/{connector}'
+    uri = f'{kafka_connect_url}/connectors/{name}'
     r = requests.get(uri)
 
     try:
@@ -223,7 +224,7 @@ def info(ctx, connector):
         click.echo(json.dumps(r.json(), indent=4, sort_keys=True))
     except requests.exceptions.HTTPError as err:
         if err.response.status_code == 404:
-            message = (f'Connector {connector} not found.')
+            message = (f'Connector {name} not found.')
             raise ClickException(message)
     except requests.exceptions.ConnectionError:
         message = (f'Failed to establish connection with {kafka_connect_url}.')
