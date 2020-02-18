@@ -2,12 +2,14 @@
 kafka-connect-manager
 ========================
 
-
 .. image:: https://img.shields.io/pypi/v/kafka-connect-manager.svg
-        :target: https://pypi.python.org/pypi/kafka-connect-manager
+   :target: https://pypi.python.org/pypi/kafka-connect-manager
 
-.. image:: https://img.shields.io/travis/lsst-sqre/kafka-connect-manager.svg
-        :target: https://travis-ci.com/lsst-sqre/kafka-connect-manager
+.. image:: https://img.shields.io/pypi/pyversions/kafka-connect-manager.svg?style=flat-square
+   :target: https://pypi.python.org/pypi/kafka-connect-manager
+   
+.. image:: https://travis-ci.com/lsst-sqre/kafka-connect-manager.svg
+   :target: https://travis-ci.com/lsst-sqre/kafka-connect-manager
 
 Python client for managing Confluent Kafka connectors
 
