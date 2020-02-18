@@ -1,4 +1,4 @@
-FROM python:3.7.3
+FROM python:3.7-slim
 MAINTAINER afausti@lsst.org
 LABEL description="Python client for managing Confluent Kafka connectors" \
       name="lsstsqre/kafka-connect-manager"
