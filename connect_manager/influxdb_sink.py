@@ -23,16 +23,15 @@
 https://docs.lenses.io/connectors/sink/influx.html
 """
 
-__all__ = ('create_influxdb_sink', 'make_connector_queries',
+__all__ = ('create_influxdb_sink', 'update_influxdb_sink_config',
            'make_influxdb_sink_config',)
 
 import click
 import json
 import time
-import re
 
 from .utils import (get_broker_url, get_kafka_connect_url,
-                    update_connector, get_existing_topics,
+                    update_connector, get_topics,
                     get_connector_status)
 
 
@@ -122,33 +121,26 @@ def create_influxdb_sink(ctx, topics, name, influxdb_url, database, tasks,
                          username, password, filter_regex, dry_run,
                          auto_update, check_interval, blacklist,
                          timestamp, error_policy, max_retries, retry_interval):
-    """The `Landoop InfluxDB Sink connector
-    <https://docs.lenses.io/connectors/sink/influx.html>`_.
+    """Create an instance of the Stream Reactor InfluxDB Sink Connector.
 
-    Create connector configuration from a list of TOPICS. If not
-    provided, TOPICS are discovered from Kafka.
+    The TOPICS argument specifies the list of topics to write to InfluxDB.
+    If not provided, topics are discovered from Kafka. In this case, use the
+    --filter option to regex the topics you want to write to InfluxDB.
     """
     broker_url = get_broker_url(ctx.parent.parent)
     topics = list(topics)
     if topics == []:
         click.echo("Discoverying Kafka topics...")
-        topics = get_existing_topics(broker_url)
-
-    if filter_regex:
-        pattern = re.compile(filter_regex)
-        topics = [t for t in topics if pattern.match(t)]
-
-    if blacklist:
-        for blacklisted_topic in blacklist:
-            topics.remove(blacklisted_topic)
+        topics = get_topics(broker_url, filter_regex, blacklist)
 
     click.echo("Found {} topics.".format(len(topics)))
 
+    config = make_influxdb_sink_config(influxdb_url,
+                                       database, tasks, username,
+                                       password, error_policy,
+                                       max_retries, retry_interval)
     if topics:
-        config = make_influxdb_sink_config(topics, influxdb_url,
-                                           database, tasks, username,
-                                           password, timestamp, error_policy,
-                                           max_retries, retry_interval)
+        config = update_influxdb_sink_config(config, topics, timestamp)
 
         if dry_run:
             click.echo(json.dumps(config, indent=4, sort_keys=True))
@@ -156,7 +148,7 @@ def create_influxdb_sink(ctx, topics, name, influxdb_url, database, tasks,
 
         kafka_connect_url = get_kafka_connect_url(ctx.parent.parent)
 
-        click.echo("Creating the connector...")
+        click.echo("Updating the connector...")
         update_connector(kafka_connect_url, name, config)
         status = get_connector_status(kafka_connect_url, name)
         click.echo(status)
@@ -165,33 +157,15 @@ def create_influxdb_sink(ctx, topics, name, influxdb_url, database, tasks,
         while True:
             time.sleep(check_interval)
             try:
-                current_topics = get_existing_topics(broker_url)
-                # apply the same filter here
-                if filter_regex:
-                    pattern = re.compile(filter_regex)
-                    current_topics = [t for t in current_topics
-                                      if pattern.match(t)]
-
-                if blacklist:
-                    for blacklisted_topic in blacklist:
-                        current_topics.remove(blacklisted_topic)
-
-                # topics in current_topics but not in topics
+                current_topics = get_topics(broker_url, filter_regex,
+                                            blacklist)
                 new_topics = list(set(current_topics) - set(topics))
                 if new_topics:
                     click.echo('Found new topics, updating the connector...')
-                    config = make_influxdb_sink_config(current_topics,
-                                                       influxdb_url,
-                                                       database,
-                                                       tasks,
-                                                       username,
-                                                       password,
-                                                       timestamp,
-                                                       error_policy,
-                                                       max_retries,
-                                                       retry_interval)
-                    update_connector(kafka_connect_url, name,
-                                     config)
+                    config = update_influxdb_sink_config(config,
+                                                         current_topics,
+                                                         timestamp)
+                    update_connector(kafka_connect_url, name, config)
                     status = get_connector_status(kafka_connect_url, name)
                     click.echo(status)
                     topics = current_topics
@@ -200,33 +174,39 @@ def create_influxdb_sink(ctx, topics, name, influxdb_url, database, tasks,
     return 0
 
 
-def make_connector_queries(topics, timestamp):
-    """Make the kafka connector queries. It assumes that the topic structure
-    is flat  (`SELECT * FROM`).
+def update_influxdb_sink_config(config, topics, timestamp=''):
+    """Update the InfluxDB connector configuration, adding a list of
+    topics and the corresponding InfluxDB KCQL queries.
+    We assume that the topic structure is flat, i.e `SELECT * FROM` will
+    retrieve the topic fields.
 
     Parameters
     ----------
+    config : `dict`
+        A configuration dictionary as retuned by `make_influxdb_sink_config()`
     topics : `list`
         List of kafka topics.
-    time_field : `str`
-        Uses an existing field or the system time as the InfluxDB timestamp.
+    timestamp : `str`
+        Use timestamp as the the InfluxDB timestamp.
     """
-
+    # Ensure uniqueness and sort topic names
+    topics = list(set(topics))
+    topics.sort()
+    config['topics'] = ','.join(topics)
     queries = [f'INSERT INTO {t} SELECT * FROM {t} WITHTIMESTAMP {timestamp}'
                for t in topics]
+    config['connect.influx.kcql'] = ";".join(queries)
 
-    return ";".join(queries)
+    return config
 
 
-def make_influxdb_sink_config(topics, influxdb_url, database, tasks,
-                              username, password, timestamp, error_policy,
+def make_influxdb_sink_config(influxdb_url, database, tasks,
+                              username, password, error_policy,
                               max_retries, retry_interval):
     """Make InfluxDB Sink connector configuration.
 
     Parameters
     ----------
-    topics : `list`
-        List of Kafka topics to add to the connector.
     influxdb_url : `str`
         InfluxDB connection URL.
     database : `str`
@@ -237,20 +217,20 @@ def make_influxdb_sink_config(topics, influxdb_url, database, tasks,
         InfluxDB username.
     password : `str`
         InfluxDB password.
+    error_policy : `str`
+        See connector error policy configuration.
+    max_retries : `str`
+        See connector error policy configuration.
+    retry_interval : `str`
+        See connector error policy configuration.
+
     """
     config = {}
     config['connector.class'] = 'com.datamountaineer.streamreactor.'\
                                 'connect.influx.InfluxSinkConnector'
     config['task.max'] = tasks
-    # Ensure uniqueness and sort
-    topics = list(set(topics))
-    topics.sort()
-    config['topics'] = ','.join(topics)
     config['connect.influx.url'] = influxdb_url
     config['connect.influx.db'] = database
-
-    queries = make_connector_queries(topics, timestamp)
-    config['connect.influx.kcql'] = queries
     config['connect.influx.username'] = username
 
     if password:
