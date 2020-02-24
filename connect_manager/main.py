@@ -34,6 +34,7 @@ import requests
 import json
 
 from .influxdb_sink import create_influxdb_sink
+from .replicator import create_replicator
 from .utils import get_kafka_connect_url, get_connector_status
 
 
@@ -247,3 +248,4 @@ def help(ctx, topic, **kw):
 
 # Add subcommands from other modules
 create.add_command(create_influxdb_sink)
+create.add_command(create_replicator)
