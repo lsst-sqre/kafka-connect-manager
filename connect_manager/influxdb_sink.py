@@ -80,9 +80,9 @@ from .utils import (get_broker_url, get_kafka_connect_url,
           '--auto-update does not take effect if --dry-run is used.')
 )
 @click.option(
-    '--check-interval', 'check_interval', default=15,
-    help=('Time interval in seconds to check for new topics and update the '
-          'connector.')
+    '--check-interval', 'check_interval', default=15000,
+    help=('The interval, in milliseconds, to check for new topics and update'
+          'the connector.')
 )
 @click.option(
     '--blacklist', 'blacklist', multiple=True,
@@ -155,7 +155,7 @@ def create_influxdb_sink(ctx, topics, name, influxdb_url, database, tasks,
 
     if auto_update:
         while True:
-            time.sleep(check_interval)
+            time.sleep(int(check_interval) / 1000)
             try:
                 current_topics = get_topics(broker_url, filter_regex,
                                             blacklist)
