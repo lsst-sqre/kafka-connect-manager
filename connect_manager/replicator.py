@@ -27,6 +27,7 @@ __all__ = ('create_replicator', 'make_replicator_config',)
 
 import click
 import json
+import time
 
 from .utils import (get_kafka_connect_url, update_connector,
                     get_connector_status)
@@ -126,8 +127,14 @@ def create_replicator(ctx, topics, name, src_kafka, dest_kafka,
 
     click.echo("Updating the connector...")
     update_connector(kafka_connect_url, name, config)
-    status = get_connector_status(kafka_connect_url, name)
-    click.echo(status)
+
+    while True:
+        time.sleep(int(check_interval) / 1000)
+        try:
+            status = get_connector_status(kafka_connect_url, name)
+            click.echo(status)
+        except KeyboardInterrupt:
+            raise click.ClickException('Interruped.')
 
 
 def make_replicator_config(topics, src_kafka, dest_kafka,
