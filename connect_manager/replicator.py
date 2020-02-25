@@ -91,7 +91,7 @@ from .utils import (get_kafka_connect_url, update_connector,
           'the connector.')
 )
 @click.option(
-    '--blacklist', 'blacklist', multiple=True,
+    '--blacklist', 'blacklist', multiple=True, default=[],
     help=('Topics to exclude from replication. Note that Kafka internal '
           'topics are not replicated by default.')
 )
@@ -113,7 +113,6 @@ def create_replicator(ctx, topics, name, src_kafka, dest_kafka,
     have to match the regex.
     """
     topics = list(topics)
-    blacklist = list(blacklist)
     config = make_replicator_config(topics, src_kafka, dest_kafka,
                                     topic_rename_format, tasks,
                                     schema_registry_topic, schema_registry_url,
@@ -185,11 +184,15 @@ def make_replicator_config(topics, src_kafka, dest_kafka,
 
     # The schema registry topic must be whitelisted explicitly
     topics.append(schema_registry_topic)
-    config['topic.whitelist'] = ",".join(topics)
 
     if blacklist:
         config['topic.blacklist'] = ",".join(blacklist)
 
+        # Make sure blacklisted topics are not whitelisted
+        for blacklisted_topic in blacklist:
+            topics.remove(blacklisted_topic)
+
+    config['topic.whitelist'] = ",".join(topics)
     config['topic.rename.format'] = topic_rename_format
     config['topic.poll.interval.ms'] = check_interval
     config['src.kafka.bootstrap.servers'] = src_kafka
