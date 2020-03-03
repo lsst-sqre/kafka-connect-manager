@@ -171,7 +171,7 @@ def make_replicator_config(topics, src_kafka, dest_kafka,
     config = {}
     config['connector.class'] = 'io.confluent.connect.replicator.'\
         'ReplicatorSourceConnector'
-    config['task.max'] = tasks
+    config['tasks.max'] = tasks
     config['key.converter'] = DEFAULT_CONVERTER
     config['value.converter'] = DEFAULT_CONVERTER
     config['header.coverter'] = DEFAULT_CONVERTER

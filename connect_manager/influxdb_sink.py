@@ -228,7 +228,7 @@ def make_influxdb_sink_config(influxdb_url, database, tasks,
     config = {}
     config['connector.class'] = 'com.datamountaineer.streamreactor.'\
                                 'connect.influx.InfluxSinkConnector'
-    config['task.max'] = tasks
+    config['tasks.max'] = tasks
     config['connect.influx.url'] = influxdb_url
     config['connect.influx.db'] = database
     config['connect.influx.username'] = username

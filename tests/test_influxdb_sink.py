@@ -70,7 +70,7 @@ def test_influxdb_sink_config(config):
     assert config['connect.influx.username'] == 'nobody'
     assert config['connector.class'] == 'com.datamountaineer.streamreactor.'\
         'connect.influx.InfluxSinkConnector'
-    assert config['task.max'] == 1
+    assert config['tasks.max'] == 1
     assert config['topics'] == 'topic1,topic2,topic3'
 
 

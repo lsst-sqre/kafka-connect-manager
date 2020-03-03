@@ -71,7 +71,7 @@ def test_replicator_config(config):
     assert config['schema.subject.translator.class'] == 'io.confluent.connect'\
         '.replicator.schemas.DefaultSubjectTranslator'
     assert config['src.kafka.bootstrap.servers'] == 'localhost:80'
-    assert config['task.max'] == 4
+    assert config['tasks.max'] == 4
     assert config['topic.poll.interval.ms'] == '1000'
     assert config['topic.rename.format'] == '${topic}'
     assert config['topic.regex'] == 'topic*'
