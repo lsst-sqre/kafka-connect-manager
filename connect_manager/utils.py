@@ -22,11 +22,13 @@
 """Helpers for command-line tools.
 """
 
-__all__ = ('get_broker_url', 'get_kafka_connect_url', 'get_existing_topics',
+__all__ = ('get_broker_url', 'get_kafka_connect_url', 'get_topics',
            'update_connector', 'get_connector_status')
 
 import requests
 import json
+import re
+
 
 from click import ClickException
 import confluent_kafka
@@ -75,8 +77,8 @@ def get_kafka_connect_url(ctx):
     return kafka_connect_url
 
 
-def get_existing_topics(broker_url):
-    """Get existing topics from Kafka.
+def get_topics(broker_url, filter_regex, blacklist):
+    """Get existing topics in Kafka.
 
     Parameters
     ==========
@@ -87,15 +89,23 @@ def get_existing_topics(broker_url):
     broker_client = AdminClient({
         "bootstrap.servers": broker_url
     })
-    existing_topics = []
+    topics = []
     try:
         metadata = broker_client.list_topics(timeout=10)
-        existing_topics = set(metadata.topics.keys())
+        topics = set(metadata.topics.keys())
     except confluent_kafka.KafkaException as err:
         message = err.args[0].str()
         raise ClickException(message)
 
-    return existing_topics
+    if filter_regex:
+        pattern = re.compile(filter_regex)
+        topics = [t for t in topics if pattern.match(t)]
+
+    if blacklist:
+        for blacklisted_topic in blacklist:
+            topics.remove(blacklisted_topic)
+
+    return topics
 
 
 def update_connector(kafka_connect_url, name, config):
@@ -123,7 +133,14 @@ def update_connector(kafka_connect_url, name, config):
 
 
 def get_connector_status(kafka_connect_url, name):
-    """
+    """Get connector status.
+
+    Parameters
+    ==========
+    kafka_connect_url : `str`
+        Kafka connect URL.
+    name : `str`
+        Connector name.
     """
     uri = f'{kafka_connect_url}/connectors/{name}/status'
     try:
