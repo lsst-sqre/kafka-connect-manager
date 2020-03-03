@@ -2,6 +2,13 @@
 History
 =======
 
+0.7.0 (2020-03-03)
+------------------
+
+* Add support to replicator connector
+
+* Fix ``tasks.max`` configuration parameter name 
+
 0.6.0 (2020-02-14)
 ------------------
 
