@@ -64,7 +64,7 @@ def test_replicator_config(config):
     assert config['connector.class'] == 'io.confluent.connect.replicator.'\
         'ReplicatorSourceConnector'
     assert config['dest.kafka.bootstrap.servers'] == 'localhost:80'
-    assert config['header.coverter'] == DEFAULT_CONVERTER
+    assert config['header.converter'] == DEFAULT_CONVERTER
     assert config['key.converter'] == DEFAULT_CONVERTER
     assert config['schema.registry.topic'] == '_schemas'
     assert config['schema.registry.url'] == 'http://example.com'
