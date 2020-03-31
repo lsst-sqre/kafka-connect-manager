@@ -15,14 +15,28 @@ Features
 Supported connectors
 --------------------
 
-* Landoop InfluxDB Sink
+  * `Lenses InfluxDB Sink <https://docs.lenses.io/connectors/sink/influx.html>`_
 
-  * Scripted configuration
+    * Scripted configuration
 
-  * Dynamically check existing topics in Kafka and update the connector configuration
+    * Dynamically check existing topics in Kafka and update the connector configuration
 
-  * When configuring the connector skip topic names added to a blacklist
+    * Skip topic names added to a blacklist
 
+    * Select timestamp field to use as the InfluxDB time
+
+    * Error handling
+
+
+  * `Confluent Replicator <https://docs.confluent.io/5.3.1/connect/kafka-connect-replicator/index.html>`_
+
+    * Scripted configuration
+
+    * Dynamically poll the source cluster for new topics
+
+    * Support topic replication and schema continuous migration
+
+    * Skip topic names added to a blacklist
 
 Installation
 ============
