@@ -2,12 +2,17 @@
 History
 =======
 
+0.7.1 (2020-03-30)
+------------------
+
+* Fix Header Converter Class configuration parameter
+
 0.7.0 (2020-03-03)
 ------------------
 
 * Add support to replicator connector
 
-* Fix ``tasks.max`` configuration parameter name 
+* Fix ``tasks.max`` configuration parameter name
 
 0.6.0 (2020-02-14)
 ------------------
@@ -23,7 +28,7 @@ History
 0.4.0 (2019-09-26)
 ------------------
 
-* Add error handling confiuration to the InfluxDB Sink connector.
+* Add error handling configuration to the InfluxDB Sink connector.
 
 0.3.0 (2019-09-24)
 ------------------

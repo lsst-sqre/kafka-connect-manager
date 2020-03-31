@@ -174,7 +174,7 @@ def make_replicator_config(topics, src_kafka, dest_kafka,
     config['tasks.max'] = tasks
     config['key.converter'] = DEFAULT_CONVERTER
     config['value.converter'] = DEFAULT_CONVERTER
-    config['header.coverter'] = DEFAULT_CONVERTER
+    config['header.converter'] = DEFAULT_CONVERTER
     config['schema.registry.topic'] = schema_registry_topic
     config['topic.regex'] = filter_regex
 
