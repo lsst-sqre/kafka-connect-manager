@@ -7,7 +7,7 @@ kafka-connect-manager
 
 .. image:: https://img.shields.io/pypi/pyversions/kafka-connect-manager.svg?style=flat-square
    :target: https://pypi.python.org/pypi/kafka-connect-manager
-   
+
 .. image:: https://travis-ci.com/lsst-sqre/kafka-connect-manager.svg
    :target: https://travis-ci.com/lsst-sqre/kafka-connect-manager
 
@@ -27,12 +27,25 @@ Features
 Supported connectors
 ^^^^^^^^^^^^^^^^^^^^
 
-* Landoop InfluxDB Sink
+* `Lenses InfluxDB Sink <https://docs.lenses.io/connectors/sink/influx.html>`_
 
   * Scripted configuration
 
   * Dynamically check existing topics in Kafka and update the connector configuration
 
-  * When configuring the connector skip topic names added to a blacklist
+  * Skip topic names added to a blacklist
+
+  * Select timestamp field to use as the InfluxDB time
 
   * Error handling
+
+
+* `Confluent Replicator <https://docs.confluent.io/5.3.1/connect/kafka-connect-replicator/index.html>`_
+
+  * Scripted configuration
+
+  * Dynamically poll the source cluster for new topics
+
+  * Support topic replication and schema continuous migration
+
+  * Skip topic names added to a blacklist
