@@ -1,20 +1,63 @@
-FROM python:3.7-slim
-MAINTAINER afausti@lsst.org
-LABEL description="Python client for managing Confluent Kafka connectors" \
-      name="lsstsqre/kafka-connect-manager"
+# This Dockerfile has four stages:
+#
+# base-image
+#   Updates the base Python image with security patches and common system
+#   packages. This image becomes the base of all other images.
+# dependencies-image
+#   Installs third-party dependencies (requirements/main.txt) into a virtual
+#   environment. This virtual environment is ideal for copying across build
+#   stages.
+# install-image
+#   Installs the app into the virtual environment.
+# runtime-image
+#   - Copies the virtual environment into place.
+#   - Runs a non-root user.
+#   - Sets up the entrypoint and port.
 
-USER root
-RUN useradd -d /home/app -m app && \
-    mkdir /dist && \
-    pip install --upgrade pip
+FROM python:3.7-slim-buster AS base-image
 
-# Supply on CL as --build-arg VERSION=<version> (or run `make docker`).
-ARG        VERSION="0.1.0"
-LABEL      version=$VERSION
-COPY       dist/kafka-connect-manager-$VERSION.tar.gz /dist
-RUN        pip install /dist/kafka-connect-manager-$VERSION.tar.gz
+# Update system packages
+COPY scripts/install-base-packages.sh .
+RUN ./install-base-packages.sh
 
-USER app
-WORKDIR /home/app
+FROM base-image AS dependencies-image
 
-CMD [ "connect-manager", "--version" ]
+# Create a Python virtual environment
+ENV VIRTUAL_ENV=/opt/venv
+RUN python -m venv $VIRTUAL_ENV
+# Make sure we use the virtualenv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+# Put the latest pip and setuptools in the virtualenv
+RUN pip install --upgrade --no-cache-dir pip setuptools wheel
+
+# Install the app's Python runtime dependencies
+COPY requirements/main.txt ./requirements.txt
+RUN pip install --quiet --no-cache-dir -r requirements.txt
+
+FROM base-image AS install-image
+
+# Use the virtualenv
+COPY --from=dependencies-image /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY . /app
+WORKDIR /app
+RUN pip install --no-cache-dir .
+
+FROM base-image AS runtime-image
+
+# Create a non-root user
+RUN useradd --create-home appuser
+WORKDIR /home/appuser
+
+# Make sure we use the virtualenv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY --from=install-image /opt/venv /opt/venv
+
+# Switch to non-root user
+USER appuser
+
+EXPOSE 8080
+
+ENTRYPOINT ["kafkaconnect", "--version"]
