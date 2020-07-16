@@ -184,9 +184,9 @@ typing-extensions==3.7.4.2 \
     --hash=sha256:79ee589a3caca649a9bfd2a8de4709837400dfa00b6cc81962a1e6a1815969ae \
     --hash=sha256:f8d2bd89d25bc39dabe7d23df520442fa1d8969b82544370e03d88b5a591c392 \
     # via mypy
-virtualenv==20.0.26 \
-    --hash=sha256:c11a475400e98450403c0364eb3a2d25d42f71cf1493da64390487b666de4324 \
-    --hash=sha256:e10cc66f40cbda459720dfe1d334c4dc15add0d80f09108224f171006a97a172 \
+virtualenv==20.0.27 \
+    --hash=sha256:26cdd725a57fef4c7c22060dba4647ebd8ca377e30d1c1cf547b30a0b79c43b4 \
+    --hash=sha256:c51f1ba727d1614ce8fd62457748b469fbedfdab2c7e5dd480c9ae3fbe1233f1 \
     # via pre-commit
 wcwidth==0.2.5 \
     --hash=sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784 \
