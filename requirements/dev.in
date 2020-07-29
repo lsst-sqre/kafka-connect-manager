@@ -5,8 +5,10 @@
 # After editing, update requirements/dev.txt by running:
 #     make update-deps
 
-pre-commit
-coverage[toml]
-flake8
-mypy
-pytest
+pre-commit==2.6.0
+coverage[toml]==5.2
+flake8==3.8.3
+mypy==0.782
+pytest==5.4.3
+pytest-docker==0.7.2
+docker-compose==1.26.2
