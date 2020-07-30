@@ -18,6 +18,7 @@ influx_config = InfluxConfig()
 
 
 @click.command("influxdb-sink")
+@click.argument("topics", nargs=-1, required=False)
 @click.option(
     "-n",
     "--name",
@@ -145,7 +146,7 @@ influx_config = InfluxConfig()
     default=Config.excluded_topics,
     show_default=True,
     help=(
-        "Comma separated list of 'problematic' topics to exclude from "
+        "Comma separated list of topics to exclude from "
         "selection. Alternatively set via the "
         "$KAFKA_CONNECT_EXCLUDED_TOPICS env var."
     ),
@@ -210,6 +211,7 @@ influx_config = InfluxConfig()
 @click.pass_context
 def create_influxdb_sink(
     ctx,
+    topics,
     name,
     connect_influx_url,
     connect_influx_db,
@@ -230,20 +232,14 @@ def create_influxdb_sink(
 ):
     """Create an instance of the InfluxDB Sink connector.
 
-    Topics are discovered from Kafka, use the --topic-regex and
+    A list of topics can be specified using the TOPICS argument.
+    If not, topics are discovered from Kafka. Use the --topic-regex and
     --excluded_topics options to help in selecting the topics
     that you want to write to InfluxDB. To check for new topics and update
     the connector configuration use the
     --auto-update and --check-interval options.
     option.
     """
-    config = ctx.parent.obj["config"]
-    connect = Connect(connect_url=config.connect_url)
-    click.echo("Discoverying Kafka topics...")
-    # List topics from Kafka
-    topics = Topic(config.broker_url, topic_regex, excluded_topics).names
-    n = 0 if not topics else len(topics)
-    click.echo(f"Found {n} topics.")
     # Connector configuration
     influx_config = InfluxConfig(
         connect_influx_url=connect_influx_url,
@@ -256,7 +252,14 @@ def create_influxdb_sink(
         connect_influx_retry_interval=connect_influx_retry_interval,
         connect_progress_enabled=connect_progress_enabled,
     )
-
+    config = ctx.parent.obj["config"]
+    if not topics:
+        click.echo("Discoverying Kafka topics...")
+        # List topics from Kafka
+        topics = Topic(config.broker_url, topic_regex, excluded_topics).names
+        n = 0 if not topics else len(topics)
+        click.echo(f"Found {n} topics.")
+    connect = Connect(connect_url=config.connect_url)
     if topics:
         influx_config.update_topics(topics)
         influx_config.update_influx_kcql(timestamp)
