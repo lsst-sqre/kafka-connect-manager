@@ -90,6 +90,18 @@ def test_create_or_update() -> None:
 
 
 @pytest.mark.vcr
+def test_validate() -> None:
+    connect = Connect(connect_url="http://localhost:8083")
+    connect_config = InfluxConfig()
+    connect_config.update_topics(["t1", "t2", "t3"])
+    connect_config.update_influx_kcql()
+    result = connect.validate(
+        name="InfluxSinkConnector", connect_config=connect_config.asjson()
+    )
+    assert "error_count" in result
+
+
+@pytest.mark.vcr
 def test_restart() -> None:
     connect = Connect(connect_url="http://localhost:8083")
     result = connect.restart("influxdb-sink")
