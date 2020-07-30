@@ -5,16 +5,11 @@
 __all__ = ["Connect"]
 
 import json
-import logging
 from enum import Enum
 from typing import Optional
 
 from requests import delete, get, post, put  # noqa
 from requests.exceptions import ConnectionError, HTTPError
-
-logger = logging.getLogger("connect")
-
-ContentT = str
 
 
 class HTTPMethod(Enum):
@@ -42,7 +37,7 @@ class Connect:
 
     def _request(
         self, method: HTTPMethod, uri: str, data: Optional[str] = None
-    ) -> Optional[ContentT]:
+    ) -> str:
         """Make HTTP requests.
 
         Parameters
@@ -75,63 +70,58 @@ class Connect:
         except HTTPError as err:
             if err.response.status_code == 404:
                 message = f"Resource {uri} not found."
-                logger.error(message)
-                return None
+                return message
             # returns 409 (Conflict) if kafka cluster rebalance is in process.
             if err.response.status_code == 409:
                 message = "Kafka cluster rebalance is in process."
-                logger.error(message)
-                return None
+                return message
         except ConnectionError:
             message = (
                 f"Failed to establish connection with the "
                 f"Connect API {self._connect_url}."
             )
-            logger.error(message)
-            return None
-        content = None
+            return message
+        content = ""
         if response.text:
             content = json.dumps(response.json(), indent=4, sort_keys=True)
         return content
 
-    def list(self) -> Optional[ContentT]:
+    def list(self) -> str:
         """Get a list of active connectors."""
         uri = f"{self._connect_url}/connectors"
         return self._request(method=HTTPMethod.GET, uri=uri)
 
-    def info(self, name: str) -> Optional[ContentT]:
+    def info(self, name: str) -> str:
         """Get information about the connector."""
         uri = f"{self._connect_url}/connectors/{name}"
         return self._request(method=HTTPMethod.GET, uri=uri)
 
-    def status(self, name: str) -> Optional[ContentT]:
+    def status(self, name: str) -> str:
         """Get the connector status."""
         uri = f"{self._connect_url}/connectors/{name}/status"
         return self._request(method=HTTPMethod.GET, uri=uri)
 
-    def config(self, name: str) -> Optional[ContentT]:
+    def config(self, name: str) -> str:
         """Get the connector configuration."""
         uri = f"{self._connect_url}/connectors/{name}/config"
         return self._request(method=HTTPMethod.GET, uri=uri)
 
-    def tasks(self, name: str) -> Optional[ContentT]:
+    def tasks(self, name: str) -> str:
         """Get a list of tasks currently running for the connector."""
         uri = f"{self._connect_url}/connectors/{name}/tasks"
         return self._request(method=HTTPMethod.GET, uri=uri)
 
-    def topics(self, name: str) -> Optional[ContentT]:
+    def topics(self, name: str) -> str:
         """Get the list of topic names used by the connector."""
         uri = f"{self._connect_url}/connectors/{name}/topics"
         return self._request(method=HTTPMethod.GET, uri=uri)
 
-    def plugins(self) -> Optional[ContentT]:
+    def plugins(self) -> str:
         """Get a list of connector plugins available in the Connect cluster."""
         uri = f"{self._connect_url}/connector-plugins"
         return self._request(method=HTTPMethod.GET, uri=uri)
 
-    def create_or_update(
-        self, name: str, connect_config: str
-    ) -> Optional[ContentT]:
+    def create_or_update(self, name: str, connect_config: str) -> str:
         """Create or update a connector.
 
         Create a new connector using the given configuration, or update the
@@ -155,22 +145,22 @@ class Connect:
             method=HTTPMethod.PUT, uri=uri, data=connect_config
         )
 
-    def restart(self, name: str) -> Optional[ContentT]:
+    def restart(self, name: str) -> str:
         """Restart the connector"""
         uri = f"{self._connect_url}/connectors/{name}/restart"
         return self._request(method=HTTPMethod.POST, uri=uri)
 
-    def pause(self, name: str) -> Optional[ContentT]:
+    def pause(self, name: str) -> str:
         """Pause the connector."""
         uri = f"{self._connect_url}/connectors/{name}/pause"
         return self._request(method=HTTPMethod.PUT, uri=uri)
 
-    def resume(self, name: str) -> Optional[ContentT]:
+    def resume(self, name: str) -> str:
         """Resume a paused connector"""
         uri = f"{self._connect_url}/connectors/{name}/resume"
         return self._request(method=HTTPMethod.PUT, uri=uri)
 
-    def validate(self, name: str, connect_config: str) -> Optional[ContentT]:
+    def validate(self, name: str, connect_config: str) -> str:
         """Validate the connector configuration.
 
         Validate the configuration values against the configuration definition.
@@ -180,7 +170,7 @@ class Connect:
             method=HTTPMethod.PUT, uri=uri, data=connect_config
         )
 
-    def remove(self, name: str) -> Optional[ContentT]:
+    def remove(self, name: str) -> str:
         """Delete a connector, halting tasks and deleting its configuration."""
         uri = f"{self._connect_url}/connectors/{name}"
         return self._request(method=HTTPMethod.DELETE, uri=uri)
