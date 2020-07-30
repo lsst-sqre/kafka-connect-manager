@@ -1,0 +1,30 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.24.0
+    method: GET
+    uri: http://localhost:8083/connector-plugins
+  response:
+    body:
+      string: '[{"class":"com.datamountaineer.streamreactor.connect.influx.InfluxSinkConnector","type":"sink","version":"1.2.1"},{"class":"io.confluent.connect.activemq.ActiveMQSourceConnector","type":"source","version":"5.3.1"},{"class":"io.confluent.connect.elasticsearch.ElasticsearchSinkConnector","type":"sink","version":"5.3.1"},{"class":"io.confluent.connect.ibm.mq.IbmMQSourceConnector","type":"source","version":"5.3.1"},{"class":"io.confluent.connect.jdbc.JdbcSinkConnector","type":"sink","version":"5.3.1"},{"class":"io.confluent.connect.jdbc.JdbcSourceConnector","type":"source","version":"5.3.1"},{"class":"io.confluent.connect.jms.JmsSourceConnector","type":"source","version":"5.3.1"},{"class":"io.confluent.connect.replicator.ReplicatorSourceConnector","type":"source","version":"5.3.1"},{"class":"io.confluent.connect.s3.S3SinkConnector","type":"sink","version":"5.3.1"},{"class":"io.confluent.connect.storage.tools.SchemaSourceConnector","type":"source","version":"5.3.1-ccs"},{"class":"org.apache.kafka.connect.file.FileStreamSinkConnector","type":"sink","version":"5.3.1-ccs"},{"class":"org.apache.kafka.connect.file.FileStreamSourceConnector","type":"source","version":"5.3.1-ccs"}]'
+    headers:
+      Content-Length:
+      - '1188'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 29 Jul 2020 23:17:35 GMT
+      Server:
+      - Jetty(9.4.18.v20190429)
+    status:
+      code: 200
+      message: OK
+version: 1

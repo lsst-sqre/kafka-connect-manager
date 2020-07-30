@@ -1,0 +1,30 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.24.0
+    method: GET
+    uri: http://localhost:8083/connectors/influxdb-sink/status
+  response:
+    body:
+      string: '{"name":"influxdb-sink","connector":{"state":"RUNNING","worker_id":"connect:8083"},"tasks":[{"id":0,"state":"RUNNING","worker_id":"connect:8083"}],"type":"sink"}'
+    headers:
+      Content-Length:
+      - '161'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 29 Jul 2020 23:06:32 GMT
+      Server:
+      - Jetty(9.4.18.v20190429)
+    status:
+      code: 200
+      message: OK
+version: 1

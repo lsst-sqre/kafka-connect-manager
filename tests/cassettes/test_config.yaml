@@ -1,0 +1,33 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.24.0
+    method: GET
+    uri: http://localhost:8083/connectors/influxdb-sink/config
+  response:
+    body:
+      string: '{"connect.influx.max.retries":"10","connector.class":"com.datamountaineer.streamreactor.connect.influx.InfluxSinkConnector","connect.influx.db":"mydb","tasks.max":"1","topics":"t1,t2,t3","connect.influx.kcql":"INSERT
+        INTO t1 SELECT * FROM t1 WITHTIMESTAMP sys_time();INSERT INTO t2 SELECT *
+        FROM t2 WITHTIMESTAMP sys_time();INSERT INTO t3 SELECT * FROM t3 WITHTIMESTAMP
+        sys_time()","connect.influx.username":"-","connect.progress.enabled":"false","connect.influx.password":"","connect.influx.url":"http://localhost:8086","connect.influx.error.policy":"THROW","name":"influxdb-sink","connect.influx.retry.interval":"60000"}'
+    headers:
+      Content-Length:
+      - '622'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 29 Jul 2020 23:07:45 GMT
+      Server:
+      - Jetty(9.4.18.v20190429)
+    status:
+      code: 200
+      message: OK
+version: 1
