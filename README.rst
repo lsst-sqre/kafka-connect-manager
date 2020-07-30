@@ -1,31 +1,18 @@
-========================
+#####################
 kafka-connect-manager
-========================
+#####################
 
-.. image:: https://img.shields.io/pypi/v/kafka-connect-manager.svg
-   :target: https://pypi.python.org/pypi/kafka-connect-manager
-
-.. image:: https://img.shields.io/pypi/pyversions/kafka-connect-manager.svg?style=flat-square
-   :target: https://pypi.python.org/pypi/kafka-connect-manager
-
-.. image:: https://travis-ci.com/lsst-sqre/kafka-connect-manager.svg
-   :target: https://travis-ci.com/lsst-sqre/kafka-connect-manager
-
-Python client for managing Confluent Kafka connectors
-
-* Free software: GNU General Public License v3
-* Documentation: https://kafka-connect-manager.lsst.io.
-
+Python client for managing Kafka connectors.
 
 Features
---------
+========
 
 * List, create, and delete connectors
 * Get info, status, pause, resume and restart an existing connector
-* k8s deployment via `kafka-connect-manager <https://lsst-sqre.github.io/charts/>`_ Helm chart
+* k8s deployment via `Helm chart <https://lsst-sqre.github.io/charts/>`_.
 
 Supported connectors
-^^^^^^^^^^^^^^^^^^^^
+====================
 
 * `Lenses InfluxDB Sink <https://docs.lenses.io/connectors/sink/influx.html>`_
 
@@ -49,3 +36,6 @@ Supported connectors
   * Support topic replication and schema continuous migration
 
   * Skip topic names added to a blacklist
+
+
+  See `the docs <https://kafka-connect-manager.lsst.io>`_ for more information.

@@ -1,0 +1,30 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.24.0
+    method: PUT
+    uri: http://localhost:8083/connectors/influxdb-sink/pause
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Length:
+      - '0'
+      Date:
+      - Wed, 29 Jul 2020 23:45:36 GMT
+      Server:
+      - Jetty(9.4.18.v20190429)
+    status:
+      code: 202
+      message: Accepted
+version: 1
