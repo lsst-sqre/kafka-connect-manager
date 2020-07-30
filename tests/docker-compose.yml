@@ -34,20 +34,6 @@ services:
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
 
-  schema-registry:
-    image: confluentinc/cp-schema-registry:5.5.1
-    hostname: schema-registry
-    container_name: schema-registry
-    depends_on:
-      - zookeeper
-      - broker
-    ports:
-      - "8081:8081"
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_MASTER_ELIGIBILITY: "true"
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
-
   connect:
     image: lsstsqre/cp-kafka-connect:5.3.2
     hostname: connect
@@ -55,7 +41,6 @@ services:
     depends_on:
       - zookeeper
       - broker
-      - schema-registry
     ports:
       - "8083:8083"
     environment:
