@@ -28,7 +28,7 @@ class Config:
     excluded_topics: str = os.getenv("KAFKA_CONNECT_EXCLUDED_TOPICS", "")
     """Comma separated list of topics to exclude from selection."""
 
-    check_interval: str = os.getenv("KAFKA_CONNECT_CHECK_INTERVAL", "15000")
+    check_interval: int = int(os.getenv("KAFKA_CONNECT_CHECK_INTERVAL", 15000))
     """The interval, in milliseconds, to update the connector.
 
     Check Kafka for new topics and update the connector configuration.
