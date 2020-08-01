@@ -35,7 +35,7 @@ services:
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
 
   connect:
-    image: lsstsqre/cp-kafka-connect:5.3.2
+    image: lsstsqre/cp-kafka-connect:5.5.1-0.8.0
     hostname: connect
     container_name: connect
     depends_on:
