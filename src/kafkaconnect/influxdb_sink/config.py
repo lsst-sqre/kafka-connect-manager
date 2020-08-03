@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List
 
 from kafkaconnect.config import ConnectConfig
@@ -28,7 +28,7 @@ class InfluxConfig(ConnectConfig):
     )
     """Stream reactor InfluxDB Sink connector class"""
 
-    connect_influx_kcql: List[str] = field(default_factory=list)
+    connect_influx_kcql: str = ""
     """KCQL queries to extract fields from topics.
 
     We assume that a topic has a flat structure so that `SELECT * FROM` will
@@ -75,11 +75,26 @@ class InfluxConfig(ConnectConfig):
     ) == "true"
     """Enables the output for how many records have been processed."""
 
-    def update_influx_kcql(self, timestamp: str = "sys_time()") -> None:
+    def update_topics(
+        self, topics: List[str], timestamp: str = "sys_time()"
+    ) -> None:
+        """Update the list of Kafka topics and Influx KCQL queries.
 
-        topics = self.topics.split(",")
+        Parameters
+        ----------
+        topics : `list`
+            List of kafka topics.
+
+        timestamp : `str`
+            Timestamp used as influxDB time. Default is ``sys_time()`` you
+            can use the name of a field as well.
+        """
+        # Ensure uniqueness and sort topic names
+        topics = list(set(topics))
+        topics.sort()
         queries = [
             f"INSERT INTO {t} SELECT * FROM {t} WITHTIMESTAMP {timestamp}"
             for t in topics
         ]
+        self.topics = ",".join(topics)
         self.connect_influx_kcql = ";".join(queries)
