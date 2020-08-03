@@ -79,7 +79,8 @@ def test_integration_broker_connect(
     topic = Topic(
         broker_url=broker_url, topic_regex="test.*", excluded_topics="test.t1"
     )
-    assert topic.names == {"test.t2", "test.t3"}
+    assert "test.t2" in topic.names
+    assert "test.t3" in topic.names
     # Configure the connector
     connect = Connect(connect_url=Config.connect_url)
     connect_config = InfluxConfig()
