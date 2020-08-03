@@ -1,8 +1,8 @@
-""" CLI to create the InfluxDB Sink connector
-https://docs.lenses.io/connectors/sink/influx.html
+""" CLI to create the S3 Sink connector
+https://docs.confluent.io/current/connect/kafka-connect-s3
 """
 
-__all__ = ["create_influxdb_sink"]
+__all__ = ["create_s3_sink"]
 
 import json
 import time
@@ -12,18 +12,18 @@ import click
 
 from kafkaconnect.config import Config
 from kafkaconnect.connect import Connect
-from kafkaconnect.influxdb_sink.config import InfluxConfig
+from kafkaconnect.s3_sink.config import S3Config
 from kafkaconnect.topics import Topic
 
 
-@click.command("influxdb-sink")
+@click.command("s3-sink")
 @click.argument("topiclist", nargs=-1, required=False)
 @click.option(
     "-n",
     "--name",
     "name",
     required=False,
-    default=InfluxConfig.name,
+    default=S3Config.name,
     show_default=True,
     help=(
         "Name of the connector. Alternatively set via the "
@@ -31,27 +31,75 @@ from kafkaconnect.topics import Topic
     ),
 )
 @click.option(
-    "-i",
-    "--influxdb_url",
-    "connect_influx_url",
+    "-b",
+    "--bucket-name",
+    "s3_bucket_name",
     required=False,
-    default=InfluxConfig.connect_influx_url,
+    default="",  # S3Config.s3_bucket_name,
     show_default=True,
     help=(
-        "InfluxDB connection URL. Alternatively set via the "
-        "$KAFKA_CONNECT_INFLUXDB_URL env var."
+        "s3 bucket name. Must exist already. Alternatively set via the "
+        "$KAFKA_CONNECT_S3_BUCKECT_NAME env var."
+    ),
+)
+@click.option(
+    "-r",
+    "--region",
+    "s3_region",
+    required=False,
+    default=S3Config.s3_region,
+    show_default=True,
+    help=(
+        "s3 region.Alternatively set via the $KAFKA_CONNECT_S3_REGION env var."
     ),
 )
 @click.option(
     "-d",
-    "--database",
-    "connect_influx_db",
+    "--topics_dir",
+    "topics_dir",
     required=False,
-    default=InfluxConfig.connect_influx_db,
+    default=S3Config.topics_dir,
     show_default=True,
     help=(
-        "InfluxDB database name. The database must exist at InfluxDB. "
-        "Alternatively set via the $KAFKA_CONNECT_DATABASE env var."
+        "Top level directory to store the data ingested from Kafka. "
+        "Alternatively set via the $KAFKA_CONNECT_TOPICS_DIR env var."
+    ),
+)
+@click.option(
+    "--flush_size",
+    "flush_size",
+    required=False,
+    default=S3Config.flush_size,
+    show_default=True,
+    help=(
+        "Number of records written to store before invoking file commits."
+        "Alternatively set via the $KAFKA_CONNECT_S3_FLUSH_SIZE env var. "
+        "Use '-' for unauthenticated users."
+    ),
+)
+@click.option(
+    "--rotate_interval_ms",
+    "rotate_interval_ms",
+    required=False,
+    default=S3Config.rotate_interval_ms,
+    show_default=True,
+    help=(
+        "The time interval in milliseconds to invoke file commits. "
+        "Alternatively set via the $KAFKA_CONNECT_INFLUXDB_USERNAME env var. "
+        "Use '-' for unauthenticated users."
+    ),
+)
+@click.option(
+    "-p",
+    "--partition_duration_ms",
+    "partition_duration_ms",
+    required=False,
+    default=S3Config.partition_duration_ms,
+    show_default=True,
+    help=(
+        "The duration of a partition in milliseconds used by "
+        "TimeBasedPartitioner. Alternatively set via the "
+        "$KAFKA_CONNECT_INFLUXDB_PASSWORD env var."
     ),
 )
 @click.option(
@@ -59,7 +107,7 @@ from kafkaconnect.topics import Topic
     "--tasks-max",
     "tasks_max",
     required=False,
-    default=InfluxConfig.tasks_max,
+    default=S3Config.tasks_max,
     show_default=True,
     help=(
         "Number of Kafka Connect tasks. Alternatively set via the "
@@ -67,32 +115,6 @@ from kafkaconnect.topics import Topic
     ),
 )
 @click.option(
-    "-u",
-    "--username",
-    "connect_influx_username",
-    required=False,
-    default=InfluxConfig.connect_influx_username,
-    show_default=True,
-    help=(
-        "InfluxDB username. Alternatively set via the "
-        "$KAFKA_CONNECT_INFLUXDB_USERNAME env var. "
-        "Use '-' for unauthenticated users."
-    ),
-)
-@click.option(
-    "-p",
-    "--password",
-    "connect_influx_password",
-    required=False,
-    default="",
-    show_default=True,
-    help=(
-        "InfluxDB password. Alternatively set via the "
-        "$KAFKA_CONNECT_INFLUXDB_PASSWORD env var."
-    ),
-)
-@click.option(
-    "-r",
     "--topic-regex",
     "topic_regex",
     required=False,
@@ -151,105 +173,93 @@ from kafkaconnect.topics import Topic
     ),
 )
 @click.option(
-    "--timestamp",
-    "timestamp",
+    "--locale",
+    "locale",
     required=False,
-    default="sys_time()",
+    default=S3Config.locale,
     show_default=True,
-    help="Timestamp to use when recording a message in InfluxDB.",
+    help="The locale to use when partitioning with TimeBasedPartitioner.",
 )
 @click.option(
-    "--error-policy",
-    "connect_influx_error_policy",
-    type=click.Choice(["NOOP", "THROW", "RETRY"]),
+    "--timezone",
+    "timezone",
     required=False,
-    default=InfluxConfig.connect_influx_error_policy,
+    default=S3Config.timezone,
+    show_default=True,
+    help="The timezone to use when partitioning with TimeBasedPartitioner.",
+)
+@click.option(
+    "--timestamp_extractor",
+    "timestamp_extractor",
+    required=False,
+    default=S3Config.timestamp_extractor,
     show_default=True,
     help=(
-        "Specifies the action to be taken if an error occurs while "
-        "inserting the data. There are three available options, NOOP, "
-        "the error is swallowed, THROW, the error is allowed to propagate "
-        "and RETRY. For RETRY the Kafka message is redelivered up to a "
-        "maximum number of times specified by the --max-retries option. "
-        "The retry interval is specified by the --retry-interval option. "
-        "Alternatively set via the $KAFKA_CONNECT_ERROR_POLICY env var."
+        "The extractor determines how to obtain a timestamp from each record. "
+        "Values can be Wallclock to use the system time when "
+        "the record is processed, Record to use the timestamp of the "
+        "Kafka record denoting when it was produced or stored by the broker, "
+        "RecordField to extract the timestamp from one of the fields in the "
+        "record’s value as specified by the timestamp_field configuration "
+        "property."
     ),
 )
 @click.option(
-    "--max-retries",
-    "connect_influx_max_retries",
-    default=InfluxConfig.connect_influx_max_retries,
+    "--timestamp_field",
+    "timestamp_field",
+    required=False,
+    default=S3Config.timestamp_field,
     show_default=True,
     help=(
-        "The maximum number of times a message is retried. Only valid when "
-        "the --error-policy is set to RETRY. Alternatively set via the "
-        "$KAFKA_CONNECT_MAX_RETRIES env var."
-    ),
-)
-@click.option(
-    "--retry-interval",
-    "connect_influx_retry_interval",
-    default=InfluxConfig.connect_influx_retry_interval,
-    show_default=True,
-    help=(
-        "The interval, in milliseconds between retries. Only valid when "
-        "the --error-policy is set to RETRY. Alternatively set via the "
-        "$KAFKA_CONNECT_RETRY_INTERVAL env var."
-    ),
-)
-@click.option(
-    "--progress-enabled",
-    "connect_progress_enabled",
-    default=InfluxConfig.connect_progress_enabled,
-    show_default=True,
-    help=(
-        "Enables the output for how many records have been processed. "
-        "Alternatively set via the $KAFKA_CONNECT_PROGRESS_ENABLED env var."
+        "The record field to be used as timestamp by the timestamp extractor."
     ),
 )
 @click.pass_context
-def create_influxdb_sink(
+def create_s3_sink(
     ctx: click.Context,
     topiclist: tuple,
     name: str,
-    connect_influx_url: str,
-    connect_influx_db: str,
+    s3_bucket_name: str,
+    s3_region: str,
+    topics_dir: str,
+    flush_size: int,
+    rotate_interval_ms: int,
+    partition_duration_ms: int,
     tasks_max: int,
-    connect_influx_username: str,
-    connect_influx_password: str,
     topic_regex: str,
     dry_run: bool,
     auto_update: bool,
     validate: bool,
     check_interval: int,
     excluded_topics: str,
-    timestamp: str,
-    connect_influx_error_policy: str,
-    connect_influx_max_retries: str,
-    connect_influx_retry_interval: str,
-    connect_progress_enabled: bool,
+    locale: str,
+    timezone: str,
+    timestamp_extractor: str,
+    timestamp_field: str,
 ) -> int:
-    """Create an instance of the InfluxDB Sink connector.
+    """Create an instance of the S3 Sink connector.
 
     A list of topics can be specified using the TOPICLIST argument.
     If not, topics are discovered from Kafka. Use the --topic-regex and
     --excluded_topics options to help in selecting the topics
-    that you want to write to InfluxDB. To check for new topics and update
+    that you want to write to S3. To check for new topics and update
     the connector configuration use the
     --auto-update and --check-interval options.
     """
     # Connector configuration
-    influx_config = InfluxConfig(
+    s3config = S3Config(
         name=name,
-        connect_influx_url=connect_influx_url,
-        connect_influx_db=connect_influx_db,
+        s3_bucket_name=s3_bucket_name,
+        s3_region=s3_region,
+        topics_dir=topics_dir,
+        flush_size=flush_size,
+        rotate_interval_ms=rotate_interval_ms,
+        partition_duration_ms=partition_duration_ms,
         tasks_max=tasks_max,
-        connect_influx_username=connect_influx_username,
-        connect_influx_password=connect_influx_password,
-        connect_influx_error_policy=connect_influx_error_policy,
-        connect_influx_max_retries=connect_influx_max_retries,
-        connect_influx_retry_interval=connect_influx_retry_interval,
-        connect_progress_enabled=connect_progress_enabled,
+        locale=locale,
+        timezone=timezone,
+        timestamp_extractor=timestamp_extractor,
+        timestamp_field=timestamp_field,
     )
     if ctx.parent:
         config = ctx.parent.obj["config"]
@@ -262,24 +272,23 @@ def create_influxdb_sink(
         click.echo(f"Found {n} topics.")
     connect = Connect(connect_url=config.connect_url)
     if topics:
-        influx_config.update_topics(topics, timestamp)
+        s3config.update_topics(topics)
         # --validate option
         if validate:
             click.echo(
                 connect.validate(
-                    name=influx_config.connector_class,
-                    connect_config=influx_config.asjson(),
+                    name=s3config.connector_class,
+                    connect_config=s3config.asjson(),
                 )
             )
             return 0
         # --dry-run option returns the connector configuration
         if dry_run:
-            click.echo(influx_config.asjson())
+            click.echo(s3config.asjson())
             return 0
         # Validate configuration before creating the connector
         validation = connect.validate(
-            name=influx_config.connector_class,
-            connect_config=influx_config.asjson(),
+            name=s3config.connector_class, connect_config=s3config.asjson(),
         )
         try:
             error_count = json.loads(validation)["error_count"]
@@ -289,14 +298,12 @@ def create_influxdb_sink(
                     "Use the --validate option to return the validation "
                     "results."
                 )
-                return 1
+                return 0
         except Exception:
             click.echo(validation)
             return 1
         click.echo(f"Uploading {name} connector configuration...")
-        connect.create_or_update(
-            name=name, connect_config=influx_config.asjson()
-        )
+        connect.create_or_update(name=name, connect_config=s3config.asjson())
     if auto_update:
         while True:
             time.sleep(int(check_interval) / 1000)
@@ -308,9 +315,9 @@ def create_influxdb_sink(
                 new_topics = list(set(current_topics) - set(topics))
                 if new_topics:
                     click.echo("Found new topics, updating the connector...")
-                    influx_config.update_topics(current_topics, timestamp)
+                    s3config.update_topics(current_topics)
                     connect.create_or_update(
-                        name=name, connect_config=influx_config.asjson()
+                        name=name, connect_config=s3config.asjson()
                     )
                     topics = current_topics
             except KeyboardInterrupt:

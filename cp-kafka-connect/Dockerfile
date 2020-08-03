@@ -12,7 +12,7 @@ RUN chmod -R ag+w /etc/landoop/jars/lib
 # Add the Oracle JDBC driver for the Confluent JDBC Sink Connector
 # Download the Oracle JDBC driver (ojdbc8.jar) from
 # https://www.oracle.com/technetwork/database/application-development/jdbc/downloads/index.html
-# COPY ./ojdbc8.jar /usr/share/java/kafka-connect-jdbc/
+COPY ./ojdbc8.jar /usr/share/java/kafka-connect-jdbc/
 
 # Add the Replicator Connector
 # Download the corresponding version of the Replicator connector from

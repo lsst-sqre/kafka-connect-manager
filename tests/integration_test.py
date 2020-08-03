@@ -79,12 +79,12 @@ def test_integration_broker_connect(
     topic = Topic(
         broker_url=broker_url, topic_regex="test.*", excluded_topics="test.t1"
     )
-    assert topic.names == {"test.t2", "test.t3"}
+    assert "test.t2" in topic.names
+    assert "test.t3" in topic.names
     # Configure the connector
     connect = Connect(connect_url=Config.connect_url)
     connect_config = InfluxConfig()
     connect_config.update_topics(topic.names)
-    connect_config.update_influx_kcql()
     # Create the connector using the Kafka Connect API
     connect.create_or_update(
         name="influxdb-sink", connect_config=connect_config.asjson()

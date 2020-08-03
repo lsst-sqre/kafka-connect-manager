@@ -82,7 +82,6 @@ def test_create_or_update() -> None:
     connect = Connect(connect_url="http://localhost:8083")
     connect_config = InfluxConfig()
     connect_config.update_topics(["t1", "t2", "t3"])
-    connect_config.update_influx_kcql()
     result = connect.create_or_update(
         name="influxdb-sink", connect_config=connect_config.asjson()
     )
@@ -94,7 +93,6 @@ def test_validate() -> None:
     connect = Connect(connect_url="http://localhost:8083")
     connect_config = InfluxConfig()
     connect_config.update_topics(["t1", "t2", "t3"])
-    connect_config.update_influx_kcql()
     result = connect.validate(
         name="InfluxSinkConnector", connect_config=connect_config.asjson()
     )
