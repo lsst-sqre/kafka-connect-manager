@@ -289,11 +289,10 @@ def create_influxdb_sink(
                     "Use the --validate option to return the validation "
                     "results."
                 )
-            return 0
+                return 1
         except Exception:
             click.echo(validation)
             return 1
-
         click.echo(f"Uploading {name} connector configuration...")
         connect.create_or_update(
             name=name, connect_config=influx_config.asjson()

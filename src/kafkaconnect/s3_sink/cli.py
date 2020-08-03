@@ -298,7 +298,7 @@ def create_s3_sink(
                     "Use the --validate option to return the validation "
                     "results."
                 )
-            return 0
+                return 0
         except Exception:
             click.echo(validation)
             return 1
