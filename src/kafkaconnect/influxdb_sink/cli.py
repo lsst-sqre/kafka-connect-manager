@@ -6,6 +6,7 @@ __all__ = ["create_influxdb_sink"]
 
 import json
 import time
+from typing import List
 
 import click
 
@@ -14,11 +15,9 @@ from kafkaconnect.connect import Connect
 from kafkaconnect.influxdb_sink.config import InfluxConfig
 from kafkaconnect.topics import Topic
 
-influx_config = InfluxConfig()
-
 
 @click.command("influxdb-sink")
-@click.argument("topics", nargs=-1, required=False)
+@click.argument("topiclist", nargs=-1, required=False)
 @click.option(
     "-n",
     "--name",
@@ -84,7 +83,7 @@ influx_config = InfluxConfig()
     "-p",
     "--password",
     "connect_influx_password",
-    required=InfluxConfig.connect_influx_password,
+    required=False,
     default="",
     show_default=True,
     help=(
@@ -124,7 +123,7 @@ influx_config = InfluxConfig()
     "-v",
     "--validate",
     is_flag=True,
-    help=("Validate the connector configuration before creating."),
+    help="Validate the connector configuration before creating.",
 )
 @click.option(
     "-c",
@@ -157,7 +156,7 @@ influx_config = InfluxConfig()
     required=False,
     default="sys_time()",
     show_default=True,
-    help=("Timestamp to use when recording a message in InfluxDB."),
+    help="Timestamp to use when recording a message in InfluxDB.",
 )
 @click.option(
     "--error-policy",
@@ -210,38 +209,38 @@ influx_config = InfluxConfig()
 )
 @click.pass_context
 def create_influxdb_sink(
-    ctx,
-    topics,
-    name,
-    connect_influx_url,
-    connect_influx_db,
-    tasks_max,
-    connect_influx_username,
-    connect_influx_password,
-    topic_regex,
-    dry_run,
-    auto_update,
-    validate,
-    check_interval,
-    excluded_topics,
-    timestamp,
-    connect_influx_error_policy,
-    connect_influx_max_retries,
-    connect_influx_retry_interval,
-    connect_progress_enabled,
-):
+    ctx: click.Context,
+    topiclist: tuple,
+    name: str,
+    connect_influx_url: str,
+    connect_influx_db: str,
+    tasks_max: int,
+    connect_influx_username: str,
+    connect_influx_password: str,
+    topic_regex: str,
+    dry_run: bool,
+    auto_update: bool,
+    validate: bool,
+    check_interval: int,
+    excluded_topics: str,
+    timestamp: str,
+    connect_influx_error_policy: str,
+    connect_influx_max_retries: str,
+    connect_influx_retry_interval: str,
+    connect_progress_enabled: bool,
+) -> int:
     """Create an instance of the InfluxDB Sink connector.
 
-    A list of topics can be specified using the TOPICS argument.
+    A list of topics can be specified using the TOPICLIST argument.
     If not, topics are discovered from Kafka. Use the --topic-regex and
     --excluded_topics options to help in selecting the topics
     that you want to write to InfluxDB. To check for new topics and update
     the connector configuration use the
     --auto-update and --check-interval options.
-    option.
     """
     # Connector configuration
     influx_config = InfluxConfig(
+        name=name,
         connect_influx_url=connect_influx_url,
         connect_influx_db=connect_influx_db,
         tasks_max=tasks_max,
@@ -252,17 +251,19 @@ def create_influxdb_sink(
         connect_influx_retry_interval=connect_influx_retry_interval,
         connect_progress_enabled=connect_progress_enabled,
     )
-    config = ctx.parent.obj["config"]
+    if ctx.parent:
+        config = ctx.parent.obj["config"]
+    # The variadic argument is a tuple
+    topics: List[str] = list(topiclist)
     if not topics:
         click.echo("Discoverying Kafka topics...")
-        # List topics from Kafka
         topics = Topic(config.broker_url, topic_regex, excluded_topics).names
         n = 0 if not topics else len(topics)
         click.echo(f"Found {n} topics.")
     connect = Connect(connect_url=config.connect_url)
     if topics:
-        influx_config.update_topics(topics)
-        influx_config.update_influx_kcql(timestamp)
+        influx_config.update_topics(topics, timestamp)
+        # --validate option
         if validate:
             click.echo(
                 connect.validate(
@@ -271,20 +272,28 @@ def create_influxdb_sink(
                 )
             )
             return 0
+        # --dry-run option returns the connector configuration
         if dry_run:
             click.echo(influx_config.asjson())
             return 0
-        validate = connect.validate(
+        # Validate configuration before creating the connector
+        validation = connect.validate(
             name=influx_config.connector_class,
             connect_config=influx_config.asjson(),
         )
-        error_count = json.loads(validate)["error_count"]
-        click.echo(f"Validation returned {error_count} error(s).")
-        if error_count > 0:
-            click.echo(
-                "Use the --validate option to return the validation results."
-            )
+        try:
+            error_count = json.loads(validation)["error_count"]
+            click.echo(f"Validation returned {error_count} error(s).")
+            if error_count > 0:
+                click.echo(
+                    "Use the --validate option to return the validation "
+                    "results."
+                )
             return 0
+        except Exception:
+            click.echo(validation)
+            return 1
+
         click.echo(f"Uploading {name} connector configuration...")
         connect.create_or_update(
             name=name, connect_config=influx_config.asjson()
@@ -293,15 +302,14 @@ def create_influxdb_sink(
         while True:
             time.sleep(int(check_interval) / 1000)
             try:
-                # List topics from Kafka
+                # Current list of topics from Kafka
                 current_topics = Topic(
                     config.broker_url, topic_regex, excluded_topics
                 ).names
                 new_topics = list(set(current_topics) - set(topics))
                 if new_topics:
                     click.echo("Found new topics, updating the connector...")
-                    influx_config.update_topics(current_topics)
-                    influx_config.update_influx_kcql(timestamp)
+                    influx_config.update_topics(current_topics, timestamp)
                     connect.create_or_update(
                         name=name, connect_config=influx_config.asjson()
                     )
