@@ -46,6 +46,11 @@ class InfluxConfig(ConnectConfig):
     )
     """InfluxDB password."""
 
+    connect_influx_timestamp: str = os.getenv(
+        "KAFKA_CONNECT_INFLUXDB_TIMESTAMP", "sys_time()"
+    )
+    """Timestamp to use as the InfluxDB time."""
+
     connect_influx_error_policy: str = os.getenv(
         "KAFKA_CONNECT_ERROR_POLICY", "THROW"
     )

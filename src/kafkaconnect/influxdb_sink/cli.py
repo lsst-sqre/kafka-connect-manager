@@ -154,9 +154,9 @@ from kafkaconnect.topics import Topic
     "--timestamp",
     "timestamp",
     required=False,
-    default="sys_time()",
+    default=InfluxConfig.connect_influx_timestamp,
     show_default=True,
-    help="Timestamp to use when recording a message in InfluxDB.",
+    help="Timestamp to use as the InfluxDB time.",
 )
 @click.option(
     "--error-policy",
