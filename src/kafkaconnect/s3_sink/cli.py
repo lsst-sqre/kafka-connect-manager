@@ -35,7 +35,7 @@ from kafkaconnect.topics import Topic
     "--bucket-name",
     "s3_bucket_name",
     required=False,
-    default="",  # S3Config.s3_bucket_name,
+    default=S3Config.s3_bucket_name,
     show_default=True,
     help=(
         "s3 bucket name. Must exist already. Alternatively set via the "
