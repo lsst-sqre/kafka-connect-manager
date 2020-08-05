@@ -99,7 +99,7 @@ from kafkaconnect.topics import Topic
     help=(
         "The duration of a partition in milliseconds used by "
         "TimeBasedPartitioner. Alternatively set via the "
-        "$KAFKA_CONNECT_INFLUXDB_PASSWORD env var."
+        "$KAFKA_CONNECT_S3_PARTITION_DURATION_MS env var."
     ),
 )
 @click.option(
