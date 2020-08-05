@@ -1,3 +1,7 @@
+""" InfluxDB Sink connector configuration
+https://docs.lenses.io/connectors/sink/influx.html
+"""
+
 import os
 from dataclasses import dataclass
 from typing import List
@@ -20,7 +24,7 @@ class InfluxConfig(ConnectConfig):
     )
     """InfluxDB connection URL."""
 
-    connect_influx_db: str = os.getenv("KAFKA_CONNECT_DATABASE", "mydb")
+    connect_influx_db: str = os.getenv("KAFKA_CONNECT_DATABASE", "")
     """InfluxDB database name."""
 
     connector_class: str = (
