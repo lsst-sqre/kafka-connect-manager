@@ -55,18 +55,18 @@ from kafkaconnect.topics import Topic
 )
 @click.option(
     "-d",
-    "--topics_dir",
+    "--topics-dir",
     "topics_dir",
     required=False,
     default=S3Config.topics_dir,
     show_default=True,
     help=(
         "Top level directory to store the data ingested from Kafka. "
-        "Alternatively set via the $KAFKA_CONNECT_TOPICS_DIR env var."
+        "Alternatively set via the $KAFKA_CONNECT_S3_TOPICS_DIR env var."
     ),
 )
 @click.option(
-    "--flush_size",
+    "--flush-size",
     "flush_size",
     required=False,
     default=S3Config.flush_size,
@@ -78,20 +78,20 @@ from kafkaconnect.topics import Topic
     ),
 )
 @click.option(
-    "--rotate_interval_ms",
+    "--rotate-interval-ms",
     "rotate_interval_ms",
     required=False,
     default=S3Config.rotate_interval_ms,
     show_default=True,
     help=(
         "The time interval in milliseconds to invoke file commits. "
-        "Alternatively set via the $KAFKA_CONNECT_INFLUXDB_USERNAME env var. "
-        "Use '-' for unauthenticated users."
+        "Alternatively set via the $KAFKA_CONNECT_S3_ROTATE_INTERVAL_MS "
+        "env var. Use '-' for unauthenticated users."
     ),
 )
 @click.option(
     "-p",
-    "--partition_duration_ms",
+    "--partition-duration-ms",
     "partition_duration_ms",
     required=False,
     default=S3Config.partition_duration_ms,
@@ -161,7 +161,7 @@ from kafkaconnect.topics import Topic
 )
 @click.option(
     "-e",
-    "--excluded_topics",
+    "--excluded-topics",
     "excluded_topics",
     required=False,
     default=Config.excluded_topics,
@@ -189,7 +189,7 @@ from kafkaconnect.topics import Topic
     help="The timezone to use when partitioning with TimeBasedPartitioner.",
 )
 @click.option(
-    "--timestamp_extractor",
+    "--timestamp-extractor",
     "timestamp_extractor",
     required=False,
     default=S3Config.timestamp_extractor,
@@ -205,13 +205,14 @@ from kafkaconnect.topics import Topic
     ),
 )
 @click.option(
-    "--timestamp_field",
+    "--timestamp-field",
     "timestamp_field",
     required=False,
     default=S3Config.timestamp_field,
     show_default=True,
     help=(
-        "The record field to be used as timestamp by the timestamp extractor."
+        "The record field to be used as timestamp by the timestamp extractor. "
+        "Only applies if timestamp_extractor is set to `RecordField`. "
     ),
 )
 @click.pass_context
