@@ -31,7 +31,7 @@ class S3Config(ConnectConfig):
     The supported configurations are NONE, BACKWARD, FORWARD and FULL.
     """
 
-    s3_bucket_name: str = os.getenv("KAFKA_CONNECT_S3_BUCKET_NAME", "mybucket")
+    s3_bucket_name: str = os.getenv("KAFKA_CONNECT_S3_BUCKET_NAME", "")
     """The S3 Bucket."""
 
     s3_region: str = os.getenv("KAFKA_CONNECT_S3_REGION", "us-east-1")
