@@ -1,3 +1,7 @@
+"""S3 Sink connector configuration
+https://docs.confluent.io/current/connect/kafka-connect-s3
+"""
+
 import os
 from dataclasses import dataclass
 
@@ -43,7 +47,7 @@ class S3Config(ConnectConfig):
     aws_secret_access_key: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
     """The secret access key used to authenticate personal AWS credentials."""
 
-    topics_dir: str = os.getenv("TOPICS_DIR", "topics")
+    topics_dir: str = os.getenv("KAFKA_CONNECT_S3_TOPICS_DIR", "topics")
     """Top level directory to store the data ingested from Kafka."""
 
     storage_class: str = "io.confluent.connect.s3.storage.S3Storage"
@@ -63,9 +67,9 @@ class S3Config(ConnectConfig):
     """The partitioner to use when writing data to the store."""
 
     partition_duration_ms: int = int(
-        os.getenv("KAFKA_CONNECT_PARTITION_DURATION_MS", 3600000)
+        os.getenv("KAFKA_CONNECT_S3_PARTITION_DURATION_MS", 3600000)
     )
-    """The duration of a partition in ms. Used by TimeBasedPartitioner."""
+    """The duration of a partition in ms, used by the TimeBasedPartitioner.
 
     The default is 1h for an hourly partitioner.
     """
@@ -99,4 +103,7 @@ class S3Config(ConnectConfig):
     """
 
     timestamp_field: str = os.getenv("KAFKA_CONNECT_TIMESTAMP_FIELD", "time")
-    """The record field to be used as timestamp by the timestamp extractor."""
+    """The record field to be used as timestamp by the timestamp extractor.
+
+    Only applies if timestamp_extractor is set to `RecordField`.
+    """
