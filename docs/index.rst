@@ -1,71 +1,82 @@
-###############
-Connect manager
-###############
+#####################
+Kafka-connect-manager
+#####################
 
-Python client for managing the `Confluent Kafka connect REST Interface <https://docs.confluent.io/current/connect/references/restapi.html>`_.
+A Python client to configure and create connectors using the `Kafka Connect API <https://docs.confluent.io/current/connect/references/restapi.html>`_.
 
+This site provides documentation for the kafka-connect-manager configuration, installation, user guide, development guide, and CLI reference.
 
-Features
+To run kafka-connect-manager locally, you can jump straight to the `Configuration`_ and `User guide`_ sessions.
+
+Overview
 ========
 
-* List, create, and delete connectors
-* Get info, status, pause, resume and restart an existing connector
-* k8s deployment via `kafka-connect-manager <https://lsst-sqre.github.io/charts/>`_ Helm chart
+Kafka-connect-manager helps to configure and create Kafka connectors. It can select Kafka topics using a regular expression and exclude topics added to a exclusion list. The auto-update option dynamically updates the connector if topics are created or deleted in Kafka.
+
+Kafka-connect-manager can validate the connector configuration and return the validation output in case of errors.
+
+Kafka-connect-manager provides a command line interface (CLI) to interact with the `Kafka Connect API <https://docs.confluent.io/current/connect/references/restapi.html>`_. Using the CLI you can manage existing connectors or create a new one.
+
+To deploy a supported connector, you can use the `kafka-connect-manager Helm chart <https://lsst-sqre.github.io/charts/>`_.
 
 Supported connectors
 --------------------
+* `Lenses InfluxDB Sink <https://docs.lenses.io/connectors/sink/influx.html>`_
+* `Amazon S3 Sink <https://docs.confluent.io/current/connect/kafka-connect-s3>`_
 
-  * `Lenses InfluxDB Sink <https://docs.lenses.io/connectors/sink/influx.html>`_
-
-    * Scripted configuration
-
-    * Dynamically check existing topics in Kafka and update the connector configuration
-
-    * Skip topic names added to a blacklist
-
-    * Select timestamp field to use as the InfluxDB time
-
-    * Error handling
-
-
-  * `Confluent Replicator <https://docs.confluent.io/5.3.1/connect/kafka-connect-replicator/index.html>`_
-
-    * Scripted configuration
-
-    * Dynamically poll the source cluster for new topics
-
-    * Support topic replication and schema continuous migration
-
-    * Skip topic names added to a blacklist
 
 Installation
 ============
 
-Install `kafka-connect-manager`:
+.. toctree::
+   :maxdepth: 2
 
-.. code-block:: sh
+   installation
 
-  pip install kafka-connect-manager
+Configuration
+=============
+
+.. toctree::
+   :maxdepth: 2
+
+   configuration
 
 User guide
 ==========
 
 .. toctree::
+   :maxdepth: 2
 
-   cli-reference
-   api
+   userguide
+
+Development guide
+=================
+
+.. toctree::
+   :maxdepth: 2
+
+   development
+   release
+
+CLI
+===
+
+.. toctree::
+   :maxdepth: 2
+
+   cli
 
 
 Project information
 ===================
 
-The main Git repository for `connect-mananer` is https://github.com/lsst-sqre/connect-manager
+The GitHub repository for `kafka-connect-manager` is https://github.com/lsst-sqre/kafka-connect-manager
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    contributing
-   history
+   changelog
 
 See the LICENSE_ file for licensing information.
 

@@ -1,46 +1,18 @@
-=======
-History
-=======
+##########
+Change log
+##########
+
+0.8.0 (2020-08-05)
+------------------
+* Use data classes for the application and connector configuration.
+* Plugin like organization, to support new connectors add a cli and a config file.
+* Add support to the Amazon S3 Sink connector
 
 0.7.2 (2020-03-31)
 ------------------
-
-* Update documentation
-
-0.7.1 (2020-03-30)
-------------------
-
-* Fix Header Converter Class configuration parameter
-
-0.7.0 (2020-03-03)
-------------------
-
-* Add support to replicator connector
-
-* Fix ``tasks.max`` configuration parameter name
-
-0.6.0 (2020-02-14)
-------------------
-
-* Support multiple connectors of the same class
-
-
-0.5.0 (2019-12-18)
-------------------
-
-* Handle empty list of topics properly.
-
-0.4.0 (2019-09-26)
-------------------
-
-* Add error handling configuration to the InfluxDB Sink connector.
-
-0.3.0 (2019-09-24)
-------------------
-
+* Add support to the InfluxDB Sink Connector.
 * Add --timestamp option to select the timestamp field to use in the InfluxDB Sink connector.
-
-0.2.8 (2019-09-16)
-------------------
-
-* First release on PyPI.
+* Fix Header Converter Class configuration setting.
+* Fix ``tasks.max`` configuration setting name.
+* Add connector ``name`` configuration setting to support multiple connectors of the same class.
+* Handle empty list of topics properly.
