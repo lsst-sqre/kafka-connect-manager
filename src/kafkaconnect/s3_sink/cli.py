@@ -98,7 +98,7 @@ from kafkaconnect.topics import Topic
     show_default=True,
     help=(
         "The duration of a partition in milliseconds used by "
-        "TimeBasedPartitioner. Alternatively set via the "
+        "``TimeBasedPartitioner``. Alternatively set via the "
         "$KAFKA_CONNECT_S3_PARTITION_DURATION_MS env var."
     ),
 )
@@ -151,7 +151,7 @@ from kafkaconnect.topics import Topic
     is_flag=True,
     help=(
         "Check for new topics and update the connector. See also the "
-        "--check-interval option."
+        "``--check-interval`` option."
     ),
 )
 @click.option(
@@ -191,7 +191,7 @@ from kafkaconnect.topics import Topic
     required=False,
     default=S3Config.locale,
     show_default=True,
-    help="The locale to use when partitioning with TimeBasedPartitioner.",
+    help="The locale to use when partitioning with `TimeBasedPartitioner`.",
 )
 @click.option(
     "--timezone",
@@ -199,7 +199,7 @@ from kafkaconnect.topics import Topic
     required=False,
     default=S3Config.timezone,
     show_default=True,
-    help="The timezone to use when partitioning with TimeBasedPartitioner.",
+    help="The timezone to use when partitioning with `TimeBasedPartitioner`.",
 )
 @click.option(
     "--timestamp-extractor",
@@ -255,11 +255,11 @@ def create_s3_sink(
     """Create an instance of the S3 Sink connector.
 
     A list of topics can be specified using the TOPICLIST argument.
-    If not, topics are discovered from Kafka. Use the --topic-regex and
-    --excluded_topics options to help in selecting the topics
+    If not, topics are discovered from Kafka. Use the ``--topic-regex`` and
+    ``--excluded_topics`` options to help in selecting the topics
     that you want to write to S3. To check for new topics and update
     the connector configuration use the
-    --auto-update and --check-interval options.
+    ``--auto-update`` and ``--check-interval`` options.
     """
     # Connector configuration
     s3config = S3Config(
@@ -311,7 +311,7 @@ def create_s3_sink(
             click.echo(f"Validation returned {error_count} error(s).")
             if error_count > 0:
                 click.echo(
-                    "Use the --validate option to return the validation "
+                    "Use the ``--validate`` option to return the validation "
                     "results."
                 )
                 return 0

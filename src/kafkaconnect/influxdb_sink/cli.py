@@ -170,8 +170,8 @@ from kafkaconnect.topics import Topic
         "inserting the data. There are three available options, NOOP, "
         "the error is swallowed, THROW, the error is allowed to propagate "
         "and RETRY. For RETRY the Kafka message is redelivered up to a "
-        "maximum number of times specified by the --max-retries option. "
-        "The retry interval is specified by the --retry-interval option. "
+        "maximum number of times specified by the ``--max-retries`` option. "
+        "The retry interval is specified by the ``--retry-interval`` option. "
         "Alternatively set via the $KAFKA_CONNECT_ERROR_POLICY env var."
     ),
 )
@@ -182,7 +182,7 @@ from kafkaconnect.topics import Topic
     show_default=True,
     help=(
         "The maximum number of times a message is retried. Only valid when "
-        "the --error-policy is set to RETRY. Alternatively set via the "
+        "the ``--error-policy`` is set to RETRY. Alternatively set via the "
         "$KAFKA_CONNECT_MAX_RETRIES env var."
     ),
 )
@@ -193,7 +193,7 @@ from kafkaconnect.topics import Topic
     show_default=True,
     help=(
         "The interval, in milliseconds between retries. Only valid when "
-        "the --error-policy is set to RETRY. Alternatively set via the "
+        "the ``--error-policy`` is set to RETRY. Alternatively set via the "
         "$KAFKA_CONNECT_RETRY_INTERVAL env var."
     ),
 )
@@ -232,11 +232,11 @@ def create_influxdb_sink(
     """Create an instance of the InfluxDB Sink connector.
 
     A list of topics can be specified using the TOPICLIST argument.
-    If not, topics are discovered from Kafka. Use the --topic-regex and
-    --excluded_topics options to help in selecting the topics
+    If not, topics are discovered from Kafka. Use the ``--topic-regex`` and
+    ``--excluded_topics`` options to help in selecting the topics
     that you want to write to InfluxDB. To check for new topics and update
     the connector configuration use the
-    --auto-update and --check-interval options.
+    ``--auto-update`` and ``--check-interval`` options.
     """
     # Connector configuration
     influx_config = InfluxConfig(
@@ -286,7 +286,7 @@ def create_influxdb_sink(
             click.echo(f"Validation returned {error_count} error(s).")
             if error_count > 0:
                 click.echo(
-                    "Use the --validate option to return the validation "
+                    "Use the ``--validate`` option to return the validation "
                     "results."
                 )
                 return 1
