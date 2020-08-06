@@ -44,6 +44,12 @@ deps =
     pre-commit
 commands = pre-commit run --all-files
 
+[testenv:docs]
+description = Build documentation (HTML) with Sphinx.
+commands =
+    sphinx-build -n -T -b html -d {envtmpdir}/doctrees docs docs/_build/html
+
+
 [testenv:run]
 description = Run the development server with auto-reload for code changes.
 usedevelop = true
