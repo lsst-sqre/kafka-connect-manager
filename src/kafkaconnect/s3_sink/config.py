@@ -53,13 +53,30 @@ class S3Config(ConnectConfig):
     storage_class: str = "io.confluent.connect.s3.storage.S3Storage"
     """The underlying storage layer."""
 
-    flush_size: int = int(os.getenv("KAFKA_CONNECT_S3_FLUSH_SIZE", 1000))
-    """Number of records written to store before invoking file commits."""
+    flush_size: int = int(os.getenv("KAFKA_CONNECT_S3_FLUSH_SIZE", 3600))
+    """Number of records written to store before invoking file commits.
+
+    By default this is set to 6 times the number of records expected for an
+    output stream of 1Hz within the default rotate_interval_ms value.
+    This way the rotate_interval_ms configuration takes precedence over the
+    flush_size configuration. But flush_size still works as a maximum limit
+    to invoke file commits when the connect-s3-sink consumer accumulates 3600
+    records.
+    """
 
     rotate_interval_ms: int = int(
-        os.getenv("KAFKA_CONNECT_S3_ROTATE_INTERVAL_MS", 60000)
+        os.getenv("KAFKA_CONNECT_S3_ROTATE_INTERVAL_MS", 600000)
     )
-    """The time interval in milliseconds to invoke file commits."""
+    """The time interval in milliseconds to invoke file commits.
+
+    Use this option to control the size of the objects in S3. For example, if
+    the output data stream is 1Hz, a rotate interval of 600 seconds will create
+    a file with aproximatelly 600 records if less than flush_size. Note that
+    the lag of the connect-s3-sink consumer will increase until it accumulates
+    records within 600 seconds and it will decrease again after the file
+    is commited. For an hourly partitioner this configuration should create 6
+    parquet files in the destination path.
+    """
 
     partitioner_class: str = (
         "io.confluent.connect.storage.partitioner.TimeBasedPartitioner"
@@ -71,7 +88,7 @@ class S3Config(ConnectConfig):
     )
     """The duration of a partition in ms, used by the TimeBasedPartitioner.
 
-    The default is 1h for an hourly partitioner.
+    The default value is for an hourly partitioner.
     """
     path_format: str = (
         os.getenv(
