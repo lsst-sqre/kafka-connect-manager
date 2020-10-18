@@ -59,3 +59,15 @@ def test_create_influxdb_sink() -> None:
     )
     # Topics are added by ConnectConfig.update_topics()
     assert '"topics": "t1"' in result.output
+
+
+def test_password_from_env() -> None:
+    """Test getting the influxdb password from the environment."""
+
+    env = {"KAFKA_CONNECT_INFLUXDB_PASSWORD": "envpasswd"}
+    runner = CliRunner()
+    result = runner.invoke(
+        main, args=["create", "influxdb-sink", "--dry-run", "t1"], env=env
+    )
+    assert result.exit_code == 0
+    assert "envpasswd" in result.output
