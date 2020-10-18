@@ -84,6 +84,7 @@ from kafkaconnect.topics import Topic
     "--password",
     "connect_influx_password",
     required=False,
+    envvar="KAFKA_CONNECT_INFLUXDB_PASSWORD",
     default="",
     show_default=True,
     help=(
