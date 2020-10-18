@@ -2,6 +2,13 @@
 Change log
 ##########
 
+0.8.1 (2020-10-18)
+==================
+
+* Fix bug preventing to read InfluxDB password from the environment
+* Update ``cp-kafka-connect`` image with Confluent Platform 0.8.2
+* Update dependencies
+
 0.8.0 (2020-08-05)
 ==================
 
