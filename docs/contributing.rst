@@ -16,17 +16,15 @@ If you are reporting an issue, please include:
 * Any details about your local setup that might be helpful in troubleshooting.
 * Detailed steps to reproduce the issue.
 
-Fix bugs or implement features
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pull Request Guidelines
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Look through the GitHub issues. Anything tagged with "help
-wanted" is open to whoever wants to implement it.
+Before you submit a pull request, check that it meets these guidelines:
 
+1. The pull request should include tests.
+2. If the pull request adds functionality, the docs should be updated.
+3. The pull request should work for Python 3.
 
-Write Documentation
-~~~~~~~~~~~~~~~~~~~
-
-Whether as part of  `docs <https://kafka-connect-manager.lsst.io>`_ or docstrings.
 
 Send Feedback
 ~~~~~~~~~~~~~
