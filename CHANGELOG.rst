@@ -2,11 +2,20 @@
 Change log
 ##########
 
+0.8.2 (2021-01-22)
+==================
+
+* Update ``cp-kafka-connect`` image with new version of the InfluxDB Sink connector.
+This version bumps ``influxdb-java`` from version 2.9 to 2.21 and which skips fields with NaN and Infinity values when writing to InfluxDB.
+* Reorganize developer and user guides.
+* Add documentation in the user guide on how to run kafka-connect-manager locally.
+* Update dependencies
+
 0.8.1 (2020-10-18)
 ==================
 
 * Fix bug preventing to read InfluxDB password from the environment
-* Update ``cp-kafka-connect`` image with Confluent Platform 0.8.2
+* Update ``cp-kafka-connect`` image with Confluent Platform 5.5.2
 * Update dependencies
 
 0.8.0 (2020-08-05)

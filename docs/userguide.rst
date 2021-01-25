@@ -1,84 +1,71 @@
-################################
-How to run kafka-connect-manager
-################################
+###########################
+Using kafka-connect-manager
+###########################
 
+InfluxDB Sink connector
+=======================
 
-Running locally with docker-compose
-===================================
+In this section we use kafka-connect-manager to create an instance of the InfluxDB Sink connector.
+We show the connector in action by producing messages to a kafka topic and query the messages recorded in InfluxDB.
 
-In this guide, we use ``docker-compose`` to illustrate how to run kafka-connect-manager. To run kafka-connect-manger on a Kubernetes environment see the :ref:`installation` section instead.
+Download the docker-compose_ file and start the services:
 
-kafka-connect-manager `docker-compose configuration`_ includes services to run Confluent Kafka (zookeeper, broker and connect) and was based on `this example`_.
-
-.. _docker-compose configuration: https://github.com/lsst-sqre/kafka-connect-manager/blob/master/tests/docker-compose.yaml
-.. _this example: https://github.com/confluentinc/examples/blob/5.5.1-post/cp-all-in-one/docker-compose.yml
-
-Clone the kafka-connect-manager repository:
+.. _docker-compose: https://github.com/lsst-sqre/kafka-connect-manager/blob/master/tests/docker-compose.yml
 
 .. code-block:: bash
 
-  $ git clone https://github.com/lsst-sqre/kafka-connect-manager.git
+  docker-compose up -d
 
-Start the `zookeeper`, `broker` and `connect` services:
-
-.. code-block:: bash
-
-  cd tests
-  docker-compose up zookeeper broker connect
-
-
-On another terminal session, create a new Python virtual environment and install the kafkaconnect app locally:
+Create the `foo` topic in kafka:
 
 .. code-block:: bash
 
-  $ cd kafka-connect-manager
-  $ virtualenv -p Python3 venv
-  $ source venv/bin/activate
-  $ make update
+  docker-compose exec broker kafka-topics --bootstrap-server broker:9092 --create --topic foo --partitions 1 --replication-factor 1
 
-Using the kafkaconnect tool
-===========================
-
-See the available commands with the kafkaconnect tool:
+Create the `mydb` database in InfluxDB:
 
 .. code-block:: bash
 
-  $ kafkaconnect --help
+  docker-compose exec influxdb influx -execute "CREATE DATABASE mydb"
 
-
-Example: Creating an influxdb-sink connector
---------------------------------------------
-
-See the available configuration settings for the influxdb-sink connector with:
+Use kafka-connect-manager to create an instance of the InfluxDB Sink connector.
 
 .. code-block:: bash
 
-  $ kafkaconnect create influxdb-sink --help
+  docker-compose run kafkaconnect create influxdb-sink -d mydb foo
 
-The following will create an instance of the influxdb-sink connector configured
-to write three kafka topics `t1`, `t2` and `t3` to the `mydb` InfluxDB database.
+You can check if the connector is running by using the `status` command:
 
 .. code-block:: bash
 
-  $ kafkaconnect create influxdb-sink --database mydb t1 t2 t3
-  Discoverying Kafka topics...
-  Validation returned 0 error(s).
-  Uploading influxdb-sink connector configuration...
+  docker-compose run kafkaconnect status influxdb-sink
 
-  $ kafkaconnect config influxdb-sink
-  {
-    "connect.influx.db": "mydb",
-    "connect.influx.error.policy": "THROW",
-    "connect.influx.kcql": "INSERT INTO t1 SELECT * FROM t1 WITHTIMESTAMP sys_time();INSERT INTO t2 SELECT * FROM t2 WITHTIMESTAMP sys_time();INSERT INTO t3 SELECT * FROM t3 WITHTIMESTAMP sys_time()",
-    "connect.influx.max.retries": "10",
-    "connect.influx.password": "",
-    "connect.influx.retry.interval": "60000",
-    "connect.influx.timestamp": "sys_time()",
-    "connect.influx.url": "http://localhost:8086",
-    "connect.influx.username": "-",
-    "connect.progress.enabled": "false",
-    "connector.class": "com.datamountaineer.streamreactor.connect.influx.InfluxSinkConnector",
-    "name": "influxdb-sink",
-    "tasks.max": "1",
-    "topics": "t1,t2,t3"
-  }
+Now use the kafka-avro-console-producer_ utility to produce Avro messages for the `foo` topic.
+The Avro schema for the message value is specified using the `--property` command line option.
+Note that because it runs inside the schema registry docker image, we need to use the internal broker port here:
+
+.. _kafka-avro-console-producer: https://docs.confluent.io/platform/current/tutorials/examples/clients/docs/kafka-commands.html#produce-avro-records
+
+.. code-block:: bash
+
+  docker-compose exec schema-registry kafka-avro-console-producer --bootstrap-server broker:29092 --topic foo --property value.schema='{"type":"record", "name":"foo", "fields":[{"name":"bar","type":"string"}, {"name":"baz","type":"float"}]}'
+  {"bar": "John Doe", "baz": 1}
+  {"bar": "John Doe", "baz": 2}
+  Ctrl+D
+
+Finally, you can query the results in InfluxDB, you should get an output like this:
+
+.. code-block:: bash
+
+  docker-compose exec influxdb influx -database mydb -execute "SELECT * FROM foo"
+  name: foo
+  time                bar      baz
+  ----                ---      ---
+  1611597963632953639 John Doe 1
+  1611597964771771862 John Doe 1
+
+You can inspect the connect service logs using:
+
+.. code-block:: bash
+
+  docker-compose logs connect

@@ -2,8 +2,17 @@
 version: '3'
 services:
 
+  kafkaconnect:
+    image: lsstsqre/kafkaconnect:0.8.1
+    container_name: kafkaconnect
+    entrypoint: kafkaconnect
+    environment:
+      KAFKA_CONNECT_URL: http://connect:8083
+      KAFKA_BROKER_URL: broker:29092
+      KAFKA_CONNECT_INFLUXDB_URL: http://influxdb:8086
+
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.5.1
+    image: confluentinc/cp-zookeeper:5.5.2
     hostname: zookeeper
     container_name: zookeeper
     ports:
@@ -13,7 +22,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
 
   broker:
-    image: confluentinc/cp-enterprise-kafka:5.5.1
+    image: confluentinc/cp-enterprise-kafka:5.5.2
     hostname: broker
     container_name: broker
     depends_on:
@@ -25,22 +34,34 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
-      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
-      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
-      CONFLUENT_METRICS_ENABLE: 'true'
-      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:5.5.2
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - broker
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+
 
   connect:
-    image: lsstsqre/cp-kafka-connect:5.5.1-0.8.0
+    image: lsstsqre/cp-kafka-connect:5.5.2-0.8.2-tickets-DM-21334
     hostname: connect
     container_name: connect
     depends_on:
-      - zookeeper
       - broker
+      - schema-registry
     ports:
       - "8083:8083"
     environment:
@@ -60,6 +81,13 @@ services:
       CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
       CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      CONNECT_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       CONNECT_PLUGIN_PATH: "/usr/share/java,/etc/landoop/jars/lib"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+
+  influxdb:
+    image: influxdb:1.8.3
+    container_name: influxdb
+    volumes:
+      - ./data/influxdb:/var/lib/influxdb
+    ports:
+      - "8086:8086"
