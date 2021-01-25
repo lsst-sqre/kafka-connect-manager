@@ -2,13 +2,12 @@
 Change log
 ##########
 
-0.8.2 (2021-01-22)
+0.8.2 (2021-01-25)
 ==================
 
-* Update ``cp-kafka-connect`` image with new version of the InfluxDB Sink connector.
-This version bumps ``influxdb-java`` from version 2.9 to 2.21 and which skips fields with NaN and Infinity values when writing to InfluxDB.
+* Update ``cp-kafka-connect`` image with new version of the InfluxDB Sink connector. This version bumps the ``influxdb-java`` dependency from version 2.9 to 2.21. In parrticular 2.16 introduced a fix to skip fields with ``NaN`` and ``Infinity`` values when writing to InfluxDB.
 * Reorganize developer and user guides.
-* Add documentation in the user guide on how to run kafka-connect-manager locally.
+* Add documentation in the user guide on how to run the InfluxDB Sink connector locally.
 * Update dependencies
 
 0.8.1 (2020-10-18)
