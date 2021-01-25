@@ -13,8 +13,8 @@ pytest
 pytest-docker
 docker-compose
 pytest-vcr
-documenteer>=0.5,<0.6
-lsst-sphinx-bootstrap-theme<0.3
+documenteer[pipelines]>=0.5,<0.6
+ltd-conveyor
 sphinx-automodapi
 sphinx-prompt
 sphinx-click
