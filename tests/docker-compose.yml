@@ -56,7 +56,7 @@ services:
 
 
   connect:
-    image: lsstsqre/cp-kafka-connect:5.5.2-0.8.2
+    image: lsstsqre/cp-kafka-connect:5.5.2-0.8.2-tickets-DM-21334
     hostname: connect
     container_name: connect
     depends_on:
