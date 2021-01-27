@@ -1,11 +1,11 @@
-###########################
-Using kafka-connect-manager
-###########################
+##################
+Using kafkaconnect
+##################
 
-InfluxDB Sink connector
-=======================
+Lenses InfluxDB Sink
+====================
 
-In this section we use kafka-connect-manager to create an instance of the InfluxDB Sink connector.
+In this section, we use kafkaconnect to create an instance of the `Lenses InfluxDB Sink <https://docs.lenses.io/connectors/sink/influx.html>`_ connector.
 We show the connector in action by producing messages to a kafka topic and query the messages recorded in InfluxDB.
 
 Download the docker-compose_ file and start the services:
