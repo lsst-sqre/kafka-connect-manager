@@ -6,11 +6,6 @@ kafkaconnect
 
 A Python client for managing connectors using the `Kafka Connect API <https://docs.confluent.io/current/connect/references/restapi.html>`_.
 
-Overview
-========
-
-.. include:: docs/overview.rst
-
 See `the docs <https://kafka-connect-manager.lsst.io>`_ for more information.
 
 
