@@ -68,4 +68,39 @@ You can inspect the connect service logs using:
 
 .. code-block:: bash
 
-  docker-compose logs connect
+   docker-compose logs connect
+
+
+Avro records for both key and value
+-----------------------------------
+
+For producing Avro records for both key and value use:
+
+.. code-block:: bash
+
+  docker-compose exec schema-registry kafka-avro-console-producer --bootstrap-server broker:29092 --topic foo  --property parse.key=true --property key.schema='{"type":"record", "name":"id", "fields":[{"name":"id", "type":"int"}]}' --property value.schema='{"type":"record", "name":"foo", "fields":[{"name":"bar","type":"string",{"name":"baz","type":"float"}]}'
+  {"id":1}	{"bar": "John Doe","baz": 1}
+  Ctrl+D
+
+Note that in this command we used <TAB> as the default separator for key and value, this can be changed with the `--property key.separator="<separator>"` option.
+
+Recording arrays in InfluxDB
+----------------------------
+
+The connector supports Avro type array, it extracts the elements of the array into individual fields in InfluxDB of the same type:
+
+.. code-block:: bash
+
+  docker-compose exec schema-registry kafka-avro-console-producer --bootstrap-server broker:29092 --topic foo --property value.schema='{"type":"record", "name":"foo", "fields":[{"name":"bar","type":"string"}, {"name":"baz","type":{"type":"array","items":"float"}}]}'
+  {"bar": "John Doe","baz": [1,2,3]}
+  Ctrl+D
+
+which in InfluxDB is stored like:
+
+.. code-block:: bash
+
+  docker-compose exec influxdb influx -database mydb -execute "SELECT * FROM foo"
+  name: foo
+  time                bar      baz0 baz1 baz2
+  ----                ---      ---- ---- ----
+  1611707507555316950 John Doe 1    2    3
