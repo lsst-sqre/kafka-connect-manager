@@ -5,9 +5,9 @@ Development guide
 Development workflow
 ====================
 
-Set up `kafka-connect-manager` for local development.
+Set up kafkaconnect for local development.
 
-1. Clone the `kafka-connect-manager <https://github.com/lsst-sqre/kafka-connect-manager>`_ repo from GitHub:
+1. Clone the repo from GitHub:
 
 .. code-block:: bash
 
