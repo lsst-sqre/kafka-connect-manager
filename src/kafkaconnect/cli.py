@@ -16,6 +16,7 @@ __all__ = (
     "create",
 )
 
+import json
 from typing import Any, Optional
 
 import click
@@ -172,6 +173,75 @@ def delete(ctx: click.Context, name: str) -> None:
     config = ctx.obj["config"]
     connect = Connect(config.connect_url)
     click.echo(connect.remove(name))
+
+
+@main.command("upload")
+@click.argument("configfile")
+@click.option(
+    "-n",
+    "--name",
+    "name",
+    required=True,
+    help=(
+        "Name of the connector. Alternatively set via the "
+        "$KAFKA_CONNECT_NAME env var."
+    ),
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help=("Show the connector configuration without uploading."),
+)
+@click.option(
+    "-v",
+    "--validate",
+    is_flag=True,
+    help="Validate the connector configuration without uploading.",
+)
+@click.pass_context
+def upload(
+    ctx: click.Context,
+    configfile: str,
+    name: str,
+    dry_run: bool,
+    validate: bool,
+) -> int:
+    """Upload the connector configuration from a file.
+    """
+    config = ctx.obj["config"]
+    connect = Connect(config.connect_url)
+    with open(configfile) as f:
+        connect_config = json.load(f)
+
+    # Validate connector configuration before creating
+    validation = connect.validate(
+        name=connect_config["connector.class"],
+        connect_config=json.dumps(connect_config),
+    )
+    if validate:
+        click.echo(validation)
+        return 0
+    try:
+        error_count = json.loads(validation)["error_count"]
+        click.echo(f"Validation returned {error_count} error(s).")
+        if error_count > 0:
+            click.echo(
+                "Use the ``--validate`` option to return the validation "
+                "results."
+            )
+            return 1
+    except Exception:
+        click.echo(validation)
+        return 1
+
+    # --dry-run option returns the connector configuration only
+    if dry_run:
+        click.echo(json.dumps(connect_config))
+        return 0
+
+    click.echo(f"Uploading {name} connector configuration...")
+    click.echo(connect.create_or_update(name, json.dumps(connect_config)))
+    return 0
 
 
 @main.command()
