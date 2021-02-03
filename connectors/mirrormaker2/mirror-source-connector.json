@@ -1,0 +1,12 @@
+{
+    "name": "mirror-source",
+    "connector.class": "org.apache.kafka.connect.mirror.MirrorSourceConnector",
+    "source.cluster.alias": "src",
+    "target.cluster.alias": "destn",
+    "source.cluster.bootstrap.servers": "broker-src:29093",
+    "target.cluster.bootstrap.servers": "broker-destn:29092",
+    "topics": ".*",
+    "tasks.max": "1",
+    "key.converter": "org.apache.kafka.connect.converters.ByteArrayConverter",
+    "value.converter": "org.apache.kafka.connect.converters.ByteArrayConverter"
+}
