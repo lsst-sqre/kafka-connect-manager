@@ -20,7 +20,7 @@ deps =
     -r{toxinidir}/requirements/main.txt
     -r{toxinidir}/requirements/dev.txt
 commands =
-    coverage run -m pytest {posargs}
+    coverage run -m pytest -m "not docker" {posargs}
 
 [testenv:coverage-report]
 description = Compile coverage from each test run.
