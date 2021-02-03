@@ -1,9 +1,0 @@
-{
-    "name": "checkpoint-test",
-    "connector.class": "org.apache.kafka.connect.mirror.MirrorCheckpointConnector",
-    "source.cluster.alias": "source-cluster",
-    "target.cluster.alias": "destination-cluster",
-    "source.cluster.bootstrap.servers": "localhost:9093",
-    "bootstrap.servers": "localhost:9092",
-    "topics": ".*"
-}

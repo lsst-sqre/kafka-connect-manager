@@ -1,8 +1,0 @@
-{
-    "name": "heartbeat-test",
-    "connector.class": "org.apache.kafka.connect.mirror.MirrorHeartbeatConnector",
-    "source.cluster.alias": "source-cluster",
-    "target.cluster.alias": "destination-cluster",
-    "source.cluster.bootstrap.servers": "localhost:9093",
-    "topics": ".*"
-}
