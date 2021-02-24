@@ -1,8 +1,8 @@
 {
-    "name": "heartbeat",
-    "connector.class": "org.apache.kafka.connect.mirror.MirrorHeartbeatConnector",
-    "source.cluster.alias": "src",
-    "target.cluster.alias": "destn",
-    "source.cluster.bootstrap.servers": "broker-src:29093",
-    "topics": ".*"
+  "name": "heartbeat",
+  "connector.class": "org.apache.kafka.connect.mirror.MirrorHeartbeatConnector",
+  "source.cluster.alias": "src",
+  "target.cluster.alias": "destn",
+  "source.cluster.bootstrap.servers": "broker-src:29093",
+  "topics": "foo"
 }
