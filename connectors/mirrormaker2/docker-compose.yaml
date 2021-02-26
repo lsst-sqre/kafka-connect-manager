@@ -115,6 +115,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       AFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry-src:8081
 
+
   schema-registry-src:
     image: confluentinc/cp-schema-registry:5.5.2
     hostname: schema-registry-src
