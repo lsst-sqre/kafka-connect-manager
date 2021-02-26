@@ -1,9 +1,9 @@
 {
-    "name": "checkpoint",
-    "connector.class": "org.apache.kafka.connect.mirror.MirrorCheckpointConnector",
-    "source.cluster.alias": "src",
-    "target.cluster.alias": "destn",
-    "source.cluster.bootstrap.servers": "broker-src:29093",
-    "target.cluster.bootstrap.servers": "broker-destn:29092",
-    "topics": ".*"
+  "connector.class": "org.apache.kafka.connect.mirror.MirrorCheckpointConnector",
+  "name": "checkpoint",
+  "source.cluster.alias": "src",
+  "source.cluster.bootstrap.servers": "broker-src:29093",
+  "target.cluster.alias": "destn",
+  "target.cluster.bootstrap.servers": "broker-destn:29092",
+  "topics": "foo"
 }
