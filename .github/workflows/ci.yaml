@@ -17,6 +17,9 @@ jobs:
       - name: Install tox
         run: pip install tox
 
+      - name: Install librdkafka 
+        run: sudo apt-get install librdkafka-dev
+
       - name: Cache tox environments
         id: cache-tox
         uses: actions/cache@v2
