@@ -6,6 +6,6 @@
 #     make update-deps
 
 importlib_metadata
-click==7.1.2
-requests==2.25.1
-confluent-kafka==1.4.2
+click
+requests
+confluent-kafka
