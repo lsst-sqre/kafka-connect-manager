@@ -32,13 +32,13 @@ bcrypt==3.2.0 \
     --hash=sha256:cd1ea2ff3038509ea95f687256c46b79f5fc382ad0aa3664d200047546d511d1 \
     --hash=sha256:cdcdcb3972027f83fe24a48b1e90ea4b584d35f1cc279d76de6fc4b13376239d
     # via paramiko
-boto3==1.17.51 \
-    --hash=sha256:73bcd04f6f919e7f8acc27c9d83dab5aee22225fe624c028b2e1c7feaf771098 \
-    --hash=sha256:c45e7d3aef8965ae1b42c9855c31ded19fbb38cfad0a34cc37dc880ded3672c2
+boto3==1.17.53 \
+    --hash=sha256:1d26f6e7ae3c940cb07119077ac42485dcf99164350da0ab50d0f5ad345800cd \
+    --hash=sha256:3bf3305571f3c8b738a53e9e7dcff59137dffe94670046c084a17f9fa4599ff3
     # via ltd-conveyor
-botocore==1.20.51 \
-    --hash=sha256:ae45ea7451513373666b7571064c173d649e61fd3e8f413f0e1f1f9db26b3513 \
-    --hash=sha256:c853d6c2321e2f2328282c7d49d7b1a06201826ba0e7049c6975ab5f22927ea8
+botocore==1.20.53 \
+    --hash=sha256:d5e70d17b91c9b5867be7d6de0caa7dde9ed789bed62f03ea9b60718dc9350bf \
+    --hash=sha256:e303500c4e80f6a706602da53daa6f751cfa8f491665c99a24ee732ab6321573
     # via
     #   boto3
     #   s3transfer
@@ -183,9 +183,9 @@ distro==1.5.0 \
     --hash=sha256:0e58756ae38fbd8fc3020d54badb8eae17c5b9dcbed388b17bb55b8a5928df92 \
     --hash=sha256:df74eed763e18d10d0da624258524ae80486432cd17392d9c3d96f5e83cd2799
     # via docker-compose
-docker-compose==1.29.0 \
-    --hash=sha256:4c62f5a381c11a4db1eeb1424039e49c785ed943bf4219f2de00a0b477e13069 \
-    --hash=sha256:7f3ac832111b55bf1385ccae8b136dc4cbec04a00cf3191b3d0517003324bfc1
+docker-compose==1.29.1 \
+    --hash=sha256:6510302727fe20faff5177f493b0c9897c73132539eaf55709a195c914c1a012 \
+    --hash=sha256:d2064934f5084db8a0c4805e226447bf1fd0c928419be95afb6bd1866838c1f1
     # via
     #   -r requirements/dev.in
     #   pytest-docker
@@ -214,10 +214,16 @@ filelock==3.0.12 \
     --hash=sha256:18d82244ee114f543149c66a6e0c14e9c4f8a1044b5cdaadd0f82159d6a6ff59 \
     --hash=sha256:929b7d63ec5b7d6b71b0fa5ac14e030b3f70b75747cef1b10da9b879fef15836
     # via virtualenv
-flake8==3.9.0 \
-    --hash=sha256:12d05ab02614b6aee8df7c36b97d1a3b2372761222b19b58621355e82acddcff \
-    --hash=sha256:78873e372b12b093da7b5e5ed302e8ad9e988b38b063b61ad937f26ca58fc5f0
+flake8-docstrings==1.6.0 \
+    --hash=sha256:99cac583d6c7e32dd28bbfbef120a7c0d1b6dde4adb5a9fd441c4227a6534bde \
+    --hash=sha256:9fe7c6a306064af8e62a055c2f61e9eb1da55f84bb39caef2b84ce53708ac34b
     # via -r requirements/dev.in
+flake8==3.9.1 \
+    --hash=sha256:1aa8990be1e689d96c745c5682b687ea49f2e05a443aff1f8251092b0014e378 \
+    --hash=sha256:3b9f848952dddccf635be78098ca75010f073bfe14d2c6bda867154bea728d2a
+    # via
+    #   -r requirements/dev.in
+    #   flake8-docstrings
 gitdb==4.0.7 \
     --hash=sha256:6c4cc71933456991da20917998acbe6cf4fb41eeaab7d6d67fbc05ecd4c865b0 \
     --hash=sha256:96bf5c08b157a666fec41129e6d327235284cca4c81e92109260f353ba138005
@@ -417,9 +423,9 @@ pluggy==0.13.1 \
     --hash=sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0 \
     --hash=sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d
     # via pytest
-pre-commit==2.12.0 \
-    --hash=sha256:029d53cb83c241fe7d66eeee1e24db426f42c858f15a38d20bcefd8d8e05c9da \
-    --hash=sha256:46b6ffbab37986c47d0a35e40906ae029376deed89a0eb2e446fb6e67b220427
+pre-commit==2.12.1 \
+    --hash=sha256:70c5ec1f30406250b706eda35e868b87e3e4ba099af8787e3e8b4b01e84f4712 \
+    --hash=sha256:900d3c7e1bf4cf0374bb2893c24c23304952181405b4d88c9c40b72bda1bb8a9
     # via -r requirements/dev.in
 py==1.10.0 \
     --hash=sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3 \
@@ -433,6 +439,10 @@ pycparser==2.20 \
     --hash=sha256:2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0 \
     --hash=sha256:7582ad22678f0fcd81102833f60ef8d0e57288b6b5fb00323d101be910e35705
     # via cffi
+pydocstyle==6.0.0 \
+    --hash=sha256:164befb520d851dbcf0e029681b91f4f599c62c5cd8933fd54b1bfbd50e89e1f \
+    --hash=sha256:d4449cf16d7e6709f63192146706933c7a334af7c0f083904799ccb851c50f6d
+    # via flake8-docstrings
 pyflakes==2.3.1 \
     --hash=sha256:7893783d01b8a89811dd72d7dfd4d84ff098e5eed95cfa8905b22bbffe52efc3 \
     --hash=sha256:f5bc8ecabc05bb9d291eb5203d6810b49040f6ff446a756326104746cc00c1db
@@ -567,7 +577,9 @@ smmap==4.0.0 \
 snowballstemmer==2.1.0 \
     --hash=sha256:b51b447bea85f9968c13b650126a888aabd4cb4463fca868ec596826325dedc2 \
     --hash=sha256:e997baa4f2e9139951b6f4c631bad912dfd3c792467e2f03d7239464af90e914
-    # via sphinx
+    # via
+    #   pydocstyle
+    #   sphinx
 sphinx-automodapi==0.7 \
     --hash=sha256:684e623d1cbccfb1211496533142c55c860ed9249892b85d0f0461dd32e4e511 \
     --hash=sha256:f3ea501157612879df415ce2eff18583bb3b7651a2e349279eff172f2da3ff23
