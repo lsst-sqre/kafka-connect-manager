@@ -1,5 +1,6 @@
-""" CLI to create the S3 Sink connector
-https://docs.confluent.io/current/connect/kafka-connect-s3
+"""CLI to create the S3 Sink connector.
+
+See https://docs.confluent.io/current/connect/kafka-connect-s3
 """
 
 __all__ = ["create_s3_sink"]
@@ -10,7 +11,6 @@ from typing import List
 
 import click
 
-from kafkaconnect.config import Config
 from kafkaconnect.connect import Connect
 from kafkaconnect.s3_sink.config import S3Config
 from kafkaconnect.topics import Topic
@@ -22,8 +22,8 @@ from kafkaconnect.topics import Topic
     "-n",
     "--name",
     "name",
-    required=False,
-    default=S3Config.name,
+    envvar="KAFKA_CONNECT_NAME",
+    default="s3-sink",
     show_default=True,
     help=(
         "Name of the connector. Alternatively set via the "
@@ -34,11 +34,11 @@ from kafkaconnect.topics import Topic
     "-b",
     "--bucket-name",
     "s3_bucket_name",
-    required=False,
-    default=S3Config.s3_bucket_name,
+    envvar="KAFKA_CONNECT_S3_BUCKET_NAME",
+    default="mybucket",
     show_default=True,
     help=(
-        "s3 bucket name. Must exist already. Alternatively set via the "
+        "S3 bucket name. Must exist already. Alternatively set via the "
         "$KAFKA_CONNECT_S3_BUCKECT_NAME env var."
     ),
 )
@@ -46,19 +46,41 @@ from kafkaconnect.topics import Topic
     "-r",
     "--region",
     "s3_region",
-    required=False,
-    default=S3Config.s3_region,
+    envvar="KAFKA_CONNECT_S3_REGION",
+    default="us-east-1",
     show_default=True,
     help=(
-        "s3 region.Alternatively set via the $KAFKA_CONNECT_S3_REGION env var."
+        "S3 region.Alternatively set via the $KAFKA_CONNECT_S3_REGION env var."
+    ),
+)
+@click.option(
+    "-id",
+    "--aws-access-key-id",
+    "aws_access_key_id",
+    envvar="AWS_ACCESS_KEY_ID",
+    default="",
+    show_default=True,
+    help=(
+        "The AWS access key ID used to authenticate personal AWS credentials."
+    ),
+)
+@click.option(
+    "-secret",
+    "--aws-secret-access-key",
+    "aws_secret_access_key",
+    envvar="AWS_SECRET_ACCESS_KEY",
+    default="",
+    show_default=True,
+    help=(
+        "The secret access key used to authenticate personal AWS credentials."
     ),
 )
 @click.option(
     "-d",
     "--topics-dir",
     "topics_dir",
-    required=False,
-    default=S3Config.topics_dir,
+    envvar="KAFKA_CONNECT_S3_TOPICS_DIR",
+    default="topics",
     show_default=True,
     help=(
         "Top level directory to store the data ingested from Kafka. "
@@ -66,35 +88,60 @@ from kafkaconnect.topics import Topic
     ),
 )
 @click.option(
-    "--flush-size",
-    "flush_size",
-    required=False,
-    default=S3Config.flush_size,
+    "-s",
+    "--s3-schema-compatibility",
+    "s3_schema_compatibility",
+    envvar="KAFKA_CONNECT_S3_SCHEMA_COMPATIBILITY",
+    default="NONE",
     show_default=True,
     help=(
-        "Number of records written to store before invoking file commits."
-        "Alternatively set via the $KAFKA_CONNECT_S3_FLUSH_SIZE env var. "
-        "Use '-' for unauthenticated users."
+        "The S3 schema compatibility mode. "
+        "The supported configurations are NONE, BACKWARD, FORWARD and FULL."
+    ),
+)
+@click.option(
+    "--flush-size",
+    "flush_size",
+    envvar="KAFKA_CONNECT_S3_FLUSH_SIZE",
+    default="3600",
+    show_default=True,
+    help=(
+        "Number of records written to store before invoking file commits. "
+        "By default this is set to six times the number of records expected "
+        "for an output stream of 1Hz within the default rotate_interval_ms "
+        "value. This way the rotate_interval_ms configuration takes "
+        "precedence over the flush_size configuration. But flush_size "
+        "still works as a maximum limit to invoke file commits when the "
+        "connect-s3-sink consumer accumulates 3600 records. "
+        "Alternatively set via the $KAFKA_CONNECT_S3_FLUSH_SIZE env var."
     ),
 )
 @click.option(
     "--rotate-interval-ms",
     "rotate_interval_ms",
-    required=False,
-    default=S3Config.rotate_interval_ms,
+    envvar="KAFKA_CONNECT_S3_ROTATE_INTERVAL_MS",
+    default="600000",
     show_default=True,
     help=(
         "The time interval in milliseconds to invoke file commits. "
+        "Use this option to control the size of the objects in S3. "
+        "For example, if the output data stream is 1Hz, a rotate "
+        "interval of 600 seconds will create a file with aproximatelly"
+        "600 records if less than flush_size. Note that the lag of the"
+        "connect-s3-sink consumer will increase until it accumulates "
+        "records within 600 seconds and it will decrease again after "
+        "the file is commited. For an hourly partitioner this configuration "
+        "should create 6 parquet files at the destination path. "
         "Alternatively set via the $KAFKA_CONNECT_S3_ROTATE_INTERVAL_MS "
-        "env var. Use '-' for unauthenticated users."
+        "env var."
     ),
 )
 @click.option(
     "-p",
     "--partition-duration-ms",
     "partition_duration_ms",
-    required=False,
-    default=S3Config.partition_duration_ms,
+    envvar="KAFKA_CONNECT_S3_PARTITION_DURATION_MS",
+    default="3600000",
     show_default=True,
     help=(
         "The duration of a partition in milliseconds used by "
@@ -105,8 +152,8 @@ from kafkaconnect.topics import Topic
 @click.option(
     "--path-format",
     "path_format",
-    required=False,
-    default=S3Config.path_format,
+    envvar="KAFKA_CONNECT_S3_PATH_FORMAT",
+    default="'year'=YYYY/'month'=MM/'day'=dd/'hour'=HH",
     show_default=True,
     help=(
         "Pattern used to format the path in the S3 object name. Portion of "
@@ -116,22 +163,10 @@ from kafkaconnect.topics import Topic
     ),
 )
 @click.option(
-    "-t",
-    "--tasks-max",
-    "tasks_max",
-    required=False,
-    default=S3Config.tasks_max,
-    show_default=True,
-    help=(
-        "Number of Kafka Connect tasks. Alternatively set via the "
-        "$KAFKA_CONNECT_TASKS_MAX env var."
-    ),
-)
-@click.option(
     "--topic-regex",
     "topic_regex",
-    required=False,
-    default=Config.topic_regex,
+    envvar="KAFKA_CONNECT_TOPIC_REGEX",
+    default=".*",
     show_default=True,
     help=(
         "Regex for selecting topics. Alternatively set via the "
@@ -164,20 +199,21 @@ from kafkaconnect.topics import Topic
     "-c",
     "--check-interval",
     "check_interval",
-    required=False,
-    default=Config.check_interval,
+    envvar="KAFKA_CONNECT_CHECK_INTERVAL",
+    default="15000",
     show_default=True,
     help=(
         "The interval, in milliseconds, to check for new topics and update"
-        "the connector."
+        "the connector. Alternatively set via the "
+        "$KAFKA_CONNECT_CHECK_INTERVAL env var."
     ),
 )
 @click.option(
     "-e",
     "--excluded-topics",
     "excluded_topics",
-    required=False,
-    default=Config.excluded_topics,
+    envvar="KAFKA_CONNECT_EXCLUDED_TOPICS",
+    default="",
     show_default=True,
     help=(
         "Comma separated list of topics to exclude from "
@@ -188,24 +224,30 @@ from kafkaconnect.topics import Topic
 @click.option(
     "--locale",
     "locale",
-    required=False,
-    default=S3Config.locale,
+    envvar="KAFKA_CONNECT_S3_LOCALE",
+    default="en-US",
     show_default=True,
-    help="The locale to use when partitioning with `TimeBasedPartitioner`.",
+    help=(
+        "The locale to use when partitioning with `TimeBasedPartitioner`. "
+        "Alternatively set via the $KAFKA_CONNECT_S3_LOCALE env var."
+    ),
 )
 @click.option(
     "--timezone",
     "timezone",
-    required=False,
-    default=S3Config.timezone,
+    envvar="KAFKA_CONNECT_S3_TIMEZONE",
+    default="UTC",
     show_default=True,
-    help="The timezone to use when partitioning with `TimeBasedPartitioner`.",
+    help=(
+        "The timezone to use when partitioning with `TimeBasedPartitioner`."
+        "Alternatively set via the $KAFKA_CONNECT_S3_TIMEZONE"
+    ),
 )
 @click.option(
     "--timestamp-extractor",
     "timestamp_extractor",
-    required=False,
-    default=S3Config.timestamp_extractor,
+    envvar="KAFKA_CONNECT_TIMESTAMP_EXTRACTOR",
+    default="Record",
     show_default=True,
     help=(
         "The extractor determines how to obtain a timestamp from each record. "
@@ -214,18 +256,32 @@ from kafkaconnect.topics import Topic
         "Kafka record denoting when it was produced or stored by the broker, "
         "RecordField to extract the timestamp from one of the fields in the "
         "record’s value as specified by the timestamp_field configuration "
-        "property."
+        "property. Alternatively set via the "
+        "$KAFKA_CONNECT_TIMESTAMP_EXTRACTOR env var."
     ),
 )
 @click.option(
     "--timestamp-field",
     "timestamp_field",
-    required=False,
-    default=S3Config.timestamp_field,
+    envvar="KAFKA_CONNECT_TIMESTAMP_FIELD",
+    default="time",
     show_default=True,
     help=(
         "The record field to be used as timestamp by the timestamp extractor. "
         "Only applies if timestamp_extractor is set to `RecordField`. "
+        "Alternatively set via the $KAFKA_CONNECT_TIMESTAMP_FIELD env var."
+    ),
+)
+@click.option(
+    "-t",
+    "--tasks-max",
+    "tasks_max",
+    envvar="KAFKA_CONNECT_TASKS_MAX",
+    default="1",
+    show_default=True,
+    help=(
+        "Number of Kafka Connect tasks. Alternatively set via the "
+        "$KAFKA_CONNECT_TASKS_MAX env var."
     ),
 )
 @click.pass_context
@@ -235,22 +291,25 @@ def create_s3_sink(
     name: str,
     s3_bucket_name: str,
     s3_region: str,
+    aws_access_key_id: str,
+    aws_secret_access_key: str,
     topics_dir: str,
-    flush_size: int,
-    rotate_interval_ms: int,
-    partition_duration_ms: int,
+    s3_schema_compatibility: str,
+    flush_size: str,
+    rotate_interval_ms: str,
+    partition_duration_ms: str,
     path_format: str,
-    tasks_max: int,
     topic_regex: str,
     dry_run: bool,
     auto_update: bool,
     validate: bool,
-    check_interval: int,
+    check_interval: str,
     excluded_topics: str,
     locale: str,
     timezone: str,
     timestamp_extractor: str,
     timestamp_field: str,
+    tasks_max: str,
 ) -> int:
     """Create an instance of the S3 Sink connector.
 
@@ -261,24 +320,28 @@ def create_s3_sink(
     the connector configuration use the
     ``--auto-update`` and ``--check-interval`` options.
     """
+    # Get configuration from the main command
+    if ctx.parent:
+        config = ctx.parent.obj["config"]
     # Connector configuration
     s3config = S3Config(
         name=name,
         s3_bucket_name=s3_bucket_name,
         s3_region=s3_region,
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
         topics_dir=topics_dir,
-        flush_size=flush_size,
-        rotate_interval_ms=rotate_interval_ms,
-        partition_duration_ms=partition_duration_ms,
+        s3_schema_compatibility=s3_schema_compatibility,
+        flush_size=int(flush_size),
+        rotate_interval_ms=int(rotate_interval_ms),
+        partition_duration_ms=int(partition_duration_ms),
         path_format=path_format,
-        tasks_max=tasks_max,
         locale=locale,
         timezone=timezone,
         timestamp_extractor=timestamp_extractor,
         timestamp_field=timestamp_field,
+        tasks_max=int(tasks_max),
     )
-    if ctx.parent:
-        config = ctx.parent.obj["config"]
     # The variadic argument is a tuple
     topics: List[str] = list(topiclist)
     if not topics:

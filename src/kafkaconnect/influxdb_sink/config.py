@@ -1,92 +1,71 @@
-""" InfluxDB Sink connector configuration
-https://docs.lenses.io/connectors/sink/influx.html
+"""InfluxDB Sink connector configuration.
+
+See https://docs.lenses.io/connectors/sink/influx.html.
 """
 
-import os
 from dataclasses import dataclass
 from typing import List
 
-from kafkaconnect.config import ConnectConfig
+from kafkaconnect.config import ConnectorConfig
 
 
 @dataclass
-class InfluxConfig(ConnectConfig):
-    """InfluxDB connector configuration"""
+class InfluxConfig(ConnectorConfig):
+    """InfluxDB connector configuration."""
 
-    name: str = os.getenv("KAFKA_CONNECT_NAME", "influxdb-sink")
-    """Name of the connector.
+    name: str
+    """Name of the connector. Configurable."""
 
-    The connector name must be unique accross the cluster.
+    connect_influx_url: str
+    """InfluxDB connection URL. Configurable."""
+
+    connect_influx_db: str
+    """InfluxDB database name. Configurable."""
+
+    tasks_max: int
+
+    connect_influx_username: str
+    """InfluxDB username."""
+
+    connect_influx_password: str
+    """InfluxDB password."""
+
+    connect_influx_error_policy: str
+    """Connector error policy configuration.
     """
 
-    connect_influx_url: str = os.getenv(
-        "KAFKA_CONNECT_INFLUXDB_URL", "http://localhost:8086"
-    )
-    """InfluxDB connection URL."""
+    connect_influx_max_retries: str
+    """Connector error policy configuration.
+    """
 
-    connect_influx_db: str = os.getenv("KAFKA_CONNECT_DATABASE", "")
-    """InfluxDB database name."""
+    connect_influx_retry_interval: str
+    """Connector error policy configuration.
+    """
 
-    connector_class: str = (
-        "com.datamountaineer.streamreactor.connect.influx.InfluxSinkConnector"
-    )
-    """Stream reactor InfluxDB Sink connector class"""
+    connect_progress_enabled: bool
+    """Enables the output for how many records have been processed."""
+
+    # Attributes with defaults are not configured via click
+    topics: str = ""
+    """Comma separated list of Kafka topics to read from (sink connectors) or
+    to write to (source connectors).
+    """
 
     connect_influx_kcql: str = ""
-    """KCQL queries to extract fields from topics.
+    """KCQL queries to extract fields from topics. Computed.
 
     We assume that a topic has a flat structure so that `SELECT * FROM` will
     retrieve all topic fields. This is configuration is derived from the list
     of topics and from the timestamp to use as the InfluxDB time.
     """
 
-    connect_influx_username: str = os.getenv(
-        "KAFKA_CONNECT_INFLUXDB_USERNAME", "-"
+    connector_class: str = (
+        "com.datamountaineer.streamreactor.connect.influx.InfluxSinkConnector"
     )
-    """InfluxDB username."""
-
-    connect_influx_password: str = os.getenv(
-        "KAFKA_CONNECT_INFLUXDB_PASSWORD", ""
-    )
-    """InfluxDB password."""
-
-    connect_influx_timestamp: str = os.getenv(
-        "KAFKA_CONNECT_INFLUXDB_TIMESTAMP", "sys_time()"
-    )
-    """Timestamp to use as the InfluxDB time."""
-
-    connect_influx_error_policy: str = os.getenv(
-        "KAFKA_CONNECT_ERROR_POLICY", "THROW"
-    )
-    """Connector error policy configuration.
-
-    See https://docs.lenses.io/connectors/sink/influx.html
+    """Stream reactor InfluxDB Sink connector class.
     """
 
-    connect_influx_max_retries: str = os.getenv(
-        "KAFKA_CONNECT_MAX_RETRIES", "10"
-    )
-    """Connector error policy configuration.
-
-    See https://docs.lenses.io/connectors/sink/influx.html
-    """
-
-    connect_influx_retry_interval: str = os.getenv(
-        "KAFKA_CONNECT_RETRY_INTERVAL", "60000"
-    )
-    """Connector error policy configuration.
-
-    See https://docs.lenses.io/connectors/sink/influx.html
-    """
-
-    connect_progress_enabled: bool = os.getenv(
-        "KAFKA_CONNECT_PROGRESS_ENABLED", "false"
-    ) == "true"
-    """Enables the output for how many records have been processed."""
-
-    def update_topics(
-        self, topics: List[str], timestamp: str = "sys_time()"
-    ) -> None:
+    def update_topics(self, topics: List[str], timestamp: str = "") -> None:
         """Update the list of Kafka topics and Influx KCQL queries.
 
         Parameters
@@ -95,8 +74,7 @@ class InfluxConfig(ConnectConfig):
             List of kafka topics.
 
         timestamp : `str`
-            Timestamp used as influxDB time. Default is ``sys_time()`` you
-            can use the name of a field as well.
+            Timestamp used as influxDB time.
         """
         # Ensure uniqueness and sort topic names
         topics = list(set(topics))

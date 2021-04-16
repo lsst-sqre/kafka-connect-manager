@@ -45,7 +45,7 @@ def test_failed_connection_message() -> None:
 
 
 def test_create_influxdb_sink() -> None:
-    """Test create influxdb-sink connector with default configuration"""
+    """Test create influxdb-sink connector with default configuration."""
     runner = CliRunner()
     result = runner.invoke(
         main, ["create", "influxdb-sink", "--dry-run", "t1"]
@@ -63,7 +63,6 @@ def test_create_influxdb_sink() -> None:
 
 def test_password_from_env() -> None:
     """Test getting the influxdb password from the environment."""
-
     env = {"KAFKA_CONNECT_INFLUXDB_PASSWORD": "envpasswd"}
     runner = CliRunner()
     result = runner.invoke(

@@ -1,83 +1,49 @@
-"""Kafkaconnect application and generic connector configuration."""
+"""Kafkaconnect and connector configuration."""
 
-__all__ = ["Config", "ConnectConfig"]
+__all__ = ["Config", "ConnectorConfig"]
 
+import abc
 import json
-import os
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Tuple
 
 
 @dataclass
 class Config:
-    """Kafkaconnect application configuration."""
+    """Application configuration."""
 
-    broker_url: str = os.getenv("KAFKA_BROKER_URL", "localhost:9092")
+    broker_url: str
     """The Kafka Broker URL.
     """
 
-    connect_url: str = os.getenv("KAFKA_CONNECT_URL", "http://localhost:8083")
+    connect_url: str
     """The Kafka Connect URL.
 
     The Kafka Connect REST API is used to manage connectors.
     """
 
-    topic_regex: str = os.getenv("KAFKA_CONNECT_TOPIC_REGEX", ".*")
-    """Regex to select topics from Kafka."""
 
-    excluded_topics: str = os.getenv("KAFKA_CONNECT_EXCLUDED_TOPICS", "")
-    """Comma separated list of topics to exclude from selection."""
+class ConnectorConfig(metaclass=abc.ABCMeta):
+    """Connector configuration interface."""
 
-    check_interval: int = int(os.getenv("KAFKA_CONNECT_CHECK_INTERVAL", 15000))
-    """The interval, in milliseconds, to update the connector.
+    def __subclasshook__(cls, subclass: Any) -> bool:
+        """Make sure the abstract method is overriden in the subclass."""
+        return (
+            hasattr(subclass, "update_topics")
+            and callable(subclass.update_topics)
+            or NotImplemented
+        )
 
-    Check Kafka for new topics and update the connector configuration.
-    """
-
-
-@dataclass
-class ConnectConfig:
-    """Generic connector configuration."""
-
-    name: str = ""
-    """Name of the connector.
-
-    The connector name must be unique accross the cluster.
-    """
-
-    connector_class: str = ""
-    """Name of the connector class."""
-
-    topics: str = ""
-    """Comma separated list of Kafka topics to read from (sink connectors) or
-    to write to (source connectors).
-    """
-
-    tasks_max: int = int(os.getenv("KAFKA_CONNECT_TASKS_MAX", "1"))
-    """Number of connect tasks to scale out.
-
-    Topics and partitions are distributed accross tasks.
-    """
-
+    @abc.abstractmethod
     def update_topics(self, topics: List[str]) -> None:
-        """Update the list of Kafka topics.
-
-        Parameters
-        ----------
-        topics : `list`
-            List of kafka topics.
-        """
-        # Ensure uniqueness and sort topic names
-        topics = list(set(topics))
-        topics.sort()
-        self.topics = ",".join(topics)
+        """update_topics() abstract method."""
+        raise NotImplementedError
 
     @staticmethod
     def format_field_names(fields: List[Tuple[str, Any]]) -> Dict[str, str]:
-        """Dictionary factory to use with the dataclasses.asdict() method.
+        """Rename a field name by replacing '_' with '.'.
 
-        Rename the field name replacing '_' by '.' and return a dictionary
-        mapping field names to field values.
+        Dictionary factory used with the dataclasses.asdict() method.
         """
         result = []
         for f in fields:
@@ -87,5 +53,6 @@ class ConnectConfig:
         return dict(result)
 
     def asjson(self) -> str:
+        """Convert dataclass instance into JSON."""
         config = asdict(self, dict_factory=self.format_field_names)
         return json.dumps(config, indent=4, sort_keys=True)

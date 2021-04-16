@@ -35,8 +35,8 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     "-b",
     "--broker",
     "broker_url",
-    required=False,
-    default=Config.broker_url,
+    envvar="KAFKA_BROKER_URL",
+    default="localhost:9092",
     show_default=True,
     help="Kafka Broker URL. Alternatively set via $KAFKA_BROKER_URL env var.",
 )
@@ -44,8 +44,8 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     "-c",
     "--connect",
     "connect_url",
-    required=False,
-    default=Config.connect_url,
+    envvar="KAFKA_CONNECT_URL",
+    default="http://localhost:8083",
     show_default=True,
     help=(
         "Kafka Connect URL. Alternatively set via $KAFKA_CONNECT_URL env var."
@@ -59,9 +59,7 @@ def main(ctx: click.Context, broker_url: str, connect_url: str) -> None:
     kafkaconnect is a Connect API client that helps to configure and
     manage Kafka connectors.
     """
-    config = Config()
-    config.broker_url = broker_url
-    config.connect_url = connect_url
+    config = Config(broker_url=broker_url, connect_url=connect_url)
     ctx.ensure_object(dict)
     ctx.obj["config"] = config
 
@@ -168,7 +166,9 @@ def resume(ctx: click.Context, name: str) -> None:
 @click.argument("name")
 @click.pass_context
 def delete(ctx: click.Context, name: str) -> None:
-    """Delete a connector. Halt tasks and remove the connector configuration.
+    """Delete a connector.
+
+    Halt tasks and remove the connector configuration.
     """
     config = ctx.obj["config"]
     connect = Connect(config.connect_url)
@@ -206,8 +206,7 @@ def upload(
     dry_run: bool,
     validate: bool,
 ) -> int:
-    """Upload the connector configuration from a file.
-    """
+    """Upload the connector configuration from a file."""
     config = ctx.obj["config"]
     connect = Connect(config.connect_url)
     with open(configfile) as f:
