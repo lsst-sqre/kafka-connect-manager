@@ -1,5 +1,6 @@
-"""Helper class for interacting with the `Kafka Connect REST Interface
- <https://docs.confluent.io/current/connect/references/restapi.html>`_
+"""Helper class for interacting with the `Kafka Connect REST Interface.
+
+See https://docs.confluent.io/current/connect/references/restapi.html.
 """
 
 __all__ = ["Connect"]
@@ -22,17 +23,18 @@ class HTTPMethod(Enum):
 
 
 class Connect:
+    """Kafka Connect API helper class.
+
+    Parameters
+    ----------
+    connect_url : `str`
+    Kafka Connect URL
+    """
 
     _header = {"Content-Type": "application/json"}
 
     def __init__(self, connect_url: str) -> None:
-        """Interactions with the Kafka Connect API
 
-        Parameters
-        ----------
-        connect_url : `str`
-            Kafka Connect URL
-        """
         self._connect_url = connect_url
 
     def _request(
@@ -146,7 +148,7 @@ class Connect:
         )
 
     def restart(self, name: str) -> str:
-        """Restart the connector"""
+        """Restart the connector."""
         uri = f"{self._connect_url}/connectors/{name}/restart"
         return self._request(method=HTTPMethod.POST, uri=uri)
 
@@ -156,7 +158,7 @@ class Connect:
         return self._request(method=HTTPMethod.PUT, uri=uri)
 
     def resume(self, name: str) -> str:
-        """Resume a paused connector"""
+        """Resume a paused connector."""
         uri = f"{self._connect_url}/connectors/{name}/resume"
         return self._request(method=HTTPMethod.PUT, uri=uri)
 

@@ -62,16 +62,11 @@ class Topic:
     def names(self) -> List[str]:
         """Return a list of topic names from Kafka.
 
-        Use config.topic_regex to and config.exlcuded_topics to
-        filter topic names.
-
         Returns
         -------
-
         topics: list
             A list of topic names from Kafka. Return an empty list if no topics
             are found.
-
         """
         if self._admin_client:
             self._names = set(self._admin_client.topics.keys())

@@ -1,5 +1,6 @@
-""" CLI to create the InfluxDB Sink connector
-https://docs.lenses.io/connectors/sink/influx.html
+"""CLI to create the InfluxDB Sink connector.
+
+See https://docs.lenses.io/connectors/sink/influx.html.
 """
 
 __all__ = ["create_influxdb_sink"]
@@ -10,7 +11,6 @@ from typing import List
 
 import click
 
-from kafkaconnect.config import Config
 from kafkaconnect.connect import Connect
 from kafkaconnect.influxdb_sink.config import InfluxConfig
 from kafkaconnect.topics import Topic
@@ -22,20 +22,21 @@ from kafkaconnect.topics import Topic
     "-n",
     "--name",
     "name",
-    required=False,
-    default=InfluxConfig.name,
+    envvar="KAFKA_CONNECT_NAME",
+    default="influxdb-sink",
     show_default=True,
     help=(
-        "Name of the connector. Alternatively set via the "
-        "$KAFKA_CONNECT_NAME env var."
+        "Name of the connector."
+        "The connector name must be unique accross the cluster."
+        "Alternatively set via the $KAFKA_CONNECT_NAME env var."
     ),
 )
 @click.option(
     "-i",
     "--influxdb_url",
     "connect_influx_url",
-    required=False,
-    default=InfluxConfig.connect_influx_url,
+    envvar="KAFKA_CONNECT_INFLUXDB_URL",
+    default="http://localhost:8086",
     show_default=True,
     help=(
         "InfluxDB connection URL. Alternatively set via the "
@@ -46,8 +47,8 @@ from kafkaconnect.topics import Topic
     "-d",
     "--database",
     "connect_influx_db",
-    required=False,
-    default=InfluxConfig.connect_influx_db,
+    envvar="KAFKA_CONNECT_DATABASE",
+    default="mydb",
     show_default=True,
     help=(
         "InfluxDB database name. The database must exist at InfluxDB. "
@@ -58,8 +59,8 @@ from kafkaconnect.topics import Topic
     "-t",
     "--tasks-max",
     "tasks_max",
-    required=False,
-    default=InfluxConfig.tasks_max,
+    envvar="KAFKA_CONNECT_TASKS_MAX",
+    default="1",
     show_default=True,
     help=(
         "Number of Kafka Connect tasks. Alternatively set via the "
@@ -70,8 +71,8 @@ from kafkaconnect.topics import Topic
     "-u",
     "--username",
     "connect_influx_username",
-    required=False,
-    default=InfluxConfig.connect_influx_username,
+    default="-",
+    envvar="",
     show_default=True,
     help=(
         "InfluxDB username. Alternatively set via the "
@@ -83,7 +84,6 @@ from kafkaconnect.topics import Topic
     "-p",
     "--password",
     "connect_influx_password",
-    required=False,
     envvar="KAFKA_CONNECT_INFLUXDB_PASSWORD",
     default="",
     show_default=True,
@@ -96,8 +96,8 @@ from kafkaconnect.topics import Topic
     "-r",
     "--topic-regex",
     "topic_regex",
-    required=False,
-    default=Config.topic_regex,
+    envvar="KAFKA_CONNECT_TOPIC_REGEX",
+    default=".*",
     show_default=True,
     help=(
         "Regex for selecting topics. Alternatively set via the "
@@ -130,20 +130,21 @@ from kafkaconnect.topics import Topic
     "-c",
     "--check-interval",
     "check_interval",
-    required=False,
-    default=Config.check_interval,
+    envvar="KAFKA_CONNECT_CHECK_INTERVAL",
+    default="15000",
     show_default=True,
     help=(
         "The interval, in milliseconds, to check for new topics and update"
-        "the connector."
+        "the connector. Alternatively set via the "
+        "$KAFKA_CONNECT_CHECK_INTERVAL env var."
     ),
 )
 @click.option(
     "-e",
     "--excluded_topics",
     "excluded_topics",
-    required=False,
-    default=Config.excluded_topics,
+    envvar="KAFKA_CONNECT_EXCLUDED_TOPICS",
+    default="",
     show_default=True,
     help=(
         "Comma separated list of topics to exclude from "
@@ -152,19 +153,11 @@ from kafkaconnect.topics import Topic
     ),
 )
 @click.option(
-    "--timestamp",
-    "timestamp",
-    required=False,
-    default=InfluxConfig.connect_influx_timestamp,
-    show_default=True,
-    help="Timestamp to use as the InfluxDB time.",
-)
-@click.option(
     "--error-policy",
     "connect_influx_error_policy",
     type=click.Choice(["NOOP", "THROW", "RETRY"]),
-    required=False,
-    default=InfluxConfig.connect_influx_error_policy,
+    envvar="KAFKA_CONNECT_ERROR_POLICY",
+    default="THROW",
     show_default=True,
     help=(
         "Specifies the action to be taken if an error occurs while "
@@ -179,7 +172,8 @@ from kafkaconnect.topics import Topic
 @click.option(
     "--max-retries",
     "connect_influx_max_retries",
-    default=InfluxConfig.connect_influx_max_retries,
+    envvar="KAFKA_CONNECT_MAX_RETRIES",
+    default="10",
     show_default=True,
     help=(
         "The maximum number of times a message is retried. Only valid when "
@@ -190,7 +184,8 @@ from kafkaconnect.topics import Topic
 @click.option(
     "--retry-interval",
     "connect_influx_retry_interval",
-    default=InfluxConfig.connect_influx_retry_interval,
+    envvar="KAFKA_CONNECT_RETRY_INTERVAL",
+    default="60000",
     show_default=True,
     help=(
         "The interval, in milliseconds between retries. Only valid when "
@@ -201,12 +196,21 @@ from kafkaconnect.topics import Topic
 @click.option(
     "--progress-enabled",
     "connect_progress_enabled",
-    default=InfluxConfig.connect_progress_enabled,
+    envvar="KAFKA_CONNECT_PROGRESS_ENABLED",
+    default="false",
     show_default=True,
     help=(
         "Enables the output for how many records have been processed. "
         "Alternatively set via the $KAFKA_CONNECT_PROGRESS_ENABLED env var."
     ),
+)
+@click.option(
+    "--timestamp",
+    "timestamp",
+    envvar="KAFKA_CONNECT_INFLUXDB_TIMESTAMP",
+    default="sys_time()",
+    show_default=True,
+    help="Timestamp to use as the InfluxDB time.",
 )
 @click.pass_context
 def create_influxdb_sink(
@@ -215,20 +219,20 @@ def create_influxdb_sink(
     name: str,
     connect_influx_url: str,
     connect_influx_db: str,
-    tasks_max: int,
+    tasks_max: str,
     connect_influx_username: str,
     connect_influx_password: str,
     topic_regex: str,
     dry_run: bool,
     auto_update: bool,
     validate: bool,
-    check_interval: int,
+    check_interval: str,
     excluded_topics: str,
-    timestamp: str,
     connect_influx_error_policy: str,
     connect_influx_max_retries: str,
     connect_influx_retry_interval: str,
-    connect_progress_enabled: bool,
+    connect_progress_enabled: str,
+    timestamp: str,
 ) -> int:
     """Create an instance of the InfluxDB Sink connector.
 
@@ -239,21 +243,22 @@ def create_influxdb_sink(
     the connector configuration use the
     ``--auto-update`` and ``--check-interval`` options.
     """
+    # Get configuration from the main command
+    if ctx.parent:
+        config = ctx.parent.obj["config"]
     # Connector configuration
     influx_config = InfluxConfig(
         name=name,
         connect_influx_url=connect_influx_url,
         connect_influx_db=connect_influx_db,
-        tasks_max=tasks_max,
+        tasks_max=int(tasks_max),
         connect_influx_username=connect_influx_username,
         connect_influx_password=connect_influx_password,
         connect_influx_error_policy=connect_influx_error_policy,
         connect_influx_max_retries=connect_influx_max_retries,
         connect_influx_retry_interval=connect_influx_retry_interval,
-        connect_progress_enabled=connect_progress_enabled,
+        connect_progress_enabled=(connect_progress_enabled == "true"),
     )
-    if ctx.parent:
-        config = ctx.parent.obj["config"]
     # The variadic argument is a tuple
     topics: List[str] = list(topiclist)
     if not topics:

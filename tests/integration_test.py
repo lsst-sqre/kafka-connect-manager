@@ -1,3 +1,5 @@
+"""kafkaconnect integration tests."""
+
 import time
 from typing import Any
 
@@ -16,6 +18,7 @@ Fixture = Any
 
 
 def is_broker_responsive() -> bool:
+    """Check if broker is ready."""
     try:
         admin_client = AdminClient({"bootstrap.servers": Config.broker_url})
         admin_client.list_topics(timeout=10)
@@ -25,6 +28,7 @@ def is_broker_responsive() -> bool:
 
 
 def is_connect_responsive() -> bool:
+    """Check if the kafka connet API is ready."""
     try:
         uri = f"{Config.connect_url}/connectors"
         response = requests.get(uri)
@@ -39,7 +43,6 @@ def is_connect_responsive() -> bool:
 @pytest.fixture(scope="session")
 def ensure_broker_service(docker_services: Fixture) -> bool:
     """Ensure that broker service is up and responsive."""
-
     docker_services.wait_until_responsive(
         timeout=300, pause=30, check=lambda: is_broker_responsive()
     )
@@ -49,7 +52,6 @@ def ensure_broker_service(docker_services: Fixture) -> bool:
 @pytest.fixture(scope="session")
 def ensure_connect_service(docker_services: Fixture) -> bool:
     """Ensure that connect service is up and responsive."""
-
     docker_services.wait_until_responsive(
         timeout=300, pause=30, check=lambda: is_connect_responsive()
     )
@@ -83,7 +85,18 @@ def test_integration_broker_connect(
     assert "test.t3" in topic.names
     # Configure the connector
     connect = Connect(connect_url=Config.connect_url)
-    connect_config = InfluxConfig()
+    connect_config = InfluxConfig(
+        name="influxdb-sink",
+        connect_influx_url="http://localhost:8086",
+        connect_influx_db="mydb",
+        tasks_max=1,
+        connect_influx_username="foo",
+        connect_influx_password="bar",
+        connect_influx_error_policy="foo",
+        connect_influx_max_retries="1",
+        connect_influx_retry_interval="1",
+        connect_progress_enabled=True,
+    )
     connect_config.update_topics(topic.names)
     # Create the connector using the Kafka Connect API
     connect.create_or_update(

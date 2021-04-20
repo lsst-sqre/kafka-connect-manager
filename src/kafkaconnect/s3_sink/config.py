@@ -1,22 +1,69 @@
-"""S3 Sink connector configuration
-https://docs.confluent.io/current/connect/kafka-connect-s3
+"""S3 Sink connector configuration.
+
+See https://docs.confluent.io/current/connect/kafka-connect-s3.
 """
 
-import os
 from dataclasses import dataclass
+from typing import List
 
-from kafkaconnect.config import ConnectConfig
+from kafkaconnect.config import ConnectorConfig
 
 
 @dataclass
-class S3Config(ConnectConfig):
-    """S3 Sink connector configuration"""
+class S3Config(ConnectorConfig):
+    """S3 Sink connector configuration."""
 
-    name: str = os.getenv("KAFKA_CONNECT_NAME", "s3-sink")
-    """Name of the connector.
+    name: str
+    """Name of the connector."""
 
-    The connector name must be unique accross the cluster.
-    """
+    s3_bucket_name: str
+    """The S3 Bucket."""
+
+    s3_region: str
+    """The AWS region to be used the connector."""
+
+    aws_access_key_id: str
+    """The AWS access key ID used to authenticate personal AWS credentials."""
+
+    aws_secret_access_key: str
+    """The secret access key used to authenticate personal AWS credentials."""
+
+    topics_dir: str
+    """Top level directory to store the data ingested from Kafka."""
+
+    s3_schema_compatibility: str
+    """The S3 schema compatibility mode."""
+
+    flush_size: int
+    """Number of records written to store before invoking file commits."""
+
+    rotate_interval_ms: int
+    """The time interval in milliseconds to invoke file commits."""
+
+    partition_duration_ms: int
+    """The duration of a partition in ms, used by the TimeBasedPartitioner."""
+
+    path_format: str
+    """Pattern used to format the path in the S3 object name."""
+
+    tasks_max: int
+    """Number of Kafka Connect tasks."""
+
+    locale: str
+    """The locale to use when partitioning with TimeBasedPartitioner."""
+
+    timezone: str
+    """The timezone to use when partitioning with TimeBasedPartitioner."""
+
+    timestamp_extractor: str
+    """The extractor determines how to obtain a timestamp from each record."""
+
+    timestamp_field: str
+    """The record field to be used as timestamp by the timestamp extractor."""
+
+    # Attributes with defaults are not configured via click
+    topics: str = ""
+    """Comma separated list of Kafka topics to read from."""
 
     connector_class: str = "io.confluent.connect.s3.S3SinkConnector"
     """S3 Sink connector class"""
@@ -27,100 +74,26 @@ class S3Config(ConnectConfig):
     parquet_codec: str = "snappy"
     """The Parquet compression codec to be used for output files."""
 
-    schema_compatibility: str = os.getenv(
-        "KAFKA_CONNECT_S3_SCHEMA_COMPATIBILITY", "NONE"
-    )
-    """The schema compatibility rule.
-
-    The supported configurations are NONE, BACKWARD, FORWARD and FULL.
-    """
-
-    s3_bucket_name: str = os.getenv("KAFKA_CONNECT_S3_BUCKET_NAME", "")
-    """The S3 Bucket."""
-
-    s3_region: str = os.getenv("KAFKA_CONNECT_S3_REGION", "us-east-1")
-    """The AWS region to be used the connector."""
-
-    aws_access_key_id: str = os.getenv("AWS_ACCESS_KEY_ID", "")
-    """The AWS access key ID used to authenticate personal AWS credentials."""
-
-    aws_secret_access_key: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
-    """The secret access key used to authenticate personal AWS credentials."""
-
-    topics_dir: str = os.getenv("KAFKA_CONNECT_S3_TOPICS_DIR", "topics")
-    """Top level directory to store the data ingested from Kafka."""
-
     storage_class: str = "io.confluent.connect.s3.storage.S3Storage"
     """The underlying storage layer."""
-
-    flush_size: int = int(os.getenv("KAFKA_CONNECT_S3_FLUSH_SIZE", 3600))
-    """Number of records written to store before invoking file commits.
-
-    By default this is set to 6 times the number of records expected for an
-    output stream of 1Hz within the default rotate_interval_ms value.
-    This way the rotate_interval_ms configuration takes precedence over the
-    flush_size configuration. But flush_size still works as a maximum limit
-    to invoke file commits when the connect-s3-sink consumer accumulates 3600
-    records.
-    """
-
-    rotate_interval_ms: int = int(
-        os.getenv("KAFKA_CONNECT_S3_ROTATE_INTERVAL_MS", 600000)
-    )
-    """The time interval in milliseconds to invoke file commits.
-
-    Use this option to control the size of the objects in S3. For example, if
-    the output data stream is 1Hz, a rotate interval of 600 seconds will create
-    a file with aproximatelly 600 records if less than flush_size. Note that
-    the lag of the connect-s3-sink consumer will increase until it accumulates
-    records within 600 seconds and it will decrease again after the file
-    is commited. For an hourly partitioner this configuration should create 6
-    parquet files in the destination path.
-    """
 
     partitioner_class: str = (
         "io.confluent.connect.storage.partitioner.TimeBasedPartitioner"
     )
     """The partitioner to use when writing data to the store."""
 
-    partition_duration_ms: int = int(
-        os.getenv("KAFKA_CONNECT_S3_PARTITION_DURATION_MS", 3600000)
-    )
-    """The duration of a partition in ms, used by the TimeBasedPartitioner.
+    def update_topics(self, topics: List[str]) -> None:
+        """Update the list of Kafka topics and Influx KCQL queries.
 
-    The default value is for an hourly partitioner.
-    """
-    path_format: str = (
-        os.getenv(
-            "KAFKA_CONNECT_S3_PATH_FORMAT",
-            "'year'=YYYY/'month'=MM/'day'=dd/'hour'=HH",
-        )
-    )
-    """Pattern used to format the path in the S3 object name.
+        Parameters
+        ----------
+        topics : `list`
+            List of kafka topics.
 
-    Portion of the path generated by the S3 connector’s partitioner. The
-    default is for an hourly partitioner.
-    """
-    locale: str = os.getenv("KAFKA_CONNECT_S3_LOCALE", "en-US")
-    """The locale to use when partitioning with TimeBasedPartitioner."""
-
-    timezone: str = os.getenv("KAFKA_CONNECT_S3_TIMEZONE", "UTC")
-    """The timezone to use when partitioning with TimeBasedPartitioner."""
-
-    timestamp_extractor: str = os.getenv(
-        "KAFKA_CONNECT_TIMESTAMP_EXTRACTOR", "Record"
-    )
-    """The extractor determines how to obtain a timestamp from each record.
-
-    Values can be Wallclock to use the system time when
-    the record is processed, Record (default) to use the timestamp of the
-    Kafka record denoting when it was produced or stored by the broker,
-    RecordField to extract the timestamp from one of the fields in the
-    record’s value as specified by the timestamp_field configuration property.
-    """
-
-    timestamp_field: str = os.getenv("KAFKA_CONNECT_TIMESTAMP_FIELD", "time")
-    """The record field to be used as timestamp by the timestamp extractor.
-
-    Only applies if timestamp_extractor is set to `RecordField`.
-    """
+        timestamp : `str`
+            Timestamp used as influxDB time.
+        """
+        # Ensure uniqueness and sort topic names
+        topics = list(set(topics))
+        topics.sort()
+        self.topics = ",".join(topics)
