@@ -14,7 +14,7 @@ class S3Config(ConnectorConfig):
     """S3 Sink connector configuration."""
 
     name: str
-    """Name of the connector."""
+    """Name of the connector. Configurable."""
 
     s3_bucket_name: str
     """The S3 Bucket."""
