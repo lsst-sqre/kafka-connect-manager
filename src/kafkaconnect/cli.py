@@ -24,6 +24,7 @@ import click
 from kafkaconnect.config import Config
 from kafkaconnect.connect import Connect
 from kafkaconnect.influxdb_sink.cli import create_influxdb_sink
+from kafkaconnect.mirrormaker2.cli import create_mirrormaker2
 from kafkaconnect.s3_sink.cli import create_s3_sink
 
 # Add -h as a help shortcut option
@@ -250,3 +251,4 @@ def create(ctx: click.Context) -> None:
 # Add subcommands from other modules
 create.add_command(create_influxdb_sink)
 create.add_command(create_s3_sink)
+create.add_command(create_mirrormaker2)
