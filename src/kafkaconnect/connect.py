@@ -176,3 +176,16 @@ class Connect:
         """Delete a connector, halting tasks and deleting its configuration."""
         uri = f"{self._connect_url}/connectors/{name}"
         return self._request(method=HTTPMethod.DELETE, uri=uri)
+
+    def validate_and_create(self, name: str, connect_config: str) -> str:
+        """Validate the configuration before creating the connector."""
+        validation = self.validate(
+            name=json.loads(connect_config)["connector.class"],
+            connect_config=connect_config,
+        )
+
+        error_count = json.loads(validation)["error_count"]
+        if error_count > 0:
+            return validation
+
+        return self.create_or_update(name, connect_config)
