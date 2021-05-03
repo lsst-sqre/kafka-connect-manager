@@ -24,6 +24,7 @@ import click
 from kafkaconnect.config import Config
 from kafkaconnect.connect import Connect
 from kafkaconnect.influxdb_sink.cli import create_influxdb_sink
+from kafkaconnect.jdbc_sink.cli import create_jdbc_sink
 from kafkaconnect.mirrormaker2.cli import create_mirrormaker2
 from kafkaconnect.s3_sink.cli import create_s3_sink
 
@@ -252,3 +253,4 @@ def create(ctx: click.Context) -> None:
 create.add_command(create_influxdb_sink)
 create.add_command(create_s3_sink)
 create.add_command(create_mirrormaker2)
+create.add_command(create_jdbc_sink)
