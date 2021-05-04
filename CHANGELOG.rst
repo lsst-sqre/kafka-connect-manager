@@ -2,19 +2,25 @@
 Change log
 ##########
 
+0.9.0 (2021-05-03)
+==================
+
+* Add ``create mirrormaker2`` command
+* Add ``create jdbc-sink`` command
+* Update dependencies
+
+
 0.8.3 (2021-03-04)
 ==================
 
-* Add upload command line option
+* Add upload command 
 * Initial support to MirrorMaker 2 and Confuent JDBC Sink Connectors
 * Update dependencies
 
 0.8.2 (2021-01-25)
 ==================
 
-* Update ``cp-kafka-connect`` image with new version of the InfluxDB Sink connector.
-This version bumps the ``influxdb-java`` dependency from version 2.9 to 2.21.
-In particular 2.16 introduced a fix to skip fields with ``NaN`` and ``Infinity`` values when writing to InfluxDB.
+* Update ``cp-kafka-connect`` image with new version of the InfluxDB Sink connector. This version bumps the ``influxdb-java`` dependency from version 2.9 to 2.21. In particular 2.16 introduced a fix to skip fields with ``NaN`` and ``Infinity`` values when writing to InfluxDB.
 * Reorganize developer and user guides.
 * Add documentation in the user guide on how to run the InfluxDB Sink connector locally.
 * Update dependencies
