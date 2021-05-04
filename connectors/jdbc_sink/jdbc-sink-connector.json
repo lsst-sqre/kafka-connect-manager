@@ -1,0 +1,16 @@
+{
+  "name": "postgres-sink",
+  "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+  "topics": "foo",
+  "tasks.max": 1,
+  "connection.url": "jdbc:postgresql://localhost:5432/mydb",
+  "connection.user": "",
+  "connection.password": "",
+  "insert.mode": "insert",
+  "batch.size": 3000,
+  "auto.create": true,
+  "auto.evolve": false,
+  "max.retries": 10,
+  "retry.backoff.ms": 3000,
+  "table.name.format": "${topic}"
+}

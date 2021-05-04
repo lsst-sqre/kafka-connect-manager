@@ -1,0 +1,1 @@
+"""JDBC Sink connector."""

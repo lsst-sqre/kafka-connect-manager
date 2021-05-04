@@ -24,6 +24,8 @@ import click
 from kafkaconnect.config import Config
 from kafkaconnect.connect import Connect
 from kafkaconnect.influxdb_sink.cli import create_influxdb_sink
+from kafkaconnect.jdbc_sink.cli import create_jdbc_sink
+from kafkaconnect.mirrormaker2.cli import create_mirrormaker2
 from kafkaconnect.s3_sink.cli import create_s3_sink
 
 # Add -h as a help shortcut option
@@ -190,56 +192,33 @@ def delete(ctx: click.Context, name: str) -> None:
 @click.option(
     "--dry-run",
     is_flag=True,
-    help=("Show the connector configuration without uploading."),
-)
-@click.option(
-    "-v",
-    "--validate",
-    is_flag=True,
-    help="Validate the connector configuration without uploading.",
+    help=("Validate the connector configuration without uploading."),
 )
 @click.pass_context
 def upload(
-    ctx: click.Context,
-    configfile: str,
-    name: str,
-    dry_run: bool,
-    validate: bool,
+    ctx: click.Context, configfile: str, name: str, dry_run: bool,
 ) -> int:
     """Upload the connector configuration from a file."""
     config = ctx.obj["config"]
     connect = Connect(config.connect_url)
+
     with open(configfile) as f:
         connect_config = json.load(f)
 
-    # Validate connector configuration before creating
-    validation = connect.validate(
-        name=connect_config["connector.class"],
-        connect_config=json.dumps(connect_config),
-    )
-    if validate:
-        click.echo(validation)
-        return 0
-    try:
-        error_count = json.loads(validation)["error_count"]
-        click.echo(f"Validation returned {error_count} error(s).")
-        if error_count > 0:
-            click.echo(
-                "Use the ``--validate`` option to return the validation "
-                "results."
-            )
-            return 1
-    except Exception:
-        click.echo(validation)
-        return 1
+    # Ensure connector name is consistent
+    connect_config["name"] = name
 
-    # --dry-run option returns the connector configuration only
+    # Validate the connector configuration only.
     if dry_run:
-        click.echo(json.dumps(connect_config))
+        validation = connect.validate(
+            name=connect_config["connector.class"],
+            connect_config=json.dumps(connect_config),
+        )
+        click.echo(validation)
         return 0
 
     click.echo(f"Uploading {name} connector configuration...")
-    click.echo(connect.create_or_update(name, json.dumps(connect_config)))
+    click.echo(connect.validate_and_create(name, json.dumps(connect_config)))
     return 0
 
 
@@ -273,3 +252,5 @@ def create(ctx: click.Context) -> None:
 # Add subcommands from other modules
 create.add_command(create_influxdb_sink)
 create.add_command(create_s3_sink)
+create.add_command(create_mirrormaker2)
+create.add_command(create_jdbc_sink)

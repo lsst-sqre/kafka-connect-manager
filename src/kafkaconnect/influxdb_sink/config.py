@@ -14,15 +14,16 @@ class InfluxConfig(ConnectorConfig):
     """InfluxDB connector configuration."""
 
     name: str
-    """Name of the connector. Configurable."""
+    """Name of the connector."""
 
     connect_influx_url: str
-    """InfluxDB connection URL. Configurable."""
+    """InfluxDB connection URL."""
 
     connect_influx_db: str
-    """InfluxDB database name. Configurable."""
+    """InfluxDB database name."""
 
     tasks_max: int
+    """Number of Kafka Connect tasks."""
 
     connect_influx_username: str
     """InfluxDB username."""
@@ -31,21 +32,18 @@ class InfluxConfig(ConnectorConfig):
     """InfluxDB password."""
 
     connect_influx_error_policy: str
-    """Connector error policy configuration.
-    """
+    """Connector error policy configuration."""
 
     connect_influx_max_retries: str
-    """Connector error policy configuration.
-    """
+    """Connector error policy configuration."""
 
     connect_influx_retry_interval: str
-    """Connector error policy configuration.
-    """
+    """Connector error policy configuration."""
 
     connect_progress_enabled: bool
     """Enables the output for how many records have been processed."""
 
-    # Attributes with defaults are not configured via click
+    # Attributes with defaults are not configurable via click
     topics: str = ""
     """Comma separated list of Kafka topics to read from (sink connectors) or
     to write to (source connectors).
@@ -62,8 +60,7 @@ class InfluxConfig(ConnectorConfig):
     connector_class: str = (
         "com.datamountaineer.streamreactor.connect.influx.InfluxSinkConnector"
     )
-    """Stream reactor InfluxDB Sink connector class.
-    """
+    """Stream reactor InfluxDB Sink connector class."""
 
     def update_topics(self, topics: List[str], timestamp: str = "") -> None:
         """Update the list of Kafka topics and Influx KCQL queries.
