@@ -30,4 +30,4 @@ List of connectors we currently manage with kafkaconnect:
 
 In principle, any connector installed in the `kafka-connect docker image`_ can also be managed by kafkaconnect using the ``upload`` command.
 
-.. _kafka-connect docker image:
+.. _kafka-connect docker image: https://github.com/lsst-sqre/kafka-connect-manager/tree/master/cp-kafka-connect
