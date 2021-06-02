@@ -17,25 +17,28 @@ class Topic:
 
     Parameters
     ----------
-    broker_url : `str`
+    broker_url : `str` or None
         The Kafka Broker URL.
     topic_regex : `str`
         Regex to select topics from Kafka.
-    excluded_topics : `str`
-        List of 'problematic' topics to exclude from selection.
+    excluded_topic_regex : `str`
+        Regex to exclude from selection.
     """
 
     def __init__(
-        self, broker_url: str, topic_regex: str, excluded_topics: str
+        self,
+        broker_url: Optional[str] = None,
+        topic_regex: str = ".*",
+        excluded_topic_regex: Optional[str] = None,
     ) -> None:
         self._names: Set[str] = set()
         self._admin_client = self._get_admin_client(broker_url)
         self._topic_regex = topic_regex
-        self._excluded_topics = set(
-            excluded_topics.replace(" ", "").split(",")
-        )
+        self._excluded_topic_regex = excluded_topic_regex
 
-    def _get_admin_client(self, broker_url: str) -> Optional[AdminClient]:
+    def _get_admin_client(
+        self, broker_url: Optional[str] = None
+    ) -> Optional[AdminClient]:
         """Get an instance of the Kafka admin client.
 
         Parameters
@@ -46,6 +49,8 @@ class Topic:
         -------
         admin_client : `AdminClient` or None
         """
+        if not broker_url:
+            return None
         try:
             conf = {"bootstrap.servers": broker_url}
             admin_client = AdminClient(conf).list_topics(timeout=10)
@@ -75,7 +80,11 @@ class Topic:
             pattern = re.compile(self._topic_regex)
             self._names = {name for name in self._names if pattern.match(name)}
 
-        if self._excluded_topics:
-            self._names = self._names - self._excluded_topics
+        if self._excluded_topic_regex:
+            pattern = re.compile(self._excluded_topic_regex)
+            excluded_topics = {
+                name for name in self._names if pattern.match(name)
+            }
+            self._names = self._names - excluded_topics
 
         return list(self._names)
