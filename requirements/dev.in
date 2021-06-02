@@ -14,7 +14,7 @@ pytest
 pytest-docker
 docker-compose
 pytest-vcr
-documenteer[pipelines]>=0.5,<0.6
+documenteer[pipelines]
 ltd-conveyor
 sphinx-automodapi
 sphinx-prompt
