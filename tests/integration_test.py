@@ -9,18 +9,20 @@ from confluent_kafka import KafkaException
 from confluent_kafka.admin import AdminClient, NewTopic
 from requests.exceptions import ConnectionError, HTTPError
 
-from kafkaconnect.config import Config
 from kafkaconnect.connect import Connect
 from kafkaconnect.influxdb_sink.config import InfluxConfig
 from kafkaconnect.topics import Topic
 
 Fixture = Any
 
+BROKER_URL = "localhost:9092"
+CONNECT_URL = "http://localhost:8083"
+
 
 def is_broker_responsive() -> bool:
     """Check if broker is ready."""
     try:
-        admin_client = AdminClient({"bootstrap.servers": Config.broker_url})
+        admin_client = AdminClient({"bootstrap.servers": BROKER_URL})
         admin_client.list_topics(timeout=10)
     except KafkaException:
         return False
@@ -30,8 +32,7 @@ def is_broker_responsive() -> bool:
 def is_connect_responsive() -> bool:
     """Check if the kafka connet API is ready."""
     try:
-        uri = f"{Config.connect_url}/connectors"
-        response = requests.get(uri)
+        response = requests.get(f"{CONNECT_URL}/connectors")
         response.raise_for_status()
     except ConnectionError:
         return False
@@ -66,25 +67,27 @@ def test_integration_broker_connect(
 
     pytest-docker uses the docker-compose.yaml in the test directory.
     """
-    broker_url = Config.broker_url
-    admin_client = AdminClient({"bootstrap.servers": broker_url})
+    admin_client = AdminClient({"bootstrap.servers": BROKER_URL})
     t1 = NewTopic(topic="test.t1", num_partitions=1)
     t2 = NewTopic(topic="test.t2", num_partitions=1)
     t3 = NewTopic(topic="test.t3", num_partitions=1)
     # Create test topics in Kafka
     try:
         admin_client.create_topics([t1, t2, t3])
-        time.sleep(1)
+        time.sleep(5)
     except KafkaException:
         return None
     # Test topic discovery
     topic = Topic(
-        broker_url=broker_url, topic_regex="test.*", excluded_topics="test.t1"
+        broker_url=BROKER_URL,
+        topic_regex="test.*",
+        excluded_topic_regex="test.t1",
     )
+    assert "test.t1" not in topic.names
     assert "test.t2" in topic.names
     assert "test.t3" in topic.names
     # Configure the connector
-    connect = Connect(connect_url=Config.connect_url)
+    connect = Connect(connect_url=CONNECT_URL)
     connect_config = InfluxConfig(
         name="influxdb-sink",
         connect_influx_url="http://localhost:8086",
