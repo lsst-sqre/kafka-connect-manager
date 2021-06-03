@@ -71,8 +71,8 @@ from kafkaconnect.topics import Topic
     "-u",
     "--username",
     "connect_influx_username",
+    envvar="KAFKA_CONNECT_INFLUXDB_USERNAME",
     default="-",
-    envvar="",
     show_default=True,
     help=(
         "InfluxDB username. Alternatively set via the "
