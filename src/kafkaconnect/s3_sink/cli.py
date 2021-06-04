@@ -210,15 +210,14 @@ from kafkaconnect.topics import Topic
 )
 @click.option(
     "-e",
-    "--excluded-topics",
-    "excluded_topics",
-    envvar="KAFKA_CONNECT_EXCLUDED_TOPICS",
+    "--excluded-topic-regex",
+    "excluded_topic_regex",
+    envvar="KAFKA_CONNECT_EXCLUDED_TOPIC_REGEX",
     default="",
     show_default=True,
     help=(
-        "Comma separated list of topics to exclude from "
-        "selection. Alternatively set via the "
-        "$KAFKA_CONNECT_EXCLUDED_TOPICS env var."
+        "Regex for excluding topics. Alternatively set via the "
+        "$KAFKA_CONNECT_EXCLUDED_TOPIC_REGEX env var."
     ),
 )
 @click.option(
@@ -304,7 +303,7 @@ def create_s3_sink(
     auto_update: bool,
     validate: bool,
     check_interval: str,
-    excluded_topics: str,
+    excluded_topic_regex: str,
     locale: str,
     timezone: str,
     timestamp_extractor: str,
@@ -346,7 +345,9 @@ def create_s3_sink(
     topics: List[str] = list(topiclist)
     if not topics:
         click.echo("Discoverying Kafka topics...")
-        topics = Topic(config.broker_url, topic_regex, excluded_topics).names
+        topics = Topic(
+            config.broker_url, topic_regex, excluded_topic_regex
+        ).names
         n = 0 if not topics else len(topics)
         click.echo(f"Found {n} topics.")
     connect = Connect(connect_url=config.connect_url)
@@ -389,7 +390,7 @@ def create_s3_sink(
             try:
                 # Current list of topics from Kafka
                 current_topics = Topic(
-                    config.broker_url, topic_regex, excluded_topics
+                    config.broker_url, topic_regex, excluded_topic_regex
                 ).names
                 new_topics = list(set(current_topics) - set(topics))
                 if new_topics:

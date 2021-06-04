@@ -3,7 +3,7 @@ version: '3'
 services:
 
   kafkaconnect:
-    image: lsstsqre/kafkaconnect:0.8.1
+    image: lsstsqre/kafkaconnect:0.9.0
     container_name: kafkaconnect
     entrypoint: kafkaconnect
     environment:
@@ -12,7 +12,7 @@ services:
       KAFKA_CONNECT_INFLUXDB_URL: http://influxdb:8086
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.5.2
+    image: confluentinc/cp-zookeeper:5.5.3
     hostname: zookeeper
     container_name: zookeeper
     ports:
@@ -22,7 +22,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
 
   broker:
-    image: confluentinc/cp-enterprise-kafka:5.5.2
+    image: confluentinc/cp-enterprise-kafka:5.5.3
     hostname: broker
     container_name: broker
     depends_on:
@@ -42,7 +42,7 @@ services:
 
 
   schema-registry:
-    image: confluentinc/cp-schema-registry:5.5.2
+    image: confluentinc/cp-schema-registry:5.5.3
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
@@ -86,7 +86,7 @@ services:
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
 
   influxdb:
-    image: influxdb:1.8.3
+    image: influxdb:1.8.5
     container_name: influxdb
     volumes:
       - ./data/influxdb:/var/lib/influxdb

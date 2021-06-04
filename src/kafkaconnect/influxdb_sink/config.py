@@ -45,9 +45,7 @@ class InfluxConfig(ConnectorConfig):
 
     # Attributes with defaults are not configurable via click
     topics: str = ""
-    """Comma separated list of Kafka topics to read from (sink connectors) or
-    to write to (source connectors).
-    """
+    """Comma separated list of Kafka topics to read from."""
 
     connect_influx_kcql: str = ""
     """KCQL queries to extract fields from topics. Computed.
