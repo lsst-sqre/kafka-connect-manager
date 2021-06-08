@@ -3,7 +3,7 @@ version: '3'
 services:
 
   kafkaconnect:
-    image: lsstsqre/kafkaconnect:0.9.0
+    image: lsstsqre/kafkaconnect:0.9.1
     container_name: kafkaconnect
     entrypoint: kafkaconnect
     environment:
@@ -56,7 +56,7 @@ services:
 
 
   connect:
-    image: lsstsqre/cp-kafka-connect:5.5.2-0.8.2-tickets-DM-21334
+    image: lsstsqre/cp-kafka-connect:5.5.2-0.9.1
     hostname: connect
     container_name: connect
     depends_on:
