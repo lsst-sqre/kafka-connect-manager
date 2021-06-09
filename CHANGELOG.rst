@@ -2,6 +2,13 @@
 Change log
 ##########
 
+0.9.1 (2021-06-09)
+==================
+
+* Add support to configure multiple InfluxDB Sink connectors.
+* Add user guide documentation on how to reset the InfluxDB Sink connector consumer group offsets.
+* Update ``cp-kafka-connect`` image with new version of the InfluxDB Sink Connector. See `#737 <https://github.com/lensesio/stream-reactor/issues/737>`_ for details.
+
 0.9.0 (2021-05-03)
 ==================
 
@@ -13,7 +20,7 @@ Change log
 0.8.3 (2021-03-04)
 ==================
 
-* Add upload command 
+* Add upload command
 * Initial support to MirrorMaker 2 and Confuent JDBC Sink Connectors
 * Update dependencies
 
