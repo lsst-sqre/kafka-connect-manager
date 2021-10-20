@@ -193,7 +193,10 @@ def delete(ctx: click.Context, name: str) -> None:
 )
 @click.pass_context
 def upload(
-    ctx: click.Context, configfile: str, name: str, dry_run: bool,
+    ctx: click.Context,
+    configfile: str,
+    name: str,
+    dry_run: bool,
 ) -> int:
     """Upload the connector configuration from a file."""
     config = ctx.obj["config"]
