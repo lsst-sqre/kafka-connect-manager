@@ -184,10 +184,7 @@ def delete(ctx: click.Context, name: str) -> None:
     "--name",
     "name",
     required=True,
-    help=(
-        "Name of the connector. Alternatively set via the "
-        "$KAFKA_CONNECT_NAME env var."
-    ),
+    help=("Name of the connector."),
 )
 @click.option(
     "--dry-run",
