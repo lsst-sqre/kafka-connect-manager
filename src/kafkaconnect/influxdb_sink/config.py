@@ -3,6 +3,8 @@
 See https://docs.lenses.io/connectors/sink/influx.html.
 """
 
+__all__ = ["InfluxConfig"]
+
 from dataclasses import dataclass
 from typing import List
 
