@@ -40,7 +40,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "kafka-connect-manager"
-copyright = "2020" "Association of Universities for Research in Astronomy"
+copyright = "2021" "Association of Universities for Research in Astronomy"
 author = "LSST SQuaRE"
 
 version = kafkaconnect.__version__
