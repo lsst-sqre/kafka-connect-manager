@@ -4,15 +4,13 @@
 Configuration settings
 ######################
 
-In this section we present the main configuration settings for each of the supported connectors.
+In this section, we present the main configuration classes used by kafkaconnect.
+Note that the configuration for the supported connectors is done in the kafka-connect-manager `Helm chart`_.
 
-The configuration classes are also documented here and can be used as reference for the configuration settings exposed in the `values.yaml`_ when using the :ref:`helm-chart`.
 
-.. _values.yaml: https://github.com/lsst-sqre/charts/blob/master/charts/kafka-connect-manager/values.yaml
+.. _Helm chart: https://github.com/lsst-sqre/charts/tree/master/charts/kafka-connect-manager
 
 
 .. automodapi:: kafkaconnect.config
 
 .. automodapi:: kafkaconnect.influxdb_sink.config
-
-.. automodapi:: kafkaconnect.s3_sink.config

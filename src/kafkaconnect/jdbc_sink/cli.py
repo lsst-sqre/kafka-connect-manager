@@ -62,11 +62,11 @@ def create_jdbc_sink(
 
     Use the --show-status option to output status.
     """
-    # Get configuration from the main command
+    # Get configuration from the parent command
     if ctx.parent:
-        config = ctx.parent.obj["config"]
+        parent_config = ctx.parent.obj["config"]
 
-    connect = Connect(config.connect_url)
+    connect = Connect(parent_config.connect_url)
 
     with open(configfile) as f:
         config = json.load(f)
@@ -78,19 +78,20 @@ def create_jdbc_sink(
     # Validate the configuration only.
     if dry_run:
         validation = connect.validate(
-            name=config["connector.class"], connect_config=json.dumps(config),
+            name=config["connector.class"],
+            connect_config=json.dumps(config),
         )
         click.echo(validation)
         return 0
 
-    _name = config["name"]
-    click.echo(f"Creating the {_name} connector...")
-    click.echo(connect.validate_and_create(_name, json.dumps(config)))
+    name = config["name"]
+    click.echo(f"Creating the {name} connector...")
+    click.echo(connect.validate_and_create(name, json.dumps(config)))
     if show_status:
         while True:
             time.sleep(int(show_status_interval) / 1000)
             try:
-                click.echo(connect.status(name=_name))
+                click.echo(connect.status(name=name))
             except KeyboardInterrupt:
                 raise click.ClickException("Interruped.")
 

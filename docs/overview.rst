@@ -1,33 +1,32 @@
 
-kafkaconnect helps to create and configure connectors in the Kafka Connect framework.
-For non `dynamic connectors`_, kafkaconnect can be used as wrapper to auto-update
-the connector configuration, for example, if topics are created or deleted in Kafka.
 
-Kafkaconnect provides a command line interface (CLI) to interact with the `Kafka Connect API`_.
-Using the CLI you can create managed connectors, or upload an a new one.
-Kafkaconnect CLI can be used to validate a connector configuration, access the connector configuration properties, and return the validation output in case of errors.
+Kafkaconnect provides a command line interface (CLI) to interact with the `Kafka Connect API`_ and manage connectors.
 
-Also, the `kafka-connect-manager helm chart`_ helps to deploy a connector on Kubernetes.
+For `dynamic connectors`_, the configuration is defined in a JSON file and uploaded to the Kafka Connect API.
+For non dynamic connectors, kafkaconnect can be used as a wrapper to auto-update the connector configuration when topics are created or deleted in Kafka.
+
+To deploy a connector on Kubernetes use the kafka-connect-manager `Helm chart`_.
+For dynamic connectors, the configuration is stored in a configmap which is templated in Helm.
 
 .. _dynamic connectors: https://www.confluent.io/blog/create-dynamic-kafka-connect-source-connectors/
 .. _Kafka Connect API: https://docs.confluent.io/current/connect/references/restapi.html
-.. _kafka-connect-manager helm chart: https://github.com/lsst-sqre/charts/tree/master/charts/kafka-connect-manager
+.. _Helm chart: https://github.com/lsst-sqre/charts/tree/master/charts/kafka-connect-manager
 
-Managed connectors
-------------------
+Supported connectors
+--------------------
 
-List of connectors we currently manage with kafkaconnect:
+List of connectors kafkaconnect currently supports:
 
 * `Lenses InfluxDB Sink`_
-* `Confluent Amazon S3 Sink`_
-* `Confluent JDBC Sink`_
-* `MirrorMaker 2`_
+* `Confluent Amazon S3 Sink`_ (dynamic)
+* `Confluent JDBC Sink`_ (dynamic)
+* `MirrorMaker 2`_ (dynamic)
 
 .. _Lenses InfluxDB Sink: https://docs.lenses.io/connectors/sink/influx.html
 .. _Confluent Amazon S3 Sink: https://docs.confluent.io/current/connect/kafka-connect-s3
 .. _Confluent JDBC Sink: https://docs.confluent.io/kafka-connect-jdbc/current/sink-connector/index.html
 .. _MirrorMaker 2: https://cwiki.apache.org/confluence/display/KAFKA/KIP-382%3A+MirrorMaker+2.0
 
-In principle, any connector installed in the `kafka-connect docker image`_ can also be managed by kafkaconnect using the ``upload`` command.
+Note: other connectors can also be managed by kafkaconnect using the ``upload`` command, as long as they are installed in the `cp-kafka-connect docker image`_.
 
-.. _kafka-connect docker image: https://github.com/lsst-sqre/kafka-connect-manager/tree/master/cp-kafka-connect
+.. _cp-kafka-connect docker image: https://github.com/lsst-sqre/kafka-connect-manager/tree/master/cp-kafka-connect

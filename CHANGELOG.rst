@@ -2,6 +2,12 @@
 Change log
 ##########
 
+0.9.3 (2021-10-29)
+==================
+
+* Refactor S3 Sink connector, it now expects a configuration file which is templated in the Helm chart.
+* Updated docs.
+
 0.9.1 (2021-06-09)
 ==================
 

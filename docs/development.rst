@@ -116,4 +116,4 @@ You can check the status of the connector with the `status` command:
         }
     ],
     "type": "sink"
-}
+  }
