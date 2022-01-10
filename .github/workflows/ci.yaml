@@ -76,21 +76,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
+
       - name: Install tox and ltd-conveyor
         run: pip install tox ltd-conveyor
+
       - name: Install graphviz
         run: sudo apt-get install graphviz
+
       - name: Run tox
         run: tox -e docs
+
+      # Only attempt documentation uploads for long-lived branches, tagged
+      # releases, and pull requests from ticket branches.  This avoids version
+      # clutter in the docs and failures when a PR doesn't have access to
+      # secrets.  This will still trigger on pull requests from untrusted
+      # repositories whose branch names match our tickets/* branch convention,
+      # but in this case the build will fail with an error since the secret
+      # won't be set.
       - name: Upload to LSST the Docs
         env:
           LTD_USERNAME: ${{ secrets.LTD_USERNAME }}
           LTD_PASSWORD: ${{ secrets.LTD_PASSWORD }}
         run: ltd upload --product kafka-connect-manager --gh --dir docs/_build/html
+        if: >
+          github.event_name != 'pull_request'
+          || startsWith(github.head_ref, 'tickets/')
 
   pypi:
     runs-on: ubuntu-latest
