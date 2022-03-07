@@ -6,7 +6,7 @@ jobs:
   strimzi-kafka:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Define the Docker tag
         id: vars
