@@ -1,0 +1,35 @@
+name: strimzi-kafka
+
+on: [push]
+
+jobs:
+  strimzi-kafka:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Define the Docker tag
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF} | sed -E 's,refs/(heads|tags)/,,' | sed -E 's,/,-,g')
+
+      - name: Print the tag
+        id: print
+        run: echo ${{steps.vars.outputs.tag}}
+
+      - name: Download and extract the InfluxDB Sink Connector plugin
+        run:
+          cd strimzi-kafka &&
+          curl -LO https://github.com/lensesio/stream-reactor/releases/download/3.0.1/kafka-connect-influxdb-3.0.1-2.5.0-all.tar.gz &&
+          tar xvzf kafka-connect-influxdb-3.0.1-2.5.0-all.tar.gz
+
+      - name: Log into Docker Hub
+        run: echo ${{ secrets.DOCKER_TOKEN }} | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      - name: Build Strimzi Kafka Docker image
+        run: |
+          cd strimzi-kafka || true
+          docker build --tag lsstsqre/strimzi-0.27.1-kafka-3.0.0:${{steps.vars.outputs.tag}} . || true
+
+      - name: Push Docker image
+        run: |
+          docker push lsstsqre/strimzi-0.27.1-kafka-3.0.0:${{steps.vars.outputs.tag}}
