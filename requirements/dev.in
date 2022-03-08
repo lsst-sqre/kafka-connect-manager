@@ -23,9 +23,3 @@ sphinx-automodapi
 sphinx-click
 sphinx-prompt
 types-requests
-
-# On Python 3.10, Sphinx requires this in a way that's invisible to pip-tools
-# for reasons I have not been able to debug and that doesn't happen with other
-# packages.  Add it as an explicit dependency until we can get to the bottom
-# of this.
-importlib-metadata
