@@ -109,8 +109,8 @@ jobs:
       - name: Install tox and ltd-conveyor
         run: pip install tox ltd-conveyor
 
-      - name: Install graphviz
-        run: sudo apt-get install graphviz
+      - name: Install graphviz and librdkafka-dev (for dependencies)
+        run: sudo apt-get install graphviz librdkafka-dev
 
       - name: Run tox
         run: tox -e docs
