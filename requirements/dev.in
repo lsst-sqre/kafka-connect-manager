@@ -5,19 +5,21 @@
 # After editing, update requirements/dev.txt by running:
 #     make update-deps
 
-pre-commit
+-c main.txt
+
 coverage[toml]
+docker-compose
+documenteer[pipelines]
 flake8
 flake8-docstrings
+graphviz
+lsst-sphinx-bootstrap-theme
 mypy
+pre-commit
 pytest
 pytest-docker
-docker-compose
 pytest-vcr
-documenteer[pipelines]
-ltd-conveyor
 sphinx-automodapi
-sphinx-prompt
 sphinx-click
-graphviz
+sphinx-prompt
 types-requests
