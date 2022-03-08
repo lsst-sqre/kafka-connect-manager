@@ -5,19 +5,27 @@
 # After editing, update requirements/dev.txt by running:
 #     make update-deps
 
-pre-commit
+-c main.txt
+
 coverage[toml]
+docker-compose
+documenteer[pipelines]
 flake8
 flake8-docstrings
+graphviz
+lsst-sphinx-bootstrap-theme
 mypy
+pre-commit
 pytest
 pytest-docker
-docker-compose
 pytest-vcr
-documenteer[pipelines]
-ltd-conveyor
 sphinx-automodapi
-sphinx-prompt
 sphinx-click
-graphviz
+sphinx-prompt
 types-requests
+
+# On Python 3.10, Sphinx requires this in a way that's invisible to pip-tools
+# for reasons I have not been able to debug and that doesn't happen with other
+# packages.  Add it as an explicit dependency until we can get to the bottom
+# of this.
+importlib-metadata
