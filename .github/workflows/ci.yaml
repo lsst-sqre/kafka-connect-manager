@@ -1,18 +1,39 @@
 name: CI
 
-on: [push]
+"on":
+  push:
+    branches-ignore:
+      # These should always correspond to pull requests, so ignore them for
+      # the push trigger and let them be triggered by the pull_request
+      # trigger, avoiding running the workflow twice.  This is a minor
+      # optimization so there's no need to ensure this is comprehensive.
+      - "dependabot/**"
+      - "renovate/**"
+      - "tickets/**"
+      - "u/**"
+    tags:
+      - "*"
+  pull_request: {}
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        python:
+          - "3.10"
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.python }}
+
+      - name: Run pre-commit
+        uses: pre-commit/action@v2.0.3
 
       - name: Install tox
         run: pip install tox
@@ -25,57 +46,60 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .tox
-          # requirements/*.txt, pyproject.toml, and .pre-commit-config.yaml
-          # have versioning info that would impact the tox environment.
-          key: tox-${{ hashFiles('requirements/*.txt') }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          # requirements/*.txt and pyproject.toml have versioning info that
+          # would impact the tox environment.
+          key: tox-${{ hashFiles('requirements/*.txt') }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            tox-${{ matrix.python }}-${{ hashFiles('requirements/*.txt') }}-
 
       - name: Run tox
-        run: tox -e lint,typing,py,coverage-report  # run tox using Python in path
+        run: tox -e py,coverage-report,typing
 
   build:
     runs-on: ubuntu-latest
     needs: [test]
 
+    # Only do Docker builds of tagged releases and pull requests from ticket
+    # branches.  This will still trigger on pull requests from untrusted
+    # repositories whose branch names match our tickets/* branch convention,
+    # but in this case the build will fail with an error since the secret
+    # won't be set.
+    if: >
+      startsWith(github.ref, 'refs/tags/')
+      || startsWith(github.head_ref, 'tickets/')
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Define the Docker tag
         id: vars
-        run: echo ::set-output name=tag::$(echo ${GITHUB_REF} | sed -E 's,refs/(heads|tags)/,,' | sed -E 's,/,-,g')
+        run: echo ::set-output name=tag::$(scripts/docker-tag.sh)
 
       - name: Print the tag
         id: print
         run: echo ${{steps.vars.outputs.tag}}
 
-      - name: Log into Docker Hub
-        run: echo ${{ secrets.DOCKER_TOKEN }} | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Pull previous images
-        run: |
-          docker pull lsstsqre/kafkaconnect:deps-${{steps.vars.outputs.tag}} || true
-          docker pull lsstsqre/kafkaconnect:${{steps.vars.outputs.tag}} || true
-
-      - name: Build the dependencies Docker image
-        run: |
-          docker build --target dependencies-image \
-            --cache-from=lsstsqre/kafkaconnect:deps-${{steps.vars.outputs.tag}} \
-            --tag lsstsqre/kafkaconnect:deps-${{steps.vars.outputs.tag}} .
-
-      - name: Build the runtime Docker image
-        run: |
-          docker build --target runtime-image \
-            --cache-from=lsstsqre/kafkaconnect:${{steps.vars.outputs.tag}} \
-            --tag lsstsqre/kafkaconnect:${{steps.vars.outputs.tag}} .
-
-      - name: Push Docker images
-        run: |
-          docker push lsstsqre/kafkaconnect:deps-${{steps.vars.outputs.tag}}
-          docker push lsstsqre/kafkaconnect:${{steps.vars.outputs.tag}}
+      - name: Build and push the frontend image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: lsstsqre/kafkaconnect:${{ steps.vars.outputs.tag }}
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
 
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v3
@@ -113,13 +137,13 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # full history for setuptools_scm
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: 3.9
+          python-version: "3.10"
       - name: Python install
         run: |
           python -m pip install --upgrade pip
