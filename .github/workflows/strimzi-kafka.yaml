@@ -41,8 +41,7 @@ jobs:
 
       - name: Download and extract the InfluxDB Sink Connector plugin
         run: |
-          curl -LO https://github.com/lensesio/stream-reactor/releases/download/3.0.1/kafka-connect-influxdb-3.0.1-2.5.0-all.tar.gz
-          tar xvzf kafka-connect-influxdb-3.0.1-2.5.0-all.tar.gz
+          curl -LO https://github.com/lsst-sqre/stream-reactor/releases/download/Tim/kafka-connect-influxdb-3.0.1-timestampunit.jar
         working-directory: ./strimzi-kafka
 
       - name: Set up Docker Buildx
@@ -67,7 +66,7 @@ jobs:
           context: strimzi-kafka
           push: true
           tags: |
-            lsstsqre/strimzi-0.27.1-kafka-3.0.0:${{ steps.vars.outputs.tag }}
-            ghcr.io/lsst-sqre/strimzi-0.27.1-kafka-3.0.0:${{ steps.vars.outputs.tag }}
+            lsstsqre/strimzi-0.29.0-kafka-3.1.1:${{ steps.vars.outputs.tag }}
+            ghcr.io/lsst-sqre/strimzi-0.29.0-kafka-3.1.1:${{ steps.vars.outputs.tag }}
           cache-from: type=gha,scope=strimzi-kafka
           cache-to: type=gha,mode=max,scope=strimzi-kafka
