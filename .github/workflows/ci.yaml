@@ -104,7 +104,7 @@ jobs:
           push: true
           tags: |
             lsstsqre/kafkaconnect:${{ steps.vars.outputs.tag }}
-            ghci.io/lsst-sqre/kafkaconnect:${{ steps.vars.outputs.tag }}
+            ghcr.io/lsst-sqre/kafkaconnect:${{ steps.vars.outputs.tag }}
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
 
