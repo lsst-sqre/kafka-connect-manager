@@ -86,7 +86,24 @@ class TopicNamesSet:
         exclude_regex: Optional[str] = None,
     ) -> T:
         """Create the topic name set from a list of topic names in Kafka."""
-        kafka_config = {"bootstrap.servers": config.broker_url}
+        if config.sasl_plain_username and config.sasl_plain_password:
+            kafka_config = {
+                "bootstrap.servers": config.broker_url,
+                "security.protocol": SECURITY_PROTOCOL,
+                "sasl.mechanisms": SASL_MECHANISM,
+                "sasl.username": config.sasl_plain_username,
+                "sasl.password": config.sasl_plain_password,
+            }
+        elif (
+            config.sasl_plain_username is None
+            and config.sasl_plain_password is None
+        ):
+            kafka_config = {"bootstrap.servers": config.broker_url}
+        else:
+            raise ValueError(
+                "Both or neither of 'config.sasl_plain_username' "
+                "and 'config.sasl_plain_password' must be set."
+            )
         try:
             broker_client = AdminClient(kafka_config)
         except KafkaException:

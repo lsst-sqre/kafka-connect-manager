@@ -53,15 +53,44 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
         "Kafka Connect URL. Alternatively set via $KAFKA_CONNECT_URL env var."
     ),
 )
+@click.option(
+    "-u",
+    "--username",
+    "sasl_plain_username",
+    envvar="KAFKA_USERNAME",
+    default=None,
+    show_default=True,
+    help=("Username for SASL authentication."),
+)
+@click.option(
+    "-p",
+    "--password",
+    "sasl_plain_password",
+    envvar="KAFKA_PASSWORD",
+    default=None,
+    show_default=True,
+    help=("Password for SASL authentication."),
+)
 @click.version_option(message="%(version)s")
 @click.pass_context
-def main(ctx: click.Context, broker_url: str, connect_url: str) -> None:
+def main(
+    ctx: click.Context,
+    broker_url: str,
+    connect_url: str,
+    sasl_plain_username: str,
+    sasl_plain_password: str,
+) -> None:
     """Command-line interface for kafkaconnect.
 
     kafkaconnect is a Connect API client that helps to configure and
     manage Kafka connectors.
     """
-    config = Config(broker_url=broker_url, connect_url=connect_url)
+    config = Config(
+        broker_url=broker_url,
+        connect_url=connect_url,
+        sasl_plain_username=sasl_plain_username,
+        sasl_plain_password=sasl_plain_password,
+    )
     ctx.ensure_object(dict)
     ctx.obj["config"] = config
 
