@@ -2,6 +2,15 @@
 Change log
 ##########
 
+1.0.0 (2022-07-09)
+==================
+
+* Add Support to Strimzi Kafka 0.29.0 and Kafka 3.1.1.
+* Build Strimzi Kafka image with a special version of the InfluxDB Sink connector plugin which supports timestamps in microseconds.
+* Build Strimzi Kafka image with Kafka Connect Avro Converter plugin.
+* New class TopicNamesSet
+* Add SASL authentication to Kafka brokers
+
 0.9.3 (2021-10-29)
 ==================
 
