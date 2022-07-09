@@ -75,7 +75,8 @@ class InfluxConfig(ConnectorConfig):
         """
         sorted_topics = sorted(topics)
         queries = [
-            f"INSERT INTO {t} SELECT * FROM {t} WITHTIMESTAMP {timestamp}"
+            f"INSERT INTO {t} SELECT * FROM {t} WITHTIMESTAMP {timestamp} "
+            "TIMESTAMPUNIT=MICROSECONDS"
             for t in sorted_topics
         ]
         self.topics = ",".join(sorted_topics)

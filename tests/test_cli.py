@@ -54,8 +54,8 @@ def test_create_influxdb_sink() -> None:
     # This query is built by InfluxConfig.update_influx_kcql()
     assert (
         '"connect.influx.kcql": '
-        '"INSERT INTO t1 SELECT * FROM t1 WITHTIMESTAMP sys_time()"'
-        in result.output
+        '"INSERT INTO t1 SELECT * FROM t1 WITHTIMESTAMP sys_time() '
+        'TIMESTAMPUNIT=MICROSECONDS"' in result.output
     )
     # Topics are added by ConnectConfig.update_topics()
     assert '"topics": "t1"' in result.output
