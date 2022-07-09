@@ -5,7 +5,7 @@ __all__ = ["Config", "ConnectorConfig"]
 import abc
 import json
 from dataclasses import asdict, dataclass
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 
 @dataclass
@@ -35,7 +35,7 @@ class ConnectorConfig(metaclass=abc.ABCMeta):
         )
 
     @abc.abstractmethod
-    def update_topics(self, topics: List[str]) -> None:
+    def update_topics(self, topics: Set[str]) -> None:
         """update_topics() abstract method."""
         raise NotImplementedError
 

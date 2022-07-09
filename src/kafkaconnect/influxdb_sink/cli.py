@@ -7,13 +7,13 @@ __all__ = ["create_influxdb_sink"]
 
 import json
 import time
-from typing import List
+from typing import Set
 
 import click
 
 from kafkaconnect.connect import Connect
 from kafkaconnect.influxdb_sink.config import InfluxConfig
-from kafkaconnect.topics import Topic
+from kafkaconnect.topic_names_set import TopicNamesSet
 
 
 @click.command("influxdb-sink")
@@ -259,12 +259,11 @@ def create_influxdb_sink(
         connect_progress_enabled=(connect_progress_enabled == "true"),
     )
     # The variadic argument is a tuple
-    topics: List[str] = list(topiclist)
+    topics: Set[str] = set(topiclist)
     if not topics:
         click.echo("Discoverying Kafka topics...")
-        topics = Topic(
-            config.broker_url, topic_regex, excluded_topic_regex
-        ).names
+        t = TopicNamesSet.from_kafka(config, topic_regex, excluded_topic_regex)
+        topics = t.topic_names_set
         n = 0 if not topics else len(topics)
         click.echo(f"Found {n} topics.")
     connect = Connect(connect_url=config.connect_url)
@@ -309,9 +308,8 @@ def create_influxdb_sink(
             time.sleep(int(check_interval) / 1000)
             try:
                 # Current list of topics from Kafka
-                current_topics = Topic(
-                    config.broker_url, topic_regex, excluded_topic_regex
-                ).names
+                t = TopicNamesSet(config, topic_regex, excluded_topic_regex)
+                current_topics = t.topic_names_set
                 new_topics = list(set(current_topics) - set(topics))
                 if new_topics:
                     click.echo("Found new topics, updating the connector...")
