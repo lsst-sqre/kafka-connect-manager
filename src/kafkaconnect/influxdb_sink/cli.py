@@ -308,7 +308,9 @@ def create_influxdb_sink(
             time.sleep(int(check_interval) / 1000)
             try:
                 # Current list of topics from Kafka
-                t = TopicNamesSet(config, topic_regex, excluded_topic_regex)
+                t = TopicNamesSet.from_kafka(
+                    config, topic_regex, excluded_topic_regex
+                )
                 current_topics = t.topic_names_set
                 new_topics = list(set(current_topics) - set(topics))
                 if new_topics:
