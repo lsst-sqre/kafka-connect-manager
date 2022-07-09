@@ -5,7 +5,7 @@ __all__ = ["Config", "ConnectorConfig"]
 import abc
 import json
 from dataclasses import asdict, dataclass
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 
 @dataclass
@@ -22,6 +22,28 @@ class Config:
     The Kafka Connect REST API is used to manage connectors.
     """
 
+    sasl_plain_username: Optional[str] = None
+    """Username for SASL authentication.
+       If specified then you must also specify sasl_plain_password.
+       Default: None
+    """
+
+    sasl_plain_password: Optional[str] = None
+    """Password for SASL authentication.
+       If specified then you must also specify sasl_plain_username.
+       Default: None
+    """
+
+    def __post_init__(self) -> None:
+        """Post init validation."""
+        if (self.sasl_plain_username is None) != (
+            self.sasl_plain_password is None
+        ):
+            raise ValueError(
+                "Both or neither of 'sasl_plain_username' "
+                "and 'sasl_plain_password' must be specified."
+            )
+
 
 class ConnectorConfig(metaclass=abc.ABCMeta):
     """Connector configuration interface."""
@@ -35,7 +57,7 @@ class ConnectorConfig(metaclass=abc.ABCMeta):
         )
 
     @abc.abstractmethod
-    def update_topics(self, topics: List[str]) -> None:
+    def update_topics(self, topics: Set[str]) -> None:
         """update_topics() abstract method."""
         raise NotImplementedError
 

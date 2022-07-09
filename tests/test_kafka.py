@@ -1,4 +1,4 @@
-"""kafkaconnect integration tests."""
+"""kafkaconnect integration test with kafka."""
 
 import time
 from typing import Any
@@ -9,9 +9,10 @@ from confluent_kafka import KafkaException
 from confluent_kafka.admin import AdminClient, NewTopic
 from requests.exceptions import ConnectionError, HTTPError
 
+from kafkaconnect.config import Config
 from kafkaconnect.connect import Connect
 from kafkaconnect.influxdb_sink.config import InfluxConfig
-from kafkaconnect.topics import Topic
+from kafkaconnect.topic_names_set import TopicNamesSet
 
 Fixture = Any
 
@@ -78,14 +79,16 @@ def test_integration_broker_connect(
     except KafkaException:
         return None
     # Test topic discovery
-    topic = Topic(
-        broker_url=BROKER_URL,
-        topic_regex="test.*",
-        excluded_topic_regex="test.t1",
+
+    config = Config(broker_url=BROKER_URL, connect_url=CONNECT_URL)
+    t = TopicNamesSet.from_kafka(
+        config,
+        select_regex="test.*",
+        exclude_regex="test.t1",
     )
-    assert "test.t1" not in topic.names
-    assert "test.t2" in topic.names
-    assert "test.t3" in topic.names
+    assert "test.t1" not in t.topic_names_set
+    assert "test.t2" in t.topic_names_set
+    assert "test.t3" in t.topic_names_set
     # Configure the connector
     connect = Connect(connect_url=CONNECT_URL)
     connect_config = InfluxConfig(
@@ -100,7 +103,7 @@ def test_integration_broker_connect(
         connect_influx_retry_interval="1",
         connect_progress_enabled=True,
     )
-    connect_config.update_topics(topic.names)
+    connect_config.update_topics(t.topic_names_set)
     # Create the connector using the Kafka Connect API
     connect.create_or_update(
         name="influxdb-sink", connect_config=connect_config.asjson()

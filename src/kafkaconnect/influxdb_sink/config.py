@@ -6,7 +6,7 @@ See https://docs.lenses.io/connectors/sink/influx.html.
 __all__ = ["InfluxConfig"]
 
 from dataclasses import dataclass
-from typing import List
+from typing import Set
 
 from kafkaconnect.config import ConnectorConfig
 
@@ -62,23 +62,22 @@ class InfluxConfig(ConnectorConfig):
     )
     """Stream reactor InfluxDB Sink connector class."""
 
-    def update_topics(self, topics: List[str], timestamp: str = "") -> None:
+    def update_topics(self, topics: Set[str], timestamp: str = "") -> None:
         """Update the list of Kafka topics and Influx KCQL queries.
 
         Parameters
         ----------
-        topics : `list`
+        topics : `Set`
             List of kafka topics.
 
         timestamp : `str`
             Timestamp used as influxDB time.
         """
-        # Ensure uniqueness and sort topic names
-        topics = list(set(topics))
-        topics.sort()
+        sorted_topics = sorted(topics)
         queries = [
-            f"INSERT INTO {t} SELECT * FROM {t} WITHTIMESTAMP {timestamp}"
-            for t in topics
+            f"INSERT INTO {t} SELECT * FROM {t} WITHTIMESTAMP {timestamp} "
+            "TIMESTAMPUNIT=MICROSECONDS"
+            for t in sorted_topics
         ]
-        self.topics = ",".join(topics)
+        self.topics = ",".join(sorted_topics)
         self.connect_influx_kcql = ";".join(queries)
