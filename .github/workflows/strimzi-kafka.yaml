@@ -72,7 +72,7 @@ jobs:
           context: strimzi-kafka
           push: true
           tags: |
-            lsstsqre/strimzi-0.29.0-kafka-3.1.1:${{ steps.vars.outputs.tag }}
-            ghcr.io/lsst-sqre/strimzi-0.29.0-kafka-3.1.1:${{ steps.vars.outputs.tag }}
+            lsstsqre/strimzi-0.32.0-kafka-3.3.1:${{ steps.vars.outputs.tag }}
+            ghcr.io/lsst-sqre/strimzi-0.32.0-kafka-3.3.1:${{ steps.vars.outputs.tag }}
           cache-from: type=gha,scope=strimzi-kafka
           cache-to: type=gha,mode=max,scope=strimzi-kafka
