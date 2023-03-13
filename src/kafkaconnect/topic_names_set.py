@@ -47,7 +47,6 @@ class TopicNamesSet:
         select_regex: str = ".*",
         exclude_regex: Optional[str] = None,
     ) -> None:
-
         self.topic_names_list = topic_names_list
         self.select_regex = select_regex
         self.exclude_regex = exclude_regex
