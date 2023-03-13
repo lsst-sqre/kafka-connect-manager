@@ -34,7 +34,6 @@ class Connect:
     _header = {"Content-Type": "application/json"}
 
     def __init__(self, connect_url: str) -> None:
-
         self._connect_url = connect_url
 
     def _request(

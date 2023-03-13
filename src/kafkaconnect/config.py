@@ -45,6 +45,7 @@ class Config:
             )
 
 
+@dataclass
 class ConnectorConfig(metaclass=abc.ABCMeta):
     """Connector configuration interface."""
 
