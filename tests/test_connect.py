@@ -104,6 +104,7 @@ def test_create_or_update() -> None:
         connect_influx_max_retries="1",
         connect_influx_retry_interval="1",
         connect_progress_enabled=True,
+        tags="",
     )
     connect_config.update_topics({"t1", "t2", "t3"})
     result = connect.create_or_update(
@@ -127,6 +128,7 @@ def test_validate() -> None:
         connect_influx_max_retries="1",
         connect_influx_retry_interval="1",
         connect_progress_enabled=True,
+        tags="",
     )
     connect_config.update_topics({"t1", "t2", "t3"})
     result = connect.validate(

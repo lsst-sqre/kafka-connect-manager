@@ -102,6 +102,7 @@ def test_integration_broker_connect(
         connect_influx_max_retries="1",
         connect_influx_retry_interval="1",
         connect_progress_enabled=True,
+        tags="",
     )
     connect_config.update_topics(t.topic_names_set)
     # Create the connector using the Kafka Connect API

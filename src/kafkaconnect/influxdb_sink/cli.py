@@ -211,6 +211,14 @@ from kafkaconnect.topic_names_set import TopicNamesSet
     show_default=True,
     help="Timestamp to use as the InfluxDB time.",
 )
+@click.option(
+    "--tags",
+    "tags",
+    envvar="KAFKA_CONNECT_INFLUXDB_TAGS",
+    default="",
+    show_default=True,
+    help="Fields in the Avro payload that are treated as InfluxDB tags.",
+)
 @click.pass_context
 def create_influxdb_sink(
     ctx: click.Context,
@@ -232,6 +240,7 @@ def create_influxdb_sink(
     connect_influx_retry_interval: str,
     connect_progress_enabled: str,
     timestamp: str,
+    tags: str,
 ) -> int:
     """Create an instance of the InfluxDB Sink connector.
 
@@ -257,6 +266,7 @@ def create_influxdb_sink(
         connect_influx_max_retries=connect_influx_max_retries,
         connect_influx_retry_interval=connect_influx_retry_interval,
         connect_progress_enabled=(connect_progress_enabled == "true"),
+        tags=tags,
     )
     # The variadic argument is a tuple
     topics: Set[str] = set(topiclist)
