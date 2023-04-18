@@ -2,8 +2,8 @@
 
 __all__ = ["Config", "ConnectorConfig"]
 
-import abc
 import json
+from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -46,21 +46,13 @@ class Config:
 
 
 @dataclass
-class ConnectorConfig(metaclass=abc.ABCMeta):
+class ConnectorConfig(ABC):
     """Connector configuration interface."""
 
-    def __subclasshook__(cls, subclass: Any) -> bool:
-        """Make sure the abstract method is overriden in the subclass."""
-        return (
-            hasattr(subclass, "update_topics")
-            and callable(subclass.update_topics)
-            or NotImplemented
-        )
-
-    @abc.abstractmethod
+    @abstractmethod
     def update_topics(self, topics: Set[str]) -> None:
-        """update_topics() abstract method."""
-        raise NotImplementedError
+        """update_topics() abstract method to override."""
+        pass
 
     @staticmethod
     def format_field_names(fields: List[Tuple[str, Any]]) -> Dict[str, str]:
