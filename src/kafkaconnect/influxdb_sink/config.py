@@ -45,6 +45,9 @@ class InfluxConfig(ConnectorConfig):
     connect_progress_enabled: bool
     """Enables the output for how many records have been processed."""
 
+    tags: str
+    """Fields to be used as tags."""
+
     # Attributes with defaults are not configurable via click
     topics: str = ""
     """Comma separated list of Kafka topics to read from."""
@@ -74,10 +77,18 @@ class InfluxConfig(ConnectorConfig):
             Timestamp used as influxDB time.
         """
         sorted_topics = sorted(topics)
-        queries = [
-            f"INSERT INTO {t} SELECT * FROM {t} WITHTIMESTAMP {timestamp} "
-            "TIMESTAMPUNIT=MICROSECONDS"
-            for t in sorted_topics
-        ]
+        if self.tags:
+            queries = [
+                f"INSERT INTO {t} SELECT * FROM {t} WITHTIMESTAMP {timestamp} "
+                f"TIMESTAMPUNIT=MICROSECONDS WITHTAG({self.tags})"
+                for t in sorted_topics
+            ]
+        else:
+            queries = [
+                f"INSERT INTO {t} SELECT * FROM {t} WITHTIMESTAMP {timestamp} "
+                f"TIMESTAMPUNIT=MICROSECONDS"
+                for t in sorted_topics
+            ]
+
         self.topics = ",".join(sorted_topics)
         self.connect_influx_kcql = ";".join(queries)
