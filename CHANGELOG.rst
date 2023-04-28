@@ -2,6 +2,12 @@
 Change log
 ##########
 
+1.1.0 (2023-05-28)
+==================
+
+* Add support to tags in the InfluxDB Sink connector
+* Add support to Strimzi Kafka 0.34.0 and Kafka 3.3.1
+
 1.0.2 (2023-01-13)
 ==================
 
@@ -10,7 +16,7 @@ Change log
 1.0.0 (2022-07-09)
 ==================
 
-* Add Support to Strimzi Kafka 0.29.0 and Kafka 3.1.1.
+* Add support to Strimzi Kafka 0.29.0 and Kafka 3.1.1.
 * Build Strimzi Kafka image with a special version of the InfluxDB Sink connector plugin which supports timestamps in microseconds.
 * Build Strimzi Kafka image with Kafka Connect Avro Converter plugin.
 * New class TopicNamesSet
