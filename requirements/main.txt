@@ -88,7 +88,7 @@ charset-normalizer==3.1.0 \
 click==8.1.3 \
     --hash=sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e \
     --hash=sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48
-    # via -r requirements/main.in
+    # via -r main.in
 confluent-kafka==2.1.0 \
     --hash=sha256:003bab03e35bbcfa11b5aa17c99d7c46cf10ce526420e8527b80a15eb0b25ff7 \
     --hash=sha256:075521da9b7b35a8d57f1dc7a34ef38643c3cb21db39561cf28cf60e548e4835 \
@@ -119,15 +119,15 @@ confluent-kafka==2.1.0 \
     --hash=sha256:d57675cdbf89f20fd50cbcec76d0eb0ed9efac70d8a5b08dbd72d6724f81100b \
     --hash=sha256:e22d0d2383ff5fcdc89816ff120ccfcc0b313711e509a96a74e6b16c20eb68cd \
     --hash=sha256:f87dd325a61726070a447c5f73901c7c2208c77c5a8d92bf7738560196dc0d09
-    # via -r requirements/main.in
+    # via -r main.in
 idna==3.4 \
     --hash=sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4 \
     --hash=sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2
     # via requests
-requests==2.28.2 \
-    --hash=sha256:64299f4909223da747622c030b781c0d7811e359c37124b4bd368fb8c6518baa \
-    --hash=sha256:98b1b2782e3c6c4904938b84c0eb932721069dfdb9134313beff7c83c2df24bf
-    # via -r requirements/main.in
+requests==2.31.0 \
+    --hash=sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f \
+    --hash=sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1
+    # via -r main.in
 urllib3==1.26.15 \
     --hash=sha256:8a388717b9476f934a21484e8c8e61875ab60644d29b9b39e11e4b9dc1c6b305 \
     --hash=sha256:aa751d169e23c7479ce47a0cb0da579e3ede798f994f5816a74e4f4500dcea42
