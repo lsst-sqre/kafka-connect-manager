@@ -76,6 +76,29 @@ def test_influxdb_tags() -> None:
     )
 
 
+def test_remove_prefix() -> None:
+    """Test influxdb-sink with remove_prefix support."""
+    runner = CliRunner()
+    result = runner.invoke(
+        main,
+        [
+            "create",
+            "influxdb-sink",
+            "--dry-run",
+            "--remove-prefix",
+            "abc.",
+            "abc.t1",
+        ],
+    )
+    assert result.exit_code == 0
+    # Add WITHTAG clause to the influx kcql query when using tags
+    assert (
+        '"connect.influx.kcql": '
+        '"INSERT INTO t1 SELECT * FROM abc.t1 WITHTIMESTAMP sys_time() '
+        'TIMESTAMPUNIT=MICROSECONDS"' in result.output
+    )
+
+
 def test_password_from_env() -> None:
     """Test getting the influxdb password from the environment."""
     env = {"KAFKA_CONNECT_INFLUXDB_PASSWORD": "envpasswd"}
