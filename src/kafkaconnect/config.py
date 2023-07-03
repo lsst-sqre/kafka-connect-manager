@@ -50,8 +50,11 @@ class ConnectorConfig(ABC):
     """Connector configuration interface."""
 
     @abstractmethod
-    def update_topics(self, topics: Set[str]) -> None:
-        """update_topics() abstract method to override."""
+    def update_config(self, topics: Set[str]) -> None:
+        """Update connector configuration.
+
+        Abstract method to be implemented by subclasses.
+        """
         pass
 
     @staticmethod

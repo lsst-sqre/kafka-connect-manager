@@ -288,8 +288,8 @@ def create_influxdb_sink(
         click.echo(f"Found {n} topics.")
     connect = Connect(connect_url=config.connect_url)
     if topics:
-        influx_config.update_topics(topics, timestamp)
-        # --validate option
+        influx_config.update_config(topics, timestamp)
+        # --validate option returns the validation results
         if validate:
             click.echo(
                 connect.validate(
@@ -335,7 +335,7 @@ def create_influxdb_sink(
                 new_topics = list(set(current_topics) - set(topics))
                 if new_topics:
                     click.echo("Found new topics, updating the connector...")
-                    influx_config.update_topics(current_topics, timestamp)
+                    influx_config.update_config(current_topics, timestamp)
                     connect.create_or_update(
                         name=name, connect_config=influx_config.asjson()
                     )
