@@ -57,7 +57,7 @@ def test_create_influxdb_sink() -> None:
         '"INSERT INTO t1 SELECT * FROM t1 WITHTIMESTAMP sys_time() '
         'TIMESTAMPUNIT=MICROSECONDS"' in result.output
     )
-    # Topics are added by ConnectConfig.update_topics()
+    # Topics are added by ConnectConfig.update_config()
     assert '"topics": "t1"' in result.output
 
 
@@ -73,6 +73,29 @@ def test_influxdb_tags() -> None:
         '"connect.influx.kcql": '
         '"INSERT INTO t1 SELECT * FROM t1 WITHTIMESTAMP sys_time() '
         'TIMESTAMPUNIT=MICROSECONDS WITHTAG(test)"' in result.output
+    )
+
+
+def test_remove_prefix() -> None:
+    """Test influxdb-sink with remove_prefix support."""
+    runner = CliRunner()
+    result = runner.invoke(
+        main,
+        [
+            "create",
+            "influxdb-sink",
+            "--dry-run",
+            "--remove-prefix",
+            "abc.",
+            "abc.t1",
+        ],
+    )
+    assert result.exit_code == 0
+    # Add WITHTAG clause to the influx kcql query when using tags
+    assert (
+        '"connect.influx.kcql": '
+        '"INSERT INTO t1 SELECT * FROM abc.t1 WITHTIMESTAMP sys_time() '
+        'TIMESTAMPUNIT=MICROSECONDS"' in result.output
     )
 
 

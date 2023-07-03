@@ -219,6 +219,14 @@ from kafkaconnect.topic_names_set import TopicNamesSet
     show_default=True,
     help="Fields in the Avro payload that are treated as InfluxDB tags.",
 )
+@click.option(
+    "--remove-prefix",
+    "remove_prefix",
+    envvar="KAFKA_CONNECT_INFLUXDB_REMOVE_PREFIX",
+    default="",
+    show_default=True,
+    help="Prefix to remove from topic name to use as measurement name.",
+)
 @click.pass_context
 def create_influxdb_sink(
     ctx: click.Context,
@@ -241,6 +249,7 @@ def create_influxdb_sink(
     connect_progress_enabled: str,
     timestamp: str,
     tags: str,
+    remove_prefix: str,
 ) -> int:
     """Create an instance of the InfluxDB Sink connector.
 
@@ -267,6 +276,7 @@ def create_influxdb_sink(
         connect_influx_retry_interval=connect_influx_retry_interval,
         connect_progress_enabled=(connect_progress_enabled == "true"),
         tags=tags,
+        remove_prefix=remove_prefix,
     )
     # The variadic argument is a tuple
     topics: Set[str] = set(topiclist)
@@ -278,8 +288,8 @@ def create_influxdb_sink(
         click.echo(f"Found {n} topics.")
     connect = Connect(connect_url=config.connect_url)
     if topics:
-        influx_config.update_topics(topics, timestamp)
-        # --validate option
+        influx_config.update_config(topics, timestamp)
+        # --validate option returns the validation results
         if validate:
             click.echo(
                 connect.validate(
@@ -325,7 +335,7 @@ def create_influxdb_sink(
                 new_topics = list(set(current_topics) - set(topics))
                 if new_topics:
                     click.echo("Found new topics, updating the connector...")
-                    influx_config.update_topics(current_topics, timestamp)
+                    influx_config.update_config(current_topics, timestamp)
                     connect.create_or_update(
                         name=name, connect_config=influx_config.asjson()
                     )

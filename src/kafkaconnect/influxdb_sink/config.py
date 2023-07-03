@@ -48,6 +48,9 @@ class InfluxConfig(ConnectorConfig):
     tags: str
     """Fields to be used as tags."""
 
+    remove_prefix: str
+    """Prefix to remove from topic name to use as measurement name."""
+
     # Attributes with defaults are not configurable via click
     topics: str = ""
     """Comma separated list of Kafka topics to read from."""
@@ -65,8 +68,8 @@ class InfluxConfig(ConnectorConfig):
     )
     """Stream reactor InfluxDB Sink connector class."""
 
-    def update_topics(self, topics: Set[str], timestamp: str = "") -> None:
-        """Update the list of Kafka topics and Influx KCQL queries.
+    def update_config(self, topics: Set[str], timestamp: str = "") -> None:
+        """Update connector config.
 
         Parameters
         ----------
@@ -77,18 +80,24 @@ class InfluxConfig(ConnectorConfig):
             Timestamp used as influxDB time.
         """
         sorted_topics = sorted(topics)
-        if self.tags:
-            queries = [
-                f"INSERT INTO {t} SELECT * FROM {t} WITHTIMESTAMP {timestamp} "
-                f"TIMESTAMPUNIT=MICROSECONDS WITHTAG({self.tags})"
-                for t in sorted_topics
-            ]
-        else:
-            queries = [
-                f"INSERT INTO {t} SELECT * FROM {t} WITHTIMESTAMP {timestamp} "
-                f"TIMESTAMPUNIT=MICROSECONDS"
-                for t in sorted_topics
-            ]
-
         self.topics = ",".join(sorted_topics)
+
+        tags = ""
+        if self.tags:
+            tags = f" WITHTAG({self.tags})"
+
+        queries = []
+        for topic in sorted_topics:
+            if self.remove_prefix:
+                measurement = topic[len(self.remove_prefix) :]
+            else:
+                measurement = topic
+
+            query = (
+                f"INSERT INTO {measurement} SELECT * FROM {topic} "
+                f"WITHTIMESTAMP {timestamp} TIMESTAMPUNIT=MICROSECONDS{tags}"
+            )
+
+            queries.append(query)
+
         self.connect_influx_kcql = ";".join(queries)

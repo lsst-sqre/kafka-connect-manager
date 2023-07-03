@@ -105,8 +105,9 @@ def test_create_or_update() -> None:
         connect_influx_retry_interval="1",
         connect_progress_enabled=True,
         tags="",
+        remove_prefix="",
     )
-    connect_config.update_topics({"t1", "t2", "t3"})
+    connect_config.update_config({"t1", "t2", "t3"})
     result = connect.create_or_update(
         name="influxdb-sink", connect_config=connect_config.asjson()
     )
@@ -129,8 +130,9 @@ def test_validate() -> None:
         connect_influx_retry_interval="1",
         connect_progress_enabled=True,
         tags="",
+        remove_prefix="",
     )
-    connect_config.update_topics({"t1", "t2", "t3"})
+    connect_config.update_config({"t1", "t2", "t3"})
     result = connect.validate(
         name="InfluxSinkConnector", connect_config=connect_config.asjson()
     )

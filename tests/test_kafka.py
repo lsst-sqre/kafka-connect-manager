@@ -103,8 +103,9 @@ def test_integration_broker_connect(
         connect_influx_retry_interval="1",
         connect_progress_enabled=True,
         tags="",
+        remove_prefix="",
     )
-    connect_config.update_topics(t.topic_names_set)
+    connect_config.update_config(t.topic_names_set)
     # Create the connector using the Kafka Connect API
     connect.create_or_update(
         name="influxdb-sink", connect_config=connect_config.asjson()
