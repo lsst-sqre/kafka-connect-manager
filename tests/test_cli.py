@@ -57,7 +57,7 @@ def test_create_influxdb_sink() -> None:
         '"INSERT INTO t1 SELECT * FROM t1 WITHTIMESTAMP sys_time() '
         'TIMESTAMPUNIT=MICROSECONDS"' in result.output
     )
-    # Topics are added by ConnectConfig.update_topics()
+    # Topics are added by ConnectConfig.update_config()
     assert '"topics": "t1"' in result.output
 
 
