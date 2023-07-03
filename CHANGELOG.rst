@@ -2,6 +2,11 @@
 Change log
 ##########
 
+1.3.0 (2023-07-03)
+==================
+
+* Add the --remove-prefix option to rename measurements in the InfluxDB Sink connector
+
 1.2.0 (2023-06-12)
 ==================
 
