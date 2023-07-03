@@ -48,6 +48,9 @@ class InfluxConfig(ConnectorConfig):
     tags: str
     """Fields to be used as tags."""
 
+    remove_prefix: str
+    """Prefix to remove from topic name to use as measurement name."""
+
     # Attributes with defaults are not configurable via click
     topics: str = ""
     """Comma separated list of Kafka topics to read from."""

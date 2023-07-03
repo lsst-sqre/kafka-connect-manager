@@ -219,6 +219,14 @@ from kafkaconnect.topic_names_set import TopicNamesSet
     show_default=True,
     help="Fields in the Avro payload that are treated as InfluxDB tags.",
 )
+@click.option(
+    "--remove-prefix",
+    "remove_prefix",
+    envvar="KAFKA_CONNECT_INFLUXDB_REMOVE_PREFIX",
+    default="",
+    show_default=True,
+    help="Prefix to remove from topic name to use as measurement name.",
+)
 @click.pass_context
 def create_influxdb_sink(
     ctx: click.Context,
@@ -241,6 +249,7 @@ def create_influxdb_sink(
     connect_progress_enabled: str,
     timestamp: str,
     tags: str,
+    remove_prefix: str,
 ) -> int:
     """Create an instance of the InfluxDB Sink connector.
 
@@ -267,6 +276,7 @@ def create_influxdb_sink(
         connect_influx_retry_interval=connect_influx_retry_interval,
         connect_progress_enabled=(connect_progress_enabled == "true"),
         tags=tags,
+        remove_prefix=remove_prefix,
     )
     # The variadic argument is a tuple
     topics: Set[str] = set(topiclist)
