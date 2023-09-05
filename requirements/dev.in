@@ -19,7 +19,7 @@ pre-commit
 pytest
 pytest-docker
 pytest-vcr
-sphinx<7.0.0
+sphinx
 sphinx-automodapi
 sphinx-click
 sphinx-prompt
