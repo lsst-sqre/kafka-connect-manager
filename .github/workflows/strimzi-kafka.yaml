@@ -44,6 +44,11 @@ jobs:
           curl -LO https://github.com/lsst-sqre/stream-reactor/releases/download/Tim/kafka-connect-influxdb-3.0.1-timestampunit.jar
         working-directory: ./strimzi-kafka
 
+      - name: Download the JDBC Sink Connector plugin
+        run: |
+          curl -LO https://s3df.slac.stanford.edu/people/hchiang2/confluentinc-kafka-connect-jdbc-10.7.4.zip
+        working-directory: ./strimzi-kafka
+
       - name: Download and extract Confluent Kafka Connect Avro converter
         run: |
           curl -LO https://github.com/lsst-sqre/stream-reactor/releases/download/Tim/confluentinc-kafka-connect-avro-converter-7.2.0.tar.gz
